@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 class OnBoardingViewmodel  extends ChangeNotifier{
-    List<int?> answers = List.filled(4, null); 
+    List<int?> answers = List.filled(3, null); 
 
-   void compleateOnBoaring(bool onBoardingStatus){
+   List<int?> getAnswers(){
+    return answers;
     
    }
 }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:re_mind/ui/view/home_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class WQuestionWidget extends StatefulWidget {
   final String question;
@@ -9,7 +11,7 @@ class WQuestionWidget extends StatefulWidget {
   final List<int?> answers;
   final Function(int? answer) onAnswerChanged;
 
-  const WQuestionWidget({
+  WQuestionWidget({
     super.key,
     required this.question,
     required this.options,
@@ -37,9 +39,8 @@ class _WQuestionWidgetState extends State<WQuestionWidget> {
 
   @override
   Widget build(BuildContext context) {
-    
+    var deviceWidth = MediaQuery.sizeOf(context).width;
     var deviceHeight = MediaQuery.sizeOf(context).height;
-
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20),
       color: Colors.green,
@@ -57,8 +58,8 @@ class _WQuestionWidgetState extends State<WQuestionWidget> {
             Text(
               widget.description,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                fontWeight: FontWeight.w600,
+              ),
             ),
             SizedBox(height: deviceHeight * .30),
 
@@ -107,23 +108,37 @@ class _WQuestionWidgetState extends State<WQuestionWidget> {
                   elevation: WidgetStatePropertyAll(3),
                   shape: WidgetStatePropertyAll(
                     RoundedRectangleBorder(
+                      
                   borderRadius: BorderRadius.circular(10),
                   side: BorderSide(color: Colors.blue, width: 2),
                     ),
                   )
                 ),
                 onPressed: () {
-                  
+                  bool isLastQuestion = widget.questionIndex == widget.answers.length -1;
+                  if (isLastQuestion) {
+                    _completeOnboarding(context);
+                  }
+
                   widget.pageController.nextPage(
                     duration: Duration(milliseconds: 300),
                     curve: Curves.easeInOut,
                   );
+                  
                 },
                 child: Text("Siguiente"),
               ),
           ],
         ),
       ),
+    );
+  }
+   Future<void> _completeOnboarding(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('hasSeenOnboarding', true);
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => HomeScreen()),
     );
   }
 }

@@ -22,7 +22,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-  var answers = Provider.of<OnBoardingViewmodel>(context).answers;
+  var answers = Provider.of<OnBoardingViewmodel>(context).getAnswers();
 
     return Scaffold(
       backgroundColor: Colors.white70,
