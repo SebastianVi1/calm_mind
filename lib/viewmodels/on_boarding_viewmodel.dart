@@ -5,6 +5,6 @@ class OnBoardingViewmodel  extends ChangeNotifier{
 
    List<int?> getAnswers(){
     return answers;
-    
+
    }
 }

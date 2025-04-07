@@ -6,10 +6,24 @@ abstract class TTextTheme {
     bodyMedium: GoogleFonts.montserrat(
       fontWeight: FontWeight.w500,
     ),
+    bodyLarge: GoogleFonts.montserrat(
+      fontWeight: FontWeight.w500
+    ),
     titleLarge: GoogleFonts.robotoMono(
       
+    ),
+    displayLarge: GoogleFonts.satisfy(
+      fontWeight: FontWeight.w600
+    ),
+    displaySmall: GoogleFonts.montserrat(
+      fontSize: 24,
+      fontWeight: FontWeight.w500,
+      
+    ),
+    labelLarge: GoogleFonts.montserrat(
+      fontWeight: FontWeight.w600,
+      color: Colors.white
     )
-    
   );
   
 }

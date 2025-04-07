@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "611948694857",
+    "project_id": "re-mind-b6cf3",
+    "storage_bucket": "re-mind-b6cf3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:611948694857:android:264ff3cb4b14f0709f5e98",
+        "android_client_info": {
+          "package_name": "com.example.re_mind"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXTFI87ZUM7O7HPxo1hJZFjj8moMHA8G4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
