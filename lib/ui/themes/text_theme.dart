@@ -7,7 +7,7 @@ abstract class TTextTheme {
       fontWeight: FontWeight.w500,
     ),
     bodyLarge: GoogleFonts.montserrat(
-      fontWeight: FontWeight.w500
+      fontWeight: FontWeight.w500,
     ),
     titleLarge: GoogleFonts.robotoMono(
       
