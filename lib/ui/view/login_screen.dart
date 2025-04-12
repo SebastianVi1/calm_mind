@@ -2,9 +2,8 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:re_mind/ui/constants/app_constants.dart';
-import 'package:re_mind/ui/view/home_screen.dart';
+import 'package:re_mind/ui/view/app_wrapper.dart';
 import 'package:re_mind/ui/view/register_screen.dart';
-import 'package:re_mind/ui/widgets/build_background.dart';
 import 'package:re_mind/ui/widgets/build_logo.dart';
 import 'package:re_mind/ui/widgets/text_field.dart';
 import 'package:re_mind/viewmodels/login_view_model.dart';
@@ -41,7 +40,6 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          BuildBackground.backgroundWelcomeScreen(),
           _buildContent(),
         ],
       ),
@@ -58,11 +56,12 @@ class _LoginScreenState extends State<LoginScreen> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             const SizedBox(height: 60),
-            BuildLogo.buildLogo(),
+            WBuildLogo.buildLogo(),
             const SizedBox(height: 30),
             _buildWelcomeText(),
             const SizedBox(height: 30),
             _buildLoginForm(),
+            
             const SizedBox(height: 20),
             _buildLoginButton(),
             const SizedBox(height: 20),
@@ -91,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
             TypewriterAnimatedText(
               AppConstants.loginRequiredText,
               curve: Curves.linear,
-              textStyle: Theme.of(context).textTheme.bodyLarge,
+              textStyle: Theme.of(context).textTheme.bodyMedium,
               speed: Duration(milliseconds: 100),
               cursor: '',
               textAlign: TextAlign.center,
@@ -109,7 +108,8 @@ class _LoginScreenState extends State<LoginScreen> {
       key: _formKey,
       child: Column(
         children: [
-          TextFieldWidget.buildTextField(
+          WBuildTextFieldWidget.buildTextField(
+            context: context,
             controller: _emailController,
             label: AppConstants.emailLabel,
             icon: Icons.email_outlined,
@@ -124,7 +124,8 @@ class _LoginScreenState extends State<LoginScreen> {
             },
           ),
           const SizedBox(height: 20),
-          TextFieldWidget.buildTextField(
+          WBuildTextFieldWidget.buildTextField(
+            context: context,
             controller: _passwordController,
             label: AppConstants.passwordLabel,
             icon: Icons.lock_outline,
@@ -173,9 +174,7 @@ class _LoginScreenState extends State<LoginScreen> {
       children: [
         Text(
           '¿No tienes una cuenta?',
-          style: TextStyle(
-            color: Colors.white,
-          ),
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
         TextButton(
           style: ButtonStyle(padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 5))),
@@ -196,11 +195,12 @@ class _LoginScreenState extends State<LoginScreen> {
         _passwordController.text,
       );
 
-      if (success) {
-        if (mounted) {
-          print('todo salio bien');
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));// Return to previous screen on success
-        }
+      if (success && mounted) {
+        // Navigate to AppWrapper which will handle the appropriate screen based on auth state
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const AppWrapper()),
+        );
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

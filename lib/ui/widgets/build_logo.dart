@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class BuildLogo {
+class WBuildLogo {
   static Widget buildLogo({double? scale}) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),

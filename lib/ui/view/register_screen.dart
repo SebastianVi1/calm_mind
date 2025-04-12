@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:re_mind/ui/view/on_boarding_screen.dart';
-import 'package:re_mind/ui/widgets/build_background.dart';
 import 'package:re_mind/ui/widgets/text_field.dart';
 import 'package:re_mind/viewmodels/login_view_model.dart';
+import 'package:re_mind/ui/view/app_wrapper.dart';
 
 /// Screen that handles user registration
 /// Provides a form for name, email, password, and password confirmation
@@ -24,9 +23,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   
-  /// Loading state for register button
-  final bool _isLoading = false;
-
   /// Cleanup method to dispose of controllers when widget is removed
   @override
   void dispose() {
@@ -44,7 +40,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          BuildBackground.backgroundWelcomeScreen(),
           SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -58,6 +53,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   _buildRegisterForm(),
                   const SizedBox(height: 20),
                   _buildRegisterButton(),
+                  const SizedBox(height: 20),
+                  _googleButton(),
                 ],
               ),
             ),
@@ -95,7 +92,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       key: _formKey,
       child: Column(
         children: [
-          TextFieldWidget.buildTextField(
+          WBuildTextFieldWidget.buildTextField(
+            context: context,
             controller: _nameController,
             label: 'Nombre',
             icon: Icons.person_outline,
@@ -107,7 +105,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
             },
           ),
           const SizedBox(height: 20),
-          TextFieldWidget.buildTextField(
+          WBuildTextFieldWidget.buildTextField(
+            context: context,
             controller: _emailController,
             label: 'Correo electrónico',
             icon: Icons.email_outlined,
@@ -122,7 +121,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
             },
           ),
           const SizedBox(height: 20),
-          TextFieldWidget.buildTextField(
+          WBuildTextFieldWidget.buildTextField(
+            context: context,
             controller: _passwordController,
             label: 'Contraseña',
             icon: Icons.lock_outline,
@@ -138,7 +138,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
             },
           ),
           const SizedBox(height: 20),
-          TextFieldWidget.buildTextField(
+          WBuildTextFieldWidget.buildTextField(
+            context: context,
             controller: _confirmPasswordController,
             label: 'Confirmar contraseña',
             icon: Icons.lock_outline,
@@ -183,24 +184,44 @@ class _RegisterScreenState extends State<RegisterScreen> {
   /// Validates the form and calls the LoginViewModel to register
   void _handleRegister() async {
     if (_formKey.currentState?.validate() ?? false) {
-      final viewModel = context.read<LoginViewModel>();
-      final success = await viewModel.register(
-        _emailController.text,
-        _passwordController.text,
-        _nameController.text,
-      );
-
-      if (success) {
-        if (mounted) {
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => OnBoardingScreen()));
-        }
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(viewModel.error ?? 'Error al registrar usuario'),
-            backgroundColor: Colors.red,
-          ),
+      try {
+        final viewModel = context.read<LoginViewModel>();
+        final success = await viewModel.register(
+          _emailController.text,
+          _passwordController.text,
+          _nameController.text,
         );
+
+        if (success && mounted) {
+          // Clear the form
+          _nameController.clear();
+          _emailController.clear();
+          _passwordController.clear();
+          _confirmPasswordController.clear();
+
+          // Navigate and clear stack
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const AppWrapper()),
+            (route) => false, // Removes all routes
+          );
+        } else if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(viewModel.error ?? 'Error al registrar usuario'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Error inesperado al registrar usuario'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     }
   }

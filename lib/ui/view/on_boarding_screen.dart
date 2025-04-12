@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:re_mind/ui/widgets/build_background.dart';
 import '../../viewmodels/question_view_model.dart';
 import '../widgets/question_widget.dart';
 
@@ -11,7 +10,6 @@ class OnBoardingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Create and provide the ViewModel to the widget tree
     return ChangeNotifierProvider(
       create: (_) => QuestionViewModel(),
       child: Consumer<QuestionViewModel>(
@@ -19,27 +17,22 @@ class OnBoardingScreen extends StatelessWidget {
           return Scaffold(
             body: Stack(
               children: [
-                BuildBackground.backgroundWelcomeScreen(),
                 // Main question widget with background
                 WQuestionWidget(
                   question: viewModel.currentQuestion,
                   selectedAnswer: viewModel.currentAnswer,
                   onAnswerChanged: viewModel.selectAnswer,
                 ),
-                const SizedBox(height: 20,),
+                // Back button for first question
                 if (viewModel.isFirstQuestion)
                   Positioned(
                     top: 20,
-                    
-                    child: ClipRRect(
-                      child: IconButton(
-                        color: Colors.black,
-                        onPressed: () => Navigator.pop(context), 
-                        icon: Icon(Icons.arrow_back_rounded)),
+                    left: 20,
+                    child: IconButton(
+                      icon: const Icon(Icons.arrow_back_rounded),
+                      onPressed: () => Navigator.pop(context),
                     ),
                   ),
-                // Navigation buttons positioned at the bottom
-                
               ],
             ),
           );

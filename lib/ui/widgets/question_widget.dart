@@ -2,7 +2,7 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:re_mind/models/question_model.dart';
 import 'package:re_mind/ui/constants/app_constants.dart';
-import 'package:re_mind/ui/widgets/build_background.dart';
+import 'package:re_mind/ui/view/home_screen.dart';
 import 'package:re_mind/viewmodels/question_view_model.dart';
 import 'package:provider/provider.dart';
 
@@ -35,13 +35,15 @@ class _WQuestionWidgetState extends State<WQuestionWidget> {
     final deviceHeight = MediaQuery.sizeOf(context).height;
     final viewModel = Provider.of<QuestionViewModel>(context);
     
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        BuildBackground.backgroundWelcomeScreen(),
-        _buildContent(deviceHeight),
-        _buildNavigationButtons(viewModel),
-      ],
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          _buildContent(deviceHeight),
+          _buildNavigationButtons(viewModel),
+        ],
+      ),
     );
   }
 
@@ -67,10 +69,16 @@ class _WQuestionWidgetState extends State<WQuestionWidget> {
 
   /// Builds the question text with proper styling
   Widget _buildQuestionText() {
-    return Text(
-      widget.question.question,
-      style: Theme.of(context).textTheme.titleLarge,
-      textAlign: TextAlign.center,
+    return AnimatedDefaultTextStyle(
+      duration: const Duration(milliseconds: 300),
+      style: Theme.of(context).textTheme.displaySmall?.copyWith(
+        color: Theme.of(context).colorScheme.onSurface,
+        fontWeight: FontWeight.bold,
+      ) ?? const TextStyle(),
+      child: Text(
+        widget.question.question,
+        textAlign: TextAlign.center,
+      ),
     );
   }
 
@@ -83,7 +91,9 @@ class _WQuestionWidgetState extends State<WQuestionWidget> {
           widget.question.description,
           speed: AppConstants.textAnimationDuration,
           textAlign: TextAlign.center,
-          textStyle: Theme.of(context).textTheme.bodyLarge,
+          textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.8),
+          ),
         )
       ],
     );
@@ -99,27 +109,38 @@ class _WQuestionWidgetState extends State<WQuestionWidget> {
         final isSelected = widget.selectedAnswer == option;
 
         return Padding(
-          padding: EdgeInsets.symmetric(vertical: AppConstants.optionButtonVerticalMargin),
-          child: Semantics(
-            label: 'Opción ${index + 1}: $option',
-            selected: isSelected,
-            button: true,
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: AppConstants.optionButtonVerticalPadding),
-                  backgroundColor: isSelected 
-                      ? AppConstants.selectedOptionColor 
-                      : AppConstants.unselectedOptionColor,
-                  textStyle: Theme.of(context).textTheme.labelLarge,
-                  elevation: 7,
-                  minimumSize: Size(double.infinity, AppConstants.optionButtonHeight),
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => widget.onAnswerChanged(option),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: isSelected 
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.surface,
+                foregroundColor: isSelected
+                  ? Theme.of(context).colorScheme.onPrimary
+                  : Theme.of(context).colorScheme.onSurface,
+                elevation: isSelected ? 4 : 2,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(
+                    color: isSelected
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                    width: isSelected ? 2 : 1,
+                  ),
                 ),
-                onPressed: () => widget.onAnswerChanged(option),
+              ),
+              child: AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 300),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ) ?? const TextStyle(),
                 child: Text(
                   option,
-                  style: Theme.of(context).textTheme.labelLarge,
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),
@@ -129,33 +150,123 @@ class _WQuestionWidgetState extends State<WQuestionWidget> {
     );
   }
 
-  /// Builds the navigation buttons positioned at the bottom
+  /// Builds the navigation buttons (previous and next)
   Widget _buildNavigationButtons(QuestionViewModel viewModel) {
     return Positioned(
       bottom: 20,
-      left: 16,
-      right: 16,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          if (!viewModel.isFirstQuestion)
-            ElevatedButton(
-              onPressed: viewModel.previousQuestion,
-              child: const Text('Previous'),
-            ),
-          if (viewModel.hasAnsweredCurrentQuestion && !viewModel.isLastQuestion)
-            ElevatedButton(
-              onPressed: viewModel.nextQuestion,
-              child: const Text('Next'),
-            ),
-          if (viewModel.hasAnsweredCurrentQuestion && viewModel.isLastQuestion)
-            ElevatedButton(
-              onPressed: () {
-                print('Final answers: ${viewModel.answers}');
-              },
-              child: const Text('Finish'),
-            ),
-        ],
+      left: 0,
+      right: 0,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppConstants.contentHorizontalPadding),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Previous button
+            if (!viewModel.isFirstQuestion)
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: ElevatedButton(
+                    onPressed: () => viewModel.previousQuestion(),
+                    style: ButtonStyle(
+                      
+                      padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 32, vertical: 16)),
+                      
+                      
+                      elevation: WidgetStateProperty.all(0),
+                      minimumSize: WidgetStateProperty.all(const Size(120, 48)),
+                      textStyle: WidgetStateProperty.all(
+                        const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    child: const Text('Anterior'),
+                  ),
+                ),
+              ),
+            // Next button
+            if (viewModel.hasAnsweredCurrentQuestion && !viewModel.isLastQuestion)
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: ElevatedButton(
+                    onPressed: () => viewModel.nextQuestion(),
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStateProperty.all(const Color(0xFF1A1A1A)),
+                      foregroundColor: WidgetStateProperty.all(Colors.white),
+                      padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 32, vertical: 16)),
+                      shape: WidgetStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      elevation: WidgetStateProperty.all(0),
+                      minimumSize: WidgetStateProperty.all(const Size(120, 48)),
+                      textStyle: WidgetStateProperty.all(
+                        const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    child: const Text('Siguiente'),
+                  ),
+                ),
+              ),
+            // Finish button (only on last question)
+            if (viewModel.isLastQuestion && viewModel.hasAnsweredCurrentQuestion)
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      try {
+                        await viewModel.saveAnswers();
+                        if (context.mounted) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const HomeScreen(),
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(e.toString()),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStateProperty.all(const Color(0xFF1A1A1A)),
+                      foregroundColor: WidgetStateProperty.all(Colors.white),
+                      padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 32, vertical: 16)),
+                      shape: WidgetStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      elevation: WidgetStateProperty.all(0),
+                      minimumSize: WidgetStateProperty.all(const Size(120, 48)),
+                      textStyle: WidgetStateProperty.all(
+                        const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    child: const Text('Finalizar'),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

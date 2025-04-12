@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:re_mind/ui/constants/app_constants.dart';
 
 class BuildBackground {
-  static Widget backgroundWelcomeScreen() {
+  static Widget backgroundWelcomeScreen(String imagePath) {
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage(AppConstants.backgroundImagePath),
+          image: AssetImage(imagePath),
           fit: BoxFit.cover,
         ),
       ),

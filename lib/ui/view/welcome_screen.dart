@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:re_mind/ui/constants/app_constants.dart';
 import 'package:re_mind/ui/view/login_screen.dart';
 import 'package:re_mind/ui/view/on_boarding_screen.dart';
-import 'package:re_mind/ui/widgets/build_background.dart';
+
 import 'package:re_mind/ui/widgets/build_logo.dart';
 
 class WelcomeScreen extends StatelessWidget {
@@ -18,15 +18,14 @@ class WelcomeScreen extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            BuildBackground.backgroundWelcomeScreen(),
             Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 
-                const SizedBox(height: 20,),
+                const SizedBox(height: 30,),
                 _buildTitle(context),
                 const SizedBox(height: 40,),
-                BuildLogo.buildLogo(),
+                WBuildLogo.buildLogo(),
                 const SizedBox(height: 20,),
                 _buildSlogan(context),
                 const SizedBox(height: 50),
@@ -46,7 +45,9 @@ class WelcomeScreen extends StatelessWidget {
     children: [
       Text(
             AppConstants.appName,
-            style: Theme.of(context).textTheme.displayLarge,
+            style: Theme.of(context).textTheme.displayLarge?.copyWith(
+              fontSize: 40
+            ),
             )
         ],
       );

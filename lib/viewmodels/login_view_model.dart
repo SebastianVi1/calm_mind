@@ -109,6 +109,9 @@ class LoginViewModel extends ChangeNotifier {
       final user = await _authService.createUserWithEmailAndPassword(email, password);
       
       if (user != null) {
+        // Update the user's display name
+        await FirebaseAuth.instance.currentUser?.updateDisplayName(name);
+        
         _state = _state.copyWith(
           status: AuthStatus.authenticated,
           user: user,
