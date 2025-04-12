@@ -1,10 +1,13 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:re_mind/ui/constants/app_constants.dart';
+import 'package:re_mind/ui/view/home_screen.dart';
 import 'package:re_mind/ui/view/register_screen.dart';
 import 'package:re_mind/ui/widgets/build_background.dart';
 import 'package:re_mind/ui/widgets/build_logo.dart';
 import 'package:re_mind/ui/widgets/text_field.dart';
+import 'package:re_mind/viewmodels/login_view_model.dart';
 
 /// Screen that handles user authentication
 /// Provides a form for email and password input with validation
@@ -23,9 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   
-  /// Loading state for login button
-  bool _isLoading = false;
-
+  /// Cleanup method to dispose of controllers when widget is removed
   @override
   void dispose() {
     _emailController.dispose();
@@ -33,6 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  /// Builds the main scaffold with background and content
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,6 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   /// Builds the main content of the login screen
+  /// Includes logo, welcome text, login form, and registration link
   Widget _buildContent() {
     return SingleChildScrollView(
       child: Padding(
@@ -71,6 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   /// Builds the welcome text with animation
+  /// Displays a static welcome message and an animated login prompt
   Widget _buildWelcomeText() {
     return Column(
       children: [
@@ -99,6 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   /// Builds the login form with email and password fields
+  /// Includes validation for both fields
   Widget _buildLoginForm() {
     return Form(
       key: _formKey,
@@ -139,53 +144,71 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  /// Builds a reusable text field with custom styling
-  
-
   /// Builds the login button with loading state
   Widget _buildLoginButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 50,
-      child: ElevatedButton(
-        onPressed: (){
-          _handleLogin();
-        },
-        
-        child: Text(
-          'Iniciar sesión',
-          style: Theme.of(context).textTheme.labelLarge,
-        ),
-      ),
+    return Consumer<LoginViewModel>(
+      builder: (context, viewModel, child) {
+        return SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: ElevatedButton(
+            onPressed: viewModel.isLoading ? null : _handleLogin,
+            child: viewModel.isLoading
+                ? const CircularProgressIndicator(color: Colors.white)
+                : Text(
+                    'Iniciar sesión',
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+          ),
+        );
+      },
     );
   }
 
   /// Builds the registration link
+  /// Provides navigation to the registration screen
   Widget _buildRegisterLink() {
-    return  Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            '¿No tienes una cuenta?',
-            style: TextStyle(
-              color: Colors.white,
-              
-            ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          '¿No tienes una cuenta?',
+          style: TextStyle(
+            color: Colors.white,
           ),
-          TextButton(
-            style: ButtonStyle(padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 5))),
-            child: Text('Registrate'),
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterScreen())),
-          ),
-        ],
+        ),
+        TextButton(
+          style: ButtonStyle(padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 5))),
+          child: Text('Registrate'),
+          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterScreen())),
+        ),
+      ],
     );
   }
-  void _handleLogin() {
+
+  /// Handles the login process
+  /// Validates the form and calls the LoginViewModel to sign in
+  void _handleLogin() async {
     if (_formKey.currentState?.validate() ?? false) {
-      setState(() => _isLoading = true);
-      // TODO: implement login logic
-      // Aquí iría la lógica de inicio de sesión
-      // Por ejemplo: authService.login(...)
+      final viewModel = context.read<LoginViewModel>();
+      final success = await viewModel.login(
+        _emailController.text,
+        _passwordController.text,
+      );
+
+      if (success) {
+        if (mounted) {
+          print('todo salio bien');
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));// Return to previous screen on success
+        }
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(viewModel.error ?? 'Error al iniciar sesión'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 }
