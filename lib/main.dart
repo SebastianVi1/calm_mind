@@ -10,14 +10,18 @@ import 'package:re_mind/ui/themes/theme_config.dart';
 import 'package:re_mind/ui/view/app_wrapper.dart';
 import 'package:re_mind/viewmodels/auth_view_model.dart';
 import 'package:re_mind/viewmodels/login_view_model.dart';
+import 'package:re_mind/viewmodels/navigation_view_model.dart';
 import 'package:re_mind/viewmodels/on_boarding_viewmodel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 Future<void> main() async {
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized();
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
+  bool useSystemTheme = prefs.getBool('useSystemTheme') ?? true;
   bool isDarkMode = prefs.getBool('isDarkMode') ?? false;
   
   await Firebase.initializeApp(
@@ -25,6 +29,7 @@ Future<void> main() async {
   );
   runApp(MainApp(
     hasSeenOnboarding: hasSeenOnboarding,
+    useSystemTheme: useSystemTheme,
     isDarkMode: isDarkMode,
   ));
 }
@@ -33,10 +38,12 @@ class MainApp extends StatefulWidget {
   const MainApp({
     super.key, 
     required this.hasSeenOnboarding,
+    required this.useSystemTheme,
     required this.isDarkMode,
   });
   
   final bool hasSeenOnboarding;
+  final bool useSystemTheme;
   final bool isDarkMode;
 
   @override
@@ -44,20 +51,38 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
+  late bool _useSystemTheme;
   late bool _isDarkMode;
   
   @override
   void initState() {
+    
     super.initState();
+    initializeSplash();
+    _useSystemTheme = widget.useSystemTheme;
     _isDarkMode = widget.isDarkMode;
+  }
+  void initializeSplash() async{
+    await Future.delayed(const Duration(seconds: 2));
+    FlutterNativeSplash.remove();
   }
 
   void toggleTheme() async {
     setState(() {
+      _useSystemTheme = false;
       _isDarkMode = !_isDarkMode;
     });
     final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('useSystemTheme', _useSystemTheme);
     await prefs.setBool('isDarkMode', _isDarkMode);
+  }
+
+  void useSystemTheme() async {
+    setState(() {
+      _useSystemTheme = true;
+    });
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('useSystemTheme', _useSystemTheme);
   }
 
   @override
@@ -81,12 +106,15 @@ class _MainAppState extends State<MainApp> {
             context.read<IAuthService>(),
           ),
         ),
+        ChangeNotifierProvider(
+          create: (context) => NavigationViewModel(),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: Themes.lightTheme,
         darkTheme: Themes.darkTheme,
-        themeMode: ThemeMode.system,
+        themeMode: _useSystemTheme ? ThemeMode.system : (_isDarkMode ? ThemeMode.dark : ThemeMode.light),
         title: 'ReMind',
         home: const AppWrapper(),
       ),

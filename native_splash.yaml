@@ -1,0 +1,10 @@
+flutter_native_splash:
+  android: true
+  ios: true
+
+  color: "4A6FA5"
+  image: "assets/images/remind_logo.jpg"
+
+  android_12:
+    color: "4A6FA5"
+    image: "assets/images/remind_logo.jpg"

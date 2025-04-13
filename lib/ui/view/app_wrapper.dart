@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:re_mind/models/auth/auth_state.dart';
 import 'package:re_mind/services/user_service.dart';
-import 'package:re_mind/ui/view/home_screen.dart';
+import 'package:re_mind/ui/view/main_screen.dart';
 import 'package:re_mind/ui/view/on_boarding_screen.dart';
 import 'package:re_mind/ui/view/welcome_screen.dart';
 import 'package:re_mind/viewmodels/auth_view_model.dart';
@@ -121,7 +121,7 @@ class _AppWrapperState extends State<AppWrapper> {
         );
         return shouldPop ?? false;
       },
-      child: const HomeScreen(),
+      child: const MainScreen(),
     );
   }
 } 
