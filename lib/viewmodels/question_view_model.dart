@@ -12,19 +12,19 @@ class QuestionViewModel extends ChangeNotifier {
   /// Each question has text, description, and multiple choice options
   final List<QuestionModel> questions = [
     QuestionModel(
-      question: '¿Cuál es tu nombre?',
-      options: ['Juan', 'María', 'Pedro', 'Ana'],
-      description: 'Descripción de la pregunta 1',
+      question: '¿Como te sientes ultimamente',
+      options: ['Muy mal', 'Mal', 'Regular', 'Feliz', 'Muy feliz'],
+      description: 'Aveces lo unico que necesitas es un poco de ayuda',
     ),
     QuestionModel(
       question: '¿Cuál es tu edad?',
       options: ['18-25', '26-35', '36-45', '46+'],
-      description: 'Descripción de la pregunta 2',
+      description: 'Es necesario saber tu edad para poder ayudarte',
     ),
     QuestionModel(
-      question: '¿Cuál es tu nivel de educación?',
-      options: ['Primaria', 'Secundaria', 'Universidad', 'Postgrado'],
-      description: 'Descripción de la pregunta 3',
+      question: 'Crees que eres una persona de confianza?',
+      options: ['Si', 'No'],
+      description: 'La seguridad en nosotros mismos es muy importante',
     ),
   ];
 

@@ -6,12 +6,14 @@ import 'package:re_mind/firebase_options.dart';
 import 'package:re_mind/services/auth/i_auth_service.dart';
 import 'package:re_mind/services/auth/firebase_auth_service.dart';
 import 'package:re_mind/services/user_service.dart';
+import 'package:re_mind/services/deepseek_service.dart';
 import 'package:re_mind/ui/themes/theme_config.dart';
 import 'package:re_mind/ui/view/app_wrapper.dart';
 import 'package:re_mind/viewmodels/auth_view_model.dart';
 import 'package:re_mind/viewmodels/login_view_model.dart';
 import 'package:re_mind/viewmodels/navigation_view_model.dart';
 import 'package:re_mind/viewmodels/on_boarding_viewmodel.dart';
+import 'package:re_mind/viewmodels/chat_view_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 Future<void> main() async {
@@ -95,6 +97,9 @@ class _MainAppState extends State<MainApp> {
         Provider<UserService>(
           create: (_) => UserService(),
         ),
+        Provider<DeepSeekService>(
+          create: (_) => DeepSeekService(),
+        ),
         ChangeNotifierProvider(create: (context) => OnBoardingViewmodel()),
         ChangeNotifierProvider(
           create: (context) => AuthViewModel(
@@ -108,6 +113,11 @@ class _MainAppState extends State<MainApp> {
         ),
         ChangeNotifierProvider(
           create: (context) => NavigationViewModel(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ChatViewModel(
+            context.read<DeepSeekService>(),
+          ),
         ),
       ],
       child: MaterialApp(
