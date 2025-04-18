@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:re_mind/ui/view/profile_page.dart';
 import 'package:re_mind/ui/view/therapy_page.dart';
 import 'package:re_mind/ui/view/home_page.dart';
 import 'package:re_mind/ui/view/tips_page.dart';
@@ -17,6 +18,8 @@ class MainScreen extends StatelessWidget {
           const HomePage(),
           const TherapyPage(),
           const TipsPage(),
+          ProfilePage(),
+
         ];
 
         return Scaffold(
@@ -57,6 +60,12 @@ class MainScreen extends StatelessWidget {
                 selectedIcon: const Icon(Icons.lightbulb),
                 label: 'Consejos',
                 tooltip: 'Consejos generales para salud mental',
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.person_outline),
+                selectedIcon: const Icon(Icons.person),
+                label: 'Perfil',
+                tooltip: 'Perfil de usuario',
               ),
             ],
           ),

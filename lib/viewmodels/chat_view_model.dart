@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
-import 'package:uuid/uuid.dart';
+
 import 'package:re_mind/models/chat_message.dart';
 import 'package:re_mind/models/user_model.dart';
+import 'package:uuid/uuid.dart';
 import '../services/deepseek_service.dart';
 import 'dart:async';
 

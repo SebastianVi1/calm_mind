@@ -26,10 +26,12 @@ class Themes {
   static const Color darkOnSurface = Color(0xFFE0E0E0);
   static const Color darkOnError = Color(0xFF000000);
 
+  
   static final lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
     colorScheme: ColorScheme.light(
+      
       primary: lightPrimary,
       secondary: lightSecondary,
       background: lightBackground,

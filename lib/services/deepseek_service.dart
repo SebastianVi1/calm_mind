@@ -170,6 +170,7 @@ Recuerda que tu objetivo principal es proporcionar apoyo emocional y herramienta
     }
   }
 
+
   /// Legacy method for non-streaming responses
   Future<String> sendMessage(String message, {String? systemMessage}) async {
     if (!_isInitialized) {
@@ -202,6 +203,39 @@ Recuerda que tu objetivo principal es proporcionar apoyo emocional y herramienta
       return data['choices'][0]['message']['content'];
     } else {
       throw Exception('Failed to get response from DeepSeek API: ${response.body}');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> generateTips() async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/chat/completions'),
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Authorization': 'Bearer $_apiKey',
+      },
+      body: jsonEncode({
+        'model': 'deepseek-chat',
+        'messages': [
+          {'role': 'system', 'content': _defaultSystemMessage}, 
+          {'role': 'user', 'content': 'Genera 5 tips de bienestar en formato JSON, con id,title,content y category'}
+        ],
+        'stream': false,
+        'temperature': 0.7,
+        'max_tokens': 1000,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(utf8.decode(response.bodyBytes));
+      final content = data['choices'][0]['message']['content'];
+      try {
+        final tips = jsonDecode(content);
+        return tips.map((tip) => tip.cast<String, dynamic>()).toList();
+      } catch (e) {
+        throw Exception('Failed to parse tips: $e');
+      }
+    } else {
+      throw Exception('Failed to generate tips: ${response.body}');
     }
   }
 } 

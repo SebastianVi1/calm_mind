@@ -14,8 +14,10 @@ import 'package:re_mind/viewmodels/login_view_model.dart';
 import 'package:re_mind/viewmodels/navigation_view_model.dart';
 import 'package:re_mind/viewmodels/on_boarding_viewmodel.dart';
 import 'package:re_mind/viewmodels/chat_view_model.dart';
+import 'package:re_mind/viewmodels/user_view_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:re_mind/viewmodels/tips_view_model.dart';
 Future<void> main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
@@ -29,6 +31,7 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform
   );
+  
   runApp(MainApp(
     hasSeenOnboarding: hasSeenOnboarding,
     useSystemTheme: useSystemTheme,
@@ -91,6 +94,9 @@ class _MainAppState extends State<MainApp> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider<UserViewModel>(
+          create: (_) => UserViewModel(),
+        ),
         Provider<IAuthService>(
           create: (_) => FirebaseAuthService(),
         ),
@@ -118,6 +124,9 @@ class _MainAppState extends State<MainApp> {
           create: (context) => ChatViewModel(
             context.read<DeepSeekService>(),
           ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => TipsViewModel()..loadTips(),
         ),
       ],
       child: MaterialApp(

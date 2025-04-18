@@ -59,7 +59,7 @@ class _WQuestionWidgetState extends State<WQuestionWidget> {
             _buildQuestionText(),
             SizedBox(height: AppConstants.topSpacing),
             _buildDescriptionText(),
-            SizedBox(height: deviceHeight * AppConstants.optionsSpacing),
+            const SizedBox(height: 30),
             _buildOptions(),
           ],
         ),
