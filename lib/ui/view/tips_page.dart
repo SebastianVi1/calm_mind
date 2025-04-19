@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:re_mind/ui/view/favorite_tips.dart';
 import 'package:re_mind/viewmodels/tips_view_model.dart';
 
 class TipsPage extends StatelessWidget {
@@ -9,71 +10,28 @@ class TipsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-
+    
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Consejos',
+          style: theme.textTheme.titleLarge,
+          ),
+          actions: [
+            IconButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => FavoriteTipsPage()));
+              },
+              icon: const Icon(Icons.favorite),
+            ),
+          ],
+        ),
+      
       body: SafeArea(
         child: Column(
           children: [
             // Header con gradiente y animación de entrada
-            TweenAnimationBuilder<double>(
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.easeOutCubic,
-              tween: Tween(begin: 0.0, end: 1.0),
-              builder: (context, value, child) {
-                return Transform.translate(
-                  offset: Offset(0, -50 * (1 - value)),
-                  child: Opacity(
-                    opacity: value,
-                    child: Container(
-                      
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primary,
-                        ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Container(
-                                
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: colorScheme.onPrimary.withOpacity(0.2),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  Icons.lightbulb_outline,
-                                  color: colorScheme.onPrimary,
-                                  size: 28,
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Text(
-                                'Tips de Bienestar',
-                                style: theme.textTheme.titleLarge?.copyWith(
-                                  color: colorScheme.onPrimary,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Descubre consejos para mejorar tu bienestar',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: colorScheme.onPrimary.withOpacity(0.9),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
+            
             // Lista de tips
             Expanded(
               child: Consumer<TipsViewModel>(
@@ -139,7 +97,7 @@ class TipsPage extends StatelessWidget {
                     itemCount: viewModel.tips.length,
                     itemBuilder: (context, index) {
                       final tip = viewModel.tips[index];
-                      return _AnimatedTipCard(
+                      return AnimatedTipCard(
                         title: tip.title,
                         content: tip.content,
                         category: tip.category,
@@ -159,7 +117,7 @@ class TipsPage extends StatelessWidget {
   }
 }
 
-class _AnimatedTipCard extends StatelessWidget {
+class AnimatedTipCard extends StatefulWidget {
   final String title;
   final String content;
   final String category;
@@ -167,7 +125,8 @@ class _AnimatedTipCard extends StatelessWidget {
   final bool isFavorite;
   final int index;
 
-  const _AnimatedTipCard({
+  const AnimatedTipCard({
+    super.key,
     required this.title,
     required this.content,
     required this.category,
@@ -177,25 +136,57 @@ class _AnimatedTipCard extends StatelessWidget {
   });
 
   @override
+  State<AnimatedTipCard> createState() => _AnimatedTipCardState();
+}
+
+class _AnimatedTipCardState extends State<AnimatedTipCard> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _animation;
+  static const _staggeredDelay = 50; // Reducido de 30 a 50ms para menos animaciones simultáneas
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: Duration(milliseconds: 300 + (widget.index * _staggeredDelay).clamp(0, 300)),
+      vsync: this,
+    );
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutCubic,
+    );
+    // Usar un Future para evitar animaciones simultáneas
+    Future.delayed(Duration(milliseconds: widget.index * _staggeredDelay), () {
+      if (mounted) {
+        _controller.forward();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return TweenAnimationBuilder<double>(
-      duration: Duration(milliseconds: 400 + (index * 50)),
-      curve: Curves.easeOutCubic,
-      tween: Tween(begin: 0.0, end: 1.0),
-      builder: (context, value, child) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
         return Transform.translate(
-          offset: Offset(100 * (1 - value), 0),
+          offset: Offset(100 * (1 - _animation.value), 0),
           child: Opacity(
-            opacity: value,
+            opacity: _animation.value,
             child: _TipCard(
-              title: title,
-              content: content,
-              category: category,
-              onTap: onTap,
-              isFavorite: isFavorite,
+              title: widget.title,
+              content: widget.content,
+              category: widget.category,
+              onTap: widget.onTap,
+              isFavorite: widget.isFavorite,
             ),
           ),
         );
@@ -260,7 +251,7 @@ class _TipCard extends StatelessWidget {
                   ),
                   const Spacer(),
                   // Botón de favorito con animación mejorada
-                  _FavoriteButton(
+                  FavoriteButton(
                     isFavorite: isFavorite,
                     onTap: onTap,
                   ),
@@ -292,31 +283,33 @@ class _TipCard extends StatelessWidget {
   }
 }
 
-class _FavoriteButton extends StatefulWidget {
+class FavoriteButton extends StatefulWidget {
   final bool isFavorite;
   final VoidCallback onTap;
 
-  const _FavoriteButton({
+  const FavoriteButton({
+    super.key,
     required this.isFavorite,
     required this.onTap,
   });
 
   @override
-  State<_FavoriteButton> createState() => _FavoriteButtonState();
+  State<FavoriteButton> createState() => _FavoriteButtonState();
 }
 
-class _FavoriteButtonState extends State<_FavoriteButton> with SingleTickerProviderStateMixin {
+class _FavoriteButtonState extends State<FavoriteButton> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
+  static const _animationDuration = 150; // Reducido de 200 a 150ms
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: _animationDuration),
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.3).animate(
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.2).animate( // Reducido de 1.3 a 1.2
       CurvedAnimation(
         parent: _controller,
         curve: Curves.easeOutBack,
@@ -324,15 +317,11 @@ class _FavoriteButtonState extends State<_FavoriteButton> with SingleTickerProvi
     );
   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _handleTap() {
-    _controller.forward().then((_) => _controller.reverse());
-    widget.onTap();
+  void handleTap() {
+    if (!_controller.isAnimating) { // Evitar animaciones superpuestas
+      _controller.forward().then((_) => _controller.reverse());
+      widget.onTap();
+    }
   }
 
   @override
@@ -341,7 +330,7 @@ class _FavoriteButtonState extends State<_FavoriteButton> with SingleTickerProvi
     final colorScheme = theme.colorScheme;
 
     return GestureDetector(
-      onTap: _handleTap,
+      onTap: handleTap,
       child: AnimatedBuilder(
         animation: _scaleAnimation,
         builder: (context, child) {
