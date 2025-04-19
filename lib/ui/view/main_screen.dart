@@ -5,15 +5,19 @@ import 'package:re_mind/ui/view/therapy_page.dart';
 import 'package:re_mind/ui/view/home_page.dart';
 import 'package:re_mind/ui/view/tips_page.dart';
 import 'package:re_mind/viewmodels/navigation_view_model.dart';
+import 'package:re_mind/viewmodels/user_view_model.dart';
 
 class MainScreen extends StatelessWidget {
-  const MainScreen({super.key});
+  const MainScreen({
+    super.key
+    });
 
   @override
   Widget build(BuildContext context) {
     return Consumer<NavigationViewModel>(
       builder: (context, navigationViewModel, child) {
         // Lista de páginas correspondientes a cada tab
+        
         final List<Widget> pages = [
           const HomePage(),
           const TherapyPage(),

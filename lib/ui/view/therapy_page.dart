@@ -1,7 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:re_mind/models/auth/auth_state.dart';
 import 'package:re_mind/models/chat_message.dart';
+import 'package:re_mind/models/user_model.dart';
 import 'package:re_mind/viewmodels/chat_view_model.dart';
+import 'package:re_mind/viewmodels/user_view_model.dart';
 
 class TherapyPage extends StatelessWidget {
   const TherapyPage({super.key});
@@ -41,7 +45,6 @@ class _ChatHeader extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline),
-            tooltip: 'Clear chat',
             onPressed: () => _showClearConfirmation(context),
           ),
         ],
@@ -53,8 +56,8 @@ class _ChatHeader extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Clear chat'),
-        content: const Text('Are you sure you want to clear the chat history?'),
+        title: const Text('Borrar historial'),
+        content: const Text('Seguro que quieres borrar el historial del chat?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -82,7 +85,7 @@ class _MessageList extends StatelessWidget {
       builder: (context, viewModel, child) {
         if (viewModel.messages.isEmpty) {
           return const Center(
-            child: Text('No messages yet'),
+            child: Text('No hay mensajes aun'),
           );
         }
 
@@ -210,7 +213,11 @@ class _MessageInputState extends State<_MessageInput> {
                     style: const TextStyle(fontSize: 24),
                   )
                 : const Icon(Icons.send_rounded),
-            onPressed: viewModel.isLoading ? null : () => _sendMessage(viewModel),
+            onPressed: viewModel.isLoading ? null : (){
+              
+              _sendMessage(viewModel);
+              
+            },
             tooltip: 'Send message',
           ),
         ],

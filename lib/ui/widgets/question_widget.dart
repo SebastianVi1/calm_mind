@@ -36,6 +36,7 @@ class _WQuestionWidgetState extends State<WQuestionWidget> {
     final viewModel = Provider.of<QuestionViewModel>(context);
     
     return AnimatedContainer(
+      curve: Curves.decelerate,
       duration: const Duration(milliseconds: 300),
       child: Stack(
         fit: StackFit.expand,

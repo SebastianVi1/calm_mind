@@ -26,6 +26,10 @@ class UserModel {
   /// Used to determine if we need to show the onboarding screen
   final bool hasCompletedQuestions;
 
+  static const int maxPhotoSize = 1000000; // 1MB
+  static const int maxDisplayNameLength = 50;
+  static const int maxQuestionAnswers = 10;
+
   /// Constructor for creating a new UserModel
   /// [uid] is required, other fields are optional
   /// [hasCompletedQuestions] defaults to false
@@ -36,7 +40,36 @@ class UserModel {
     this.photoURL,
     this.questionAnswers,
     this.hasCompletedQuestions = false,
-  });
+  }) {
+    _validate();
+  }
+
+  void _validate() {
+    if (uid.isEmpty) {
+      throw ArgumentError('UID cannot be empty');
+    }
+
+    if (displayName != null && displayName!.length > maxDisplayNameLength) {
+      throw ArgumentError('Display name cannot exceed $maxDisplayNameLength characters');
+    }
+
+    if (email != null && !_isValidEmail(email!)) {
+      throw ArgumentError('Invalid email format');
+    }
+
+    if (photoURL != null && photoURL!.length > maxPhotoSize) {
+      throw ArgumentError('Photo URL exceeds maximum size of $maxPhotoSize bytes');
+    }
+
+    if (questionAnswers != null && questionAnswers!.length > maxQuestionAnswers) {
+      throw ArgumentError('Cannot have more than $maxQuestionAnswers question answers');
+    }
+  }
+
+  bool _isValidEmail(String email) {
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    return emailRegex.hasMatch(email);
+  }
 
   /// Factory constructor to create a UserModel from a Firebase User
   /// Converts Firebase User data to our application's UserModel

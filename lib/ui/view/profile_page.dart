@@ -7,6 +7,7 @@ import 'package:re_mind/viewmodels/user_view_model.dart';
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
+  
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
@@ -17,6 +18,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final viewModel = Provider.of<UserViewModel>(context);
     final user = viewModel.currentUser;
 
+    
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -49,6 +51,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   style: const TextStyle(color: Colors.red),
                 ),
               ),
+             
           ],
         ),
       ),
@@ -57,7 +60,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildProfileImage(BuildContext context, UserViewModel viewModel) {
     return GestureDetector(
-      onTap: viewModel.pickImageFromGallery,
+      onTap: (){
+        viewModel.pickImageFromGallery().then((file) => viewModel.updateProfilePicture(file));
+      },
       child: Container(
         width: 100,
         height: 100,

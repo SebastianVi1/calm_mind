@@ -1,17 +1,19 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:re_mind/models/user_model.dart';
 import 'package:re_mind/services/user_service.dart';
+import 'package:image/image.dart' as img;
 
 /// ViewModel responsible for managing user-related functionality
 /// Handles user profile data, including profile picture management
 /// Implements ChangeNotifier to notify listeners of state changes
 class UserViewModel extends ChangeNotifier {
   /// User model instance containing user data
-  final UserModel _userModel = UserModel(uid: FirebaseAuth.instance.currentUser!.uid);
+  UserModel _userModel;
   
   /// Service for handling user data persistence
   final UserService _userService = UserService();
@@ -25,6 +27,26 @@ class UserViewModel extends ChangeNotifier {
   /// Error message if any operation fails
   String? _error;
 
+  UserViewModel() : _userModel = UserModel(uid: FirebaseAuth.instance.currentUser?.uid ?? '') {
+    _initializeUser();
+  }
+
+  Future<void> _initializeUser() async {
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser != null) {
+        final userData = await _userService.getUserData(currentUser.uid);
+        if (userData != null) {
+          _userModel = userData;
+          notifyListeners();
+        }
+      }
+    } catch (e) {
+      _error = 'Error initializing user data: $e';
+      notifyListeners();
+    }
+  }
+
   // Getters for accessing private state
   String? get photoURL => _userModel.photoURL;
   File? get selectedImage => _selectedImage;
@@ -35,45 +57,65 @@ class UserViewModel extends ChangeNotifier {
   /// Opens the device's image picker to select a profile picture
   /// Converts the selected image to base64 and updates the user's profile
   /// Handles errors during the selection process
-  Future<void> pickImageFromGallery() async {
+  Future<File?> pickImageFromGallery() async {
     try {
       final returnedImage = await ImagePicker().pickImage(source: ImageSource.gallery);
       if (returnedImage != null) {
         _selectedImage = File(returnedImage.path);
-        await _updateProfilePicture();
+        
         notifyListeners();
+        return _selectedImage;
       }
+      
     } catch (e) {
       _error = 'Error al seleccionar la imagen: $e';
       notifyListeners();
     }
+    return null;
   }
 
   /// Updates the user's profile picture in Firestore
   /// Converts the selected image to base64 format
   /// Manages loading state and error handling
-  Future<void> _updateProfilePicture() async {
-    if (_selectedImage == null) return;
+  Future<void> updateProfilePicture(File? file) async {
+    if (file == null) return;
 
     try {
       _isLoading = true;
       _error = null;
       notifyListeners();
 
-      // Convert image to base64 for storage
-      List<int> imageBytes = await _selectedImage!.readAsBytes();
-      String base64Image = base64Encode(imageBytes);
+      Uint8List imageBytes = await file.readAsBytes();
       
-      // Update user model with new photo URL
-      _userModel.copyWith(photoURL: base64Image);
+      img.Image? image = img.decodeImage(imageBytes);
+      if (image == null) {
+        throw Exception('Could not decode image');
+      }
+
+      int maxDimension = 800;
+      if (image.width > maxDimension || image.height > maxDimension) {
+        if (image.width > image.height) {
+          image = img.copyResize(image, width: maxDimension);
+        } else {
+          image = img.copyResize(image, height: maxDimension);
+        }
+      }
+
+      Uint8List compressedBytes = Uint8List.fromList(img.encodeJpg(image, quality: 85));
       
-      // Persist changes to Firestore
+      if (compressedBytes.length > 1000000) {
+        throw Exception('Image is too large even after compression. Please try a smaller image.');
+      }
+
+      String base64Image = base64Encode(compressedBytes);
+      
+      _userModel = _userModel.copyWith(photoURL: base64Image);
       await _userService.saveUserData(_userModel);
       
       _isLoading = false;
       notifyListeners();
     } catch (e) {
-      _error = 'Error al actualizar la foto de perfil: $e';
+      _error = 'Error updating profile picture: $e';
       _isLoading = false;
       notifyListeners();
     }
@@ -96,6 +138,40 @@ class UserViewModel extends ChangeNotifier {
       }
     }
     return const AssetImage('assets/images/blank_profile_picture.webp');
+  }
+
+  Future<void> updateUserInfo() async {
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        _error = 'No user is currently signed in';
+        notifyListeners();
+        return;
+      }
+
+      if (currentUser.isAnonymous) {
+        _error = 'Anonymous users cannot update profile information';
+        notifyListeners();
+        return;
+      }
+
+      _isLoading = true;
+      notifyListeners();
+
+      _userModel = _userModel.copyWith(
+        displayName: currentUser.displayName,
+        email: currentUser.email,
+      );
+
+      await _userService.saveUserData(_userModel);
+      
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _error = 'Error updating user information: $e';
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 }
 
