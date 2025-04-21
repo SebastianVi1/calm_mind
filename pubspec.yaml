@@ -19,6 +19,7 @@ dependencies:
   google_sign_in: ^6.3.0
   http: ^1.3.0
   image_picker: ^1.1.2
+  lottie: ^3.3.1
   provider: ^6.1.4
   shared_preferences: ^2.5.1
   uuid: ^4.2.2
@@ -32,9 +33,5 @@ flutter:
   uses-material-design: true
   assets:
     - .env
-    - assets/images/welcome_background.jpg
-    - assets/images/remind_logo.jpg
-    - assets/images/questions_background.jpg
-    - assets/images/background_main.jpg
-    - assets/images/card_background_example.webp
-    - assets/images/blank_profile_picture.webp
+    - assets/images/
+    - assets/animations/

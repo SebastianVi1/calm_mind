@@ -11,6 +11,7 @@ import 'package:re_mind/ui/themes/theme_config.dart';
 import 'package:re_mind/ui/view/app_wrapper.dart';
 import 'package:re_mind/viewmodels/auth_view_model.dart';
 import 'package:re_mind/viewmodels/login_view_model.dart';
+import 'package:re_mind/viewmodels/mood_view_model.dart';
 import 'package:re_mind/viewmodels/navigation_view_model.dart';
 import 'package:re_mind/viewmodels/on_boarding_viewmodel.dart';
 import 'package:re_mind/viewmodels/chat_view_model.dart';
@@ -126,8 +127,11 @@ class _MainAppState extends State<MainApp> {
           ),
         ),
         ChangeNotifierProvider(
-          create: (context) => TipsViewModel()..loadTips(),
+          create: (context) => TipsViewModel()
         ),
+        ChangeNotifierProvider(
+          create: (context) => MoodViewModel(),
+        )
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
