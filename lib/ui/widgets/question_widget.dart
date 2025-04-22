@@ -105,7 +105,6 @@ class _WQuestionWidgetState extends State<WQuestionWidget> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: widget.question.options.asMap().entries.map((entry) {
-        final index = entry.key;
         final option = entry.value;
         final isSelected = widget.selectedAnswer == option;
 

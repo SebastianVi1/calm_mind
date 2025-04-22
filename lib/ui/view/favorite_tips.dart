@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:re_mind/ui/view/tips_page.dart';
+import 'package:re_mind/ui/widgets/animated_tip_card.dart';
 import 'package:re_mind/viewmodels/tips_view_model.dart';
 
 class FavoriteTipsPage extends StatefulWidget {
@@ -102,7 +102,7 @@ class _FavoriteTipsPageState extends State<FavoriteTipsPage> {
             itemCount: favoriteTips.length,
             itemBuilder: (context, index) {
               final tip = favoriteTips[index];
-              return AnimatedTipCard(
+              return WAnimatedTipCard(
                 title: tip.title,
                 content: tip.content,
                 category: tip.category,

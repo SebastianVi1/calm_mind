@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:re_mind/models/tip.dart';
-import 'package:re_mind/services/database_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TipsViewModel extends ChangeNotifier {

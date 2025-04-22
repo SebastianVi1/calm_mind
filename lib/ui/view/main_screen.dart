@@ -5,7 +5,6 @@ import 'package:re_mind/ui/view/therapy_page.dart';
 import 'package:re_mind/ui/view/home_page.dart';
 import 'package:re_mind/ui/view/tips_page.dart';
 import 'package:re_mind/viewmodels/navigation_view_model.dart';
-import 'package:re_mind/viewmodels/user_view_model.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({

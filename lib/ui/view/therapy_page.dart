@@ -1,11 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:re_mind/models/auth/auth_state.dart';
 import 'package:re_mind/models/chat_message.dart';
-import 'package:re_mind/models/user_model.dart';
 import 'package:re_mind/viewmodels/chat_view_model.dart';
-import 'package:re_mind/viewmodels/user_view_model.dart';
 
 class TherapyPage extends StatelessWidget {
   const TherapyPage({super.key});
