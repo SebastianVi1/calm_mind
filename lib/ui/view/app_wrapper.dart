@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:re_mind/models/auth/auth_state.dart';
 import 'package:re_mind/services/user_service.dart';
@@ -87,9 +88,9 @@ class _AppWrapperState extends State<AppWrapper> {
 
     // Show loading indicator while checking user status
     if (_isLoading) {
-      return const Scaffold(
+      return  Scaffold(
         body: Center(
-          child: CircularProgressIndicator(),
+          child: Lottie.asset('assets/animations/loading.json')
         ),
       );
     }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:re_mind/ui/widgets/animated_tip_card.dart';
 import 'package:re_mind/viewmodels/tips_view_model.dart';
+import 'package:lottie/lottie.dart';
 
 class FavoriteTipsPage extends StatefulWidget {
   const FavoriteTipsPage({super.key});
@@ -40,8 +41,8 @@ class _FavoriteTipsPageState extends State<FavoriteTipsPage> {
           
           if (!viewModel.isInitialized && viewModel.isLoading) {
 
-            return const Center(
-              child: CircularProgressIndicator(),
+            return Center(
+              child: Lottie.asset('assets/animations/loading.json'),
             );
           }
 

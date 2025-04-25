@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:re_mind/ui/view/favorite_tips.dart';
 import 'package:re_mind/ui/widgets/animated_tip_card.dart';
 import 'package:re_mind/viewmodels/tips_view_model.dart';
+import 'package:lottie/lottie.dart';
 
 class TipsPage extends StatelessWidget {
   const TipsPage({super.key});
@@ -19,6 +20,7 @@ class TipsPage extends StatelessWidget {
           'Consejos',
           style: theme.textTheme.titleLarge,
           ),
+          backgroundColor: Colors.transparent,
           actions: [
             IconButton(
               onPressed: () {
@@ -67,8 +69,8 @@ class TipsPage extends StatelessWidget {
                   }
 
                   if (viewModel.isLoading) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
+                    return Center(
+                      child: Lottie.asset('assets/animations/loading.json'),
                     );
                   }
 

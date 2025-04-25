@@ -8,6 +8,7 @@ import 'package:re_mind/ui/view/register_screen.dart';
 import 'package:re_mind/ui/widgets/build_logo.dart';
 import 'package:re_mind/ui/widgets/text_field.dart';
 import 'package:re_mind/viewmodels/login_view_model.dart';
+import 'package:lottie/lottie.dart';
 
 /// Screen that handles user authentication
 /// Provides a form for email and password input with validation
@@ -156,7 +157,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: ElevatedButton(
             onPressed: viewModel.isLoading ? null : _handleLogin,
             child: viewModel.isLoading
-                ? const CircularProgressIndicator(color: Colors.white)
+                ? Lottie.asset('assets/animations/loading.json', width: 24, height: 24)
                 : Text(
                     'Iniciar sesión',
                     style: Theme.of(context).textTheme.labelLarge,

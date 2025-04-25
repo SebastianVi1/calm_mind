@@ -59,7 +59,7 @@ class Themes {
         color: Colors.white
       ),
       centerTitle: true,
-      iconTheme: IconThemeData(color: lightOnPrimary),
+      iconTheme: IconThemeData(color: lightOnPrimary,),
       toolbarHeight: 40,
       
     ),

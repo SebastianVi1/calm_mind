@@ -19,6 +19,7 @@ class HomePage extends StatelessWidget {
         var theme = Theme.of(context);
         return Scaffold(
           appBar: AppBar(
+            title: Icon(Icons.home, color: Theme.of(context).brightness == Brightness.dark ? Colors.white: Colors.black,),
             toolbarHeight: 30,
             backgroundColor: Colors.transparent,
             actionsIconTheme: IconThemeData(
@@ -29,7 +30,9 @@ class HomePage extends StatelessWidget {
             ),
             
             shadowColor: Colors.black,
-            
+            iconTheme: IconThemeData(
+              color: Theme.of(context).brightness == Brightness.dark ? Colors.white: Colors.black,
+            ),
             
             
           ),

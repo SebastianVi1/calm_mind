@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:re_mind/ui/widgets/text_field.dart';
 import 'package:re_mind/viewmodels/login_view_model.dart';
 import 'package:re_mind/ui/view/app_wrapper.dart';
+import 'package:lottie/lottie.dart';
 
 /// Screen that handles user registration
 /// Provides a form for name, email, password, and password confirmation
@@ -169,7 +170,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: ElevatedButton(
             onPressed: viewModel.isLoading ? null : _handleRegister,
             child: viewModel.isLoading
-                ? const CircularProgressIndicator(color: Colors.white)
+                ? Lottie.asset('assets/animations/loading.json', width: 24, height: 24)
                 : Text(
                     'Registrarse',
                     style: Theme.of(context).textTheme.labelLarge,
@@ -232,8 +233,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         await viewModel.signInWithGoogle();
       },
       child: viewModel.isLoading
-          ? const CircularProgressIndicator(color: Colors.white)
-          : Icon(Icons.mail),
+          ? Lottie.asset('assets/animations/loading.json', width: 24, height: 24)
+          : const Text('Continuar con Google'),
     );
   }
 }
