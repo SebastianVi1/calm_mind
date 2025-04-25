@@ -4,20 +4,51 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class TipsViewModel extends ChangeNotifier {
   List<Tip> _tips = [];
+  List<Tip> _filteredTips = [];
   final List<String> _favoriteTipIds = [];
   bool _isLoading = false;
   String? _error;
   bool _isInitialized = false;
+  String _selectedCategory = 'todos';
   static const String _favoritesKey = 'favorite_tips';
 
-  List<Tip> get tips => _tips;
+  List<Tip> get tips => _filteredTips;
   List<String> get favoriteTipIds => _favoriteTipIds;
   bool get isLoading => _isLoading;
   String? get error => _error;
   bool get isInitialized => _isInitialized;
+  String get selectedCategory => _selectedCategory;
+  List<Map<String, String>> get categories => _categories;
+
+  // Define available categories
+  final List<Map<String, String>> _categories = [
+    {'id': 'todos', 'name': 'Todos'},
+    {'id': 'meditacion', 'name': 'Meditación'},
+    {'id': 'ejercicio', 'name': 'Ejercicio'},
+    {'id': 'nutricion', 'name': 'Nutrición'},
+    {'id': 'bienestar', 'name': 'Bienestar'},
+  ];
 
   TipsViewModel() {
     _initializeTips();
+  }
+
+  // Update selected category and filter tips
+  void onCategorySelected(String categoryId) {
+    _selectedCategory = categoryId;
+    _filterTips();
+    notifyListeners();
+  }
+
+  // Filter tips based on selected category
+  void _filterTips() {
+    if (_selectedCategory == 'todos') {
+      _filteredTips = List.from(_tips);
+    } else {
+      _filteredTips = _tips.where((tip) => 
+        tip.category.toLowerCase() == _selectedCategory
+      ).toList();
+    }
   }
 
   Future<void> _initializeTips() async {
@@ -30,7 +61,7 @@ class TipsViewModel extends ChangeNotifier {
           id: '1',
           title: 'Meditación Matutina',
           content: 'Comienza tu día con 5 minutos de meditación. Enfócate en tu respiración y establece una intención positiva para el día.',
-          category: 'Meditación',
+          category: 'Meditacion',
         ),
         Tip(
           id: '2',
@@ -42,7 +73,7 @@ class TipsViewModel extends ChangeNotifier {
           id: '3',
           title: 'Alimentación Consciente',
           content: 'Come despacio, saborea cada bocado y presta atención a las señales de saciedad de tu cuerpo.',
-          category: 'Alimentación',
+          category: 'Nutricion',
         ),
         Tip(
           id: '4',
@@ -52,11 +83,12 @@ class TipsViewModel extends ChangeNotifier {
         ),
       ];
 
+      _filterTips(); // Apply initial filtering
       await _loadFavoriteTips();
       _isInitialized = true;
       notifyListeners();
     } catch (e) {
-      _error = 'Error al inicializar los tips: $e';
+      _error = 'Error al inicializar los consejos: $e';
       notifyListeners();
     }
   }
@@ -71,7 +103,7 @@ class TipsViewModel extends ChangeNotifier {
     try {
       await _initializeTips();
     } catch (e) {
-      _error = 'Error al cargar los tips: $e';
+      _error = 'Error al cargar los consejos: $e';
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -101,7 +133,6 @@ class TipsViewModel extends ChangeNotifier {
         _favoriteTipIds.add(tipId);
       }
       
-      // Guardar en SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList(_favoritesKey, _favoriteTipIds);
       

@@ -57,7 +57,7 @@ class _ProfilePageState extends State<ProfilePage> {
               },
             );
             
-          }, icon: Lottie.asset('assets/animations/loading.json'))
+          }, icon: Icon(Icons.logout_outlined))
         ],
       ),
       body: Column(

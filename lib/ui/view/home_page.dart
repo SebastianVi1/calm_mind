@@ -25,7 +25,7 @@ class HomePage extends StatelessWidget {
             actionsIconTheme: IconThemeData(
               color: Theme.of(context).brightness == Brightness.dark 
                 ? Colors.white 
-                : theme.primaryColor,
+                : Colors.black,
 
             ),
             
