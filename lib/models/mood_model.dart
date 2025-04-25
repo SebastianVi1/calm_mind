@@ -4,7 +4,7 @@ class MoodModel{
   String label;
   String lottieAsset;
   final Color color;
-  final DateTime? timestamp;
+  final DateTime timestamp;
   final String? note;
   MoodModel({
     required this.label,
@@ -13,6 +13,8 @@ class MoodModel{
     required this.timestamp,
     this.note,
   });
+
+  
   
   
 }

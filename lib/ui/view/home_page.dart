@@ -1,32 +1,100 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:re_mind/ui/widgets/mood_lottie_button.dart';
+import 'package:re_mind/ui/widgets/mood_lottie_container.dart';
 import 'package:re_mind/viewmodels/mood_view_model.dart';
 import 'package:re_mind/viewmodels/tips_view_model.dart';
-import 'package:re_mind/ui/view/mood_history_page.dart';
-
+import 'package:re_mind/viewmodels/theme_view_model.dart';
+import 'package:re_mind/ui/view/stadistics_screen.dart';
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
   
-  @override
+  @override  
   Widget build(BuildContext context) {
     return Consumer<MoodViewModel>(
       builder: (context, viewModel, child) {
+        var theme = Theme.of(context);
         return Scaffold(
+          appBar: AppBar(
+            toolbarHeight: 56,
+            backgroundColor: Colors.transparent,
+            actionsIconTheme: IconThemeData(
+              color: Theme.of(context).brightness == Brightness.dark 
+                ? Colors.white 
+                : theme.primaryColor,
+              size: 30
+
+            ),
+            
+            shadowColor: Colors.black,
+            
+            
+            
+          ),
+
+          endDrawer: Drawer(
+              width: 250,
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  DrawerHeader(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    curve: Curves.easeIn,
+                    child: Center(child: Text('DrawerHeader')),
+                    
+                  ),
+                  ListTile(
+                    title: const Text('Perfil',textAlign: TextAlign.end,),
+                    onTap: () {
+                      
+                    },
+
+                    leading: Icon(Icons.person),
+                    
+                  ),
+                  ListTile(
+                    title: const Text('Modo oscuro', textAlign: TextAlign.end,),
+                    leading: Consumer<ThemeViewModel>(
+                      builder: (context, themeViewModel, child) {
+                        return Switch(
+                          value: themeViewModel.isDarkModeActive,
+                          onChanged: (value) {
+                            themeViewModel.toggleTheme();
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                  ListTile(
+                    title: Text('Terminos y condiciones'),
+                    leading: Icon(Icons.file_copy_outlined),
+                    
+                  )
+                ],
+              ),
+            ),
           body: SafeArea(
-            child: Column(
-              children: [
-                Text(
-                  '¿Cómo te sientes ahora?',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold), 
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 10),
-                _buildMoodStates(viewModel, context),
-                const SizedBox(height: 20),
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: Column(
+                  children: [
+                    Text(
+                      '¿Cómo te sientes ahora?',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold), 
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 10),
+                    _buildMoodStates(viewModel, context),
+                    const SizedBox(height: 20),
+                    // Título y tendencia
+                    
+                    const SizedBox(height: 10),
                 
-                  
-              ],
+                  ],
+                ),
+              ),
             ),
           ),
         );
@@ -103,15 +171,16 @@ class HomePage extends StatelessWidget {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const MoodHistoryPage()),
+                          MaterialPageRoute(builder: (context) => const StadisticsScreen()),
                         );
                       },
-                      child: const Text('Historial'),
+                      child: const Text('Estadisticas'),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 10),
+              
             ],
           ),
           
@@ -120,7 +189,7 @@ class HomePage extends StatelessWidget {
       ],
     );
   }
-
+  
   Widget _buildMoodAdvice() {
     return Consumer<TipsViewModel>(
       builder: (context, viewModel, child) {
@@ -129,4 +198,6 @@ class HomePage extends StatelessWidget {
       }
     );
   }
+
+   
 } 

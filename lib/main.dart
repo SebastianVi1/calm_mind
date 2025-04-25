@@ -19,6 +19,8 @@ import 'package:re_mind/viewmodels/user_view_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:re_mind/viewmodels/tips_view_model.dart';
+import 'package:re_mind/viewmodels/theme_view_model.dart';
+
 Future<void> main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
@@ -57,38 +59,15 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  late bool _useSystemTheme;
-  late bool _isDarkMode;
-  
   @override
   void initState() {
-    
     super.initState();
     initializeSplash();
-    _useSystemTheme = widget.useSystemTheme;
-    _isDarkMode = widget.isDarkMode;
   }
-  void initializeSplash() async{
+
+  void initializeSplash() async {
     await Future.delayed(const Duration(seconds: 2));
     FlutterNativeSplash.remove();
-  }
-
-  void toggleTheme() async {
-    setState(() {
-      _useSystemTheme = false;
-      _isDarkMode = !_isDarkMode;
-    });
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('useSystemTheme', _useSystemTheme);
-    await prefs.setBool('isDarkMode', _isDarkMode);
-  }
-
-  void useSystemTheme() async {
-    setState(() {
-      _useSystemTheme = true;
-    });
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('useSystemTheme', _useSystemTheme);
   }
 
   @override
@@ -97,6 +76,9 @@ class _MainAppState extends State<MainApp> {
       providers: [
         ChangeNotifierProvider<UserViewModel>(
           create: (_) => UserViewModel(),
+        ),
+        ChangeNotifierProvider<ThemeViewModel>(
+          create: (_) => ThemeViewModel(),
         ),
         Provider<IAuthService>(
           create: (_) => FirebaseAuthService(),
@@ -133,13 +115,31 @@ class _MainAppState extends State<MainApp> {
           create: (context) => MoodViewModel(),
         )
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: Themes.lightTheme,
-        darkTheme: Themes.darkTheme,
-        themeMode: _useSystemTheme ? ThemeMode.system : (_isDarkMode ? ThemeMode.dark : ThemeMode.light),
-        title: 'ReMind',
-        home: const AppWrapper(),
+      child: Consumer<ThemeViewModel>(
+        builder: (context, themeViewModel, child) {
+          return AnimatedTheme(
+            duration: const Duration(milliseconds: 800),
+            curve: Curves.easeInOut,
+            data: themeViewModel.isDarkModeActive ? Themes.darkTheme : Themes.lightTheme,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 800),
+              curve: Curves.easeInOut,
+              color: themeViewModel.isDarkModeActive 
+                ? Themes.darkTheme.scaffoldBackgroundColor 
+                : Themes.lightTheme.scaffoldBackgroundColor,
+              child: MaterialApp(
+                debugShowCheckedModeBanner: false,
+                theme: Themes.lightTheme,
+                darkTheme: Themes.darkTheme,
+                themeMode: themeViewModel.useSystemTheme 
+                  ? ThemeMode.system 
+                  : (themeViewModel.isDarkMode ? ThemeMode.dark : ThemeMode.light),
+                title: 'ReMind',
+                home: const AppWrapper(),
+              ),
+            ),
+          );
+        }
       ),
     );
   }

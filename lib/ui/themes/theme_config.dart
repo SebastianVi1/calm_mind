@@ -53,12 +53,15 @@ class Themes {
         borderRadius: BorderRadius.circular(12),
       ),
     ),
+    
     appBarTheme: AppBarTheme(
-      backgroundColor: lightPrimary,
-      foregroundColor: lightOnPrimary,
-      elevation: 0,
+      actionsIconTheme: IconThemeData(
+        color: Colors.white
+      ),
       centerTitle: true,
       iconTheme: IconThemeData(color: lightOnPrimary),
+      toolbarHeight: 40,
+      
     ),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: lightSurface,
