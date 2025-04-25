@@ -108,14 +108,33 @@ class UserService {
         return false;
       }
 
-      final userData = await getUserData(user.uid);
-      // If user document doesn't exist, return false
+      // Intentar hasta 2 veces obtener los datos del usuario desde Firestore
+      UserModel? userData;
+      for (int i = 0; i < 2; i++) {
+        try {
+          final doc = await _firestore.collection('users').doc(user.uid).get();
+          if (doc.exists && doc.data() != null) {
+            userData = UserModel.fromMap(doc.data()!);
+            break;
+          }
+          // Si no hay datos y no es el último intento, esperar antes de reintentar
+          if (i < 1) await Future.delayed(const Duration(milliseconds: 300));
+        } catch (e) {
+          // Si hay error en la consulta, esperar antes de reintentar
+          if (i < 1) await Future.delayed(const Duration(milliseconds: 300));
+        }
+      }
+      
+      // Si no hay datos después de los intentos, retornar false
       if (userData == null) {
         return false;
       }
+      
       return userData.hasCompletedQuestions;
     } catch (e) {
-      // If there's an error, assume questions are not completed
+      // Registrar el error para diagnóstico
+      print('Error al verificar si completó las preguntas: ${e.toString()}');
+      // Si hay un error, asumir que las preguntas no están completadas
       return false;
     }
   }

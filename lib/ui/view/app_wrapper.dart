@@ -44,13 +44,30 @@ class _AppWrapperState extends State<AppWrapper> {
       // Wait for AuthViewModel to be initialized
       final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
       if (!authViewModel.isInitialized) {
-        await Future.delayed(const Duration(milliseconds: 100));
+        // Aumentar el tiempo de espera para dar más tiempo a la inicialización
+        await Future.delayed(const Duration(milliseconds: 300));
         return _checkQuestionStatus();
       }
 
       if (authViewModel.state.status == AuthStatus.authenticated) {
         final userService = Provider.of<UserService>(context, listen: false);
-        _hasCompletedQuestions = await userService.hasCompletedQuestions();
+        
+        // Esperar un momento adicional para asegurar que los datos de Firestore estén disponibles
+        await Future.delayed(const Duration(milliseconds: 500));
+        
+        // Intentar hasta 3 veces obtener el estado de las preguntas
+        for (int attempt = 0; attempt < 3; attempt++) {
+          try {
+            _hasCompletedQuestions = await userService.hasCompletedQuestions();
+            if (_hasCompletedQuestions) break;
+            
+            // Si no ha completado las preguntas, esperar un poco y reintentar
+            if (attempt < 2) await Future.delayed(const Duration(milliseconds: 300));
+          } catch (e) {
+            // Si ocurre un error en el intento, esperar antes de reintentar
+            if (attempt < 2) await Future.delayed(const Duration(milliseconds: 300));
+          }
+        }
       }
 
       setState(() {

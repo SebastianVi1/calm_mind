@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate_on_scroll/flutter_animate_on_scroll.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:re_mind/ui/widgets/mood_lottie_title.dart';
@@ -43,8 +44,14 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
 
   Widget _buildMoodCard(BuildContext context, MoodViewModel viewModel) {
     if (viewModel.moodHistory.isEmpty) {
-      return const Center(
-        child: Text('No hay datos'),
+      return Expanded(
+        child: Center(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            
+            child: Lottie.asset('assets/animations/meditation.json',width: 200,)
+          ),
+        ),
       );
     }
 
@@ -139,53 +146,61 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
                 final date = actualMood.timestamp;
                 final dateString = '${date.day}/${date.month}/${date.year} - ${date.hour}:${date.minute}';
                 
-                return Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  child: Padding(
-                    padding: const EdgeInsets.all(6.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ListTile(
-                          leading: Lottie.asset(
-                            actualMood.lottieAsset,
-                            animate: false,
-                            frameRate: FrameRate.max,
-                          ),
-                          title: Text(
-                            actualMood.label,
-                            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                              color: actualMood.color,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.5
+                return FadeInRight(
+
+                  config: BaseAnimationConfig(
+                      useScrollForAnimation: true,
+                      delay: 2000.ms,
+                      curves: Curves.easeInOut,
+                      child: Card(
+                        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        child: Padding(
+                      padding: const EdgeInsets.all(6.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ListTile(
+                            leading: Lottie.asset(
+                              actualMood.lottieAsset,
+                              animate: false,
+                              frameRate: FrameRate.max,
+                            ),
+                            title: Text(
+                              actualMood.label,
+                              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                color: actualMood.color,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.5
+                              ),
+                            ),
+                            subtitle: Text(
+                              dateString,
+                              style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.grey),
                             ),
                           ),
-                          subtitle: Text(
-                            dateString,
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.grey),
-                          ),
+                          if (actualMood.note != null) 
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                              child: Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[400],
+                                  borderRadius: BorderRadius.circular(20)
+                                ),
+                                child: Text(
+                                  actualMood.note!,
+                                  style: Theme.of(context).textTheme.labelMedium,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        if (actualMood.note != null) 
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[400],
-                                borderRadius: BorderRadius.circular(20)
-                              ),
-                              child: Text(
-                                actualMood.note!,
-                                style: Theme.of(context).textTheme.labelMedium,
-                              ),
-                            ),
-                          )
-                      ],
-                    ),
+                      )
+                    )
                   )
                 );
               }
-            ),  
+            ),
           ),
         ],
       ),

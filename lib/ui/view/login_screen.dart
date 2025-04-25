@@ -1,6 +1,7 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:re_mind/models/auth/auth_state.dart';
 import 'package:re_mind/ui/constants/app_constants.dart';
 import 'package:re_mind/ui/view/app_wrapper.dart';
 import 'package:re_mind/ui/view/register_screen.dart';
@@ -196,11 +197,25 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (success && mounted) {
-        // Navigate to AppWrapper which will handle the appropriate screen based on auth state
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const AppWrapper()),
-        );
+        // Dar tiempo para que los datos de Firebase se sincronicen completamente
+        await Future.delayed(const Duration(milliseconds: 500));
+        
+        // Verificar una vez más el estado de autenticación antes de navegar
+        if (viewModel.state.status == AuthStatus.authenticated && mounted) {
+          // Navigate to AppWrapper which will handle the appropriate screen based on auth state
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const AppWrapper()),
+          );
+        } else if (mounted) {
+          // Si el estado no es el esperado, mostrar un mensaje
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error al sincronizar el estado de sesión. Intenta nuevamente.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

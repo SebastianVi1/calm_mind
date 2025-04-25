@@ -1,27 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate_on_scroll/flutter_animate_on_scroll.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
+import 'package:re_mind/ui/view/profile_page.dart';
+import 'package:re_mind/ui/view/stadistics_screen.dart';
 import 'package:re_mind/ui/widgets/mood_lottie_container.dart';
 import 'package:re_mind/viewmodels/mood_view_model.dart';
-import 'package:re_mind/viewmodels/tips_view_model.dart';
 import 'package:re_mind/viewmodels/theme_view_model.dart';
-import 'package:re_mind/ui/view/stadistics_screen.dart';
+import 'package:re_mind/viewmodels/tips_view_model.dart';
+
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
   
-  @override  
+  @override
   Widget build(BuildContext context) {
     return Consumer<MoodViewModel>(
       builder: (context, viewModel, child) {
         var theme = Theme.of(context);
         return Scaffold(
           appBar: AppBar(
-            toolbarHeight: 56,
+            toolbarHeight: 30,
             backgroundColor: Colors.transparent,
             actionsIconTheme: IconThemeData(
               color: Theme.of(context).brightness == Brightness.dark 
                 ? Colors.white 
                 : theme.primaryColor,
-              size: 30
 
             ),
             
@@ -40,22 +43,31 @@ class HomePage extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.primary,
                     ),
-                    curve: Curves.easeIn,
-                    child: Center(child: Text('DrawerHeader')),
+                    
+                    child: Center(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Lottie.asset('assets/animations/meditation.json',width: 200,)
+                      )
+                    ),
                     
                   ),
                   ListTile(
-                    title: const Text('Perfil',textAlign: TextAlign.end,),
+                    title: const Text('Perfil',textAlign: TextAlign.start,),
                     onTap: () {
-                      
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const ProfilePage()),
+                      );
                     },
-
+  
                     leading: Icon(Icons.person),
                     
                   ),
                   ListTile(
-                    title: const Text('Modo oscuro', textAlign: TextAlign.end,),
-                    leading: Consumer<ThemeViewModel>(
+                    title: const Text('Modo oscuro', textAlign: TextAlign.start,),
+                    leading: Icon(Icons.dark_mode),
+                    trailing: Consumer<ThemeViewModel>(
                       builder: (context, themeViewModel, child) {
                         return Switch(
                           value: themeViewModel.isDarkModeActive,
@@ -67,7 +79,7 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                   ListTile(
-                    title: Text('Terminos y condiciones'),
+                    title: const Text('Terminos y condiciones',textAlign: TextAlign.start,),
                     leading: Icon(Icons.file_copy_outlined),
                     
                   )
@@ -80,13 +92,24 @@ class HomePage extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 16.0),
                 child: Column(
                   children: [
-                    Text(
-                      '¿Cómo te sientes ahora?',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold), 
-                      textAlign: TextAlign.center,
+                    FadeInDown(
+                      config: BaseAnimationConfig(
+                        child: Text(
+                          '¿Cómo te sientes ahora?',
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold), 
+                          textAlign: TextAlign.center,
+                        ),
+                      )
                     ),
                     const SizedBox(height: 10),
-                    _buildMoodStates(viewModel, context),
+                    FadeInLeft(
+                      config: BaseAnimationConfig(
+                        delay: 800.ms,
+                        useScrollForAnimation: true,
+                        child: _buildMoodStates(viewModel, context),
+                      )
+                    ),
+                    
                     const SizedBox(height: 20),
                     // Título y tendencia
                     
@@ -111,6 +134,7 @@ class HomePage extends StatelessWidget {
           decoration: BoxDecoration(
             border: Border.all(color: viewModel.selectedMood?.color ?? Theme.of(context).primaryColor, width: 2),
             borderRadius: BorderRadius.circular(20)
+            
           ),
           child: Column(
             children: [
@@ -174,13 +198,12 @@ class HomePage extends StatelessWidget {
                           MaterialPageRoute(builder: (context) => const StadisticsScreen()),
                         );
                       },
-                      child: const Text('Estadisticas'),
+                      child: const Text('Historial'),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 10),
-              
             ],
           ),
           
@@ -189,7 +212,7 @@ class HomePage extends StatelessWidget {
       ],
     );
   }
-  
+
   Widget _buildMoodAdvice() {
     return Consumer<TipsViewModel>(
       builder: (context, viewModel, child) {
@@ -198,6 +221,4 @@ class HomePage extends StatelessWidget {
       }
     );
   }
-
-   
 } 

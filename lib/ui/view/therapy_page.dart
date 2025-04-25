@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate_on_scroll/flutter_animate_on_scroll.dart';
 import 'package:provider/provider.dart';
 import 'package:re_mind/models/chat_message.dart';
 import 'package:re_mind/viewmodels/chat_view_model.dart';
@@ -9,11 +10,29 @@ class TherapyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title:  Text('Terapia',
+          style: Theme.of(context).textTheme.titleLarge,
+          textAlign: TextAlign.start,
+        ),
+        backgroundColor: Colors.transparent,
+        actionsIconTheme: IconThemeData(
+          color: Theme.of(context).brightness == Brightness.dark 
+            ? Colors.white 
+            : Theme.of(context).primaryColor,
+        ) ,
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.delete_outline),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Column(
           children: [
-            const _ChatHeader(),
-            const Divider(height: 1),
+            
             const Expanded(child: _MessageList()),
             const _MessageInput(),
           ],
@@ -23,54 +42,7 @@ class TherapyPage extends StatelessWidget {
   }
 }
 
-class _ChatHeader extends StatelessWidget {
-  const _ChatHeader();
 
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            'Chatea con Albert',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete_outline),
-            onPressed: () => _showClearConfirmation(context),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showClearConfirmation(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Borrar historial'),
-        content: const Text('Seguro que quieres borrar el historial del chat?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              context.read<ChatViewModel>().clearChat();
-              Navigator.pop(context);
-            },
-            child: const Text('Clear'),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _MessageList extends StatelessWidget {
   const _MessageList();
@@ -109,33 +81,37 @@ class _MessageBubble extends StatelessWidget {
     final isUser = message.isUser;
     final theme = Theme.of(context);
 
-    return Align(
-      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.75,
-        ),
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: isUser
-              ? theme.colorScheme.primary
-              : theme.colorScheme.secondary,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black,
-              blurRadius: 2,
-              offset: const Offset(0, 1),
+    return FadeInUp(
+      config: BaseAnimationConfig(
+        child: Align(
+          alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.75,
             ),
-          ],
-        ),
-        child: Text(
-          message.content,
-          style: TextStyle(
-            color: isUser ? Colors.white : theme.textTheme.bodyLarge?.color,
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: isUser
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.secondary,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black,
+                  blurRadius: 2,
+                  offset: const Offset(0, 1),
+                ),
+              ],
+            ),
+            child: Text(
+              message.content,
+              style: TextStyle(
+                color: isUser ? Colors.white : theme.textTheme.bodyLarge?.color,
+              ),
+            ),
           ),
-        ),
+        )
       ),
     );
   }

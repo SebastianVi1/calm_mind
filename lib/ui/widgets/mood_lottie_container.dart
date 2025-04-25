@@ -13,11 +13,11 @@ class WMoodLottieContainer extends StatefulWidget {
   final VoidCallback onTap;
 
   const WMoodLottieContainer({
-    Key? key,
+    super.key,
     required this.mood,
     required this.isSelected,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   State<WMoodLottieContainer> createState() => _MoodLottieContainerState();

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate_on_scroll/flutter_animate_on_scroll.dart';
 import 'package:provider/provider.dart';
 import 'package:re_mind/ui/view/favorite_tips.dart';
 import 'package:re_mind/ui/widgets/animated_tip_card.dart';
@@ -98,15 +99,32 @@ class TipsPage extends StatelessWidget {
                     itemCount: viewModel.tips.length,
                     itemBuilder: (context, index) {
                       final tip = viewModel.tips[index];
-                      return WAnimatedTipCard(
-                        title: tip.title,
-                        content: tip.content,
-                        category: tip.category,
-                        onTap: () => viewModel.toggleFavorite(tip.id),
-                        isFavorite: viewModel.isFavorite(tip.id),
-                        index: index,
+                      return FadeInDown(
+                        
+                        config: BaseAnimationConfig(
+                          useScrollForAnimation: true,
+                          delay: 200.ms,
+                          child: WAnimatedTipCard(
+                            title: tip.title,
+                            content: tip.content,
+                            category: tip.category,
+                            onTap: () => viewModel.toggleFavorite(tip.id),
+                            isFavorite: viewModel.isFavorite(tip.id),
+                            index: index,
+                          )
+                        )
                       );
-                    },
+                        
+                        // child: WAnimatedTipCard(
+                        //   title: tip.title,
+                        //   content: tip.content,
+                        //   category: tip.category,
+                        //   onTap: () => viewModel.toggleFavorite(tip.id),
+                        //   isFavorite: viewModel.isFavorite(tip.id),
+                        //   index: index,
+                        // ),
+                      // );
+                    }
                   );
                 },
               ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate_on_scroll/flutter_animate_on_scroll.dart';
 import 'package:provider/provider.dart';
 import 'package:re_mind/ui/view/welcome_screen.dart';
 import 'package:re_mind/viewmodels/auth_view_model.dart';
@@ -43,6 +44,7 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 20),
             
             _buildProfileInfo(context, viewModel, user),
+            
             if (viewModel.error != null)
               Padding(
                 padding: const EdgeInsets.all(8.0),

@@ -49,6 +49,19 @@ class LoginViewModel extends ChangeNotifier {
           status: AuthStatus.authenticated,
           user: user,
         );
+        
+        await Future.delayed(const Duration(milliseconds: 300));
+        
+        final currentUser = await _authService.getCurrentUser();
+        if (currentUser == null) {
+          _error = 'La sesión no se pudo mantener. Por favor, intenta nuevamente.';
+          _state = _state.copyWith(
+            status: AuthStatus.error,
+            errorMessage: _error,
+          );
+          return false;
+        }
+        
         return true;
       }
       
