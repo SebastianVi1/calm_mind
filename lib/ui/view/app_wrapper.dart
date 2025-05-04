@@ -45,36 +45,39 @@ class _AppWrapperState extends State<AppWrapper> {
       // Wait for AuthViewModel to be initialized
       final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
       if (!authViewModel.isInitialized) {
-        // Aumentar el tiempo de espera para dar más tiempo a la inicialización
-        await Future.delayed(const Duration(milliseconds: 300));
+        await Future.delayed(const Duration(milliseconds: 500));
         return _checkQuestionStatus();
       }
 
-      if (authViewModel.state.status == AuthStatus.authenticated) {
-        final userService = Provider.of<UserService>(context, listen: false);
-        
-        // Esperar un momento adicional para asegurar que los datos de Firestore estén disponibles
-        await Future.delayed(const Duration(milliseconds: 500));
-        
-        // Intentar hasta 3 veces obtener el estado de las preguntas
-        for (int attempt = 0; attempt < 3; attempt++) {
-          try {
-            _hasCompletedQuestions = await userService.hasCompletedQuestions();
-            if (_hasCompletedQuestions) break;
-            
-            // Si no ha completado las preguntas, esperar un poco y reintentar
-            if (attempt < 2) await Future.delayed(const Duration(milliseconds: 300));
-          } catch (e) {
-            // Si ocurre un error en el intento, esperar antes de reintentar
-            if (attempt < 2) await Future.delayed(const Duration(milliseconds: 300));
-          }
+      // If user is not authenticated, we don't need to check questions
+      if (authViewModel.state.status != AuthStatus.authenticated) {
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+
+      final userService = Provider.of<UserService>(context, listen: false);
+      
+      // Try to get question status with retries
+      bool hasCompleted = false;
+      for (int attempt = 0; attempt < 3; attempt++) {
+        try {
+          hasCompleted = await userService.hasCompletedQuestions();
+          if (hasCompleted) break;
+          await Future.delayed(const Duration(milliseconds: 500));
+        } catch (e) {
+          print('Error checking question status (attempt ${attempt + 1}): $e');
+          if (attempt < 2) await Future.delayed(const Duration(milliseconds: 500));
         }
       }
 
       setState(() {
+        _hasCompletedQuestions = hasCompleted;
         _isLoading = false;
       });
     } catch (e) {
+      print('Error in _checkQuestionStatus: $e');
       setState(() {
         _error = e.toString();
         _isLoading = false;
@@ -90,7 +93,7 @@ class _AppWrapperState extends State<AppWrapper> {
     if (_isLoading) {
       return  Scaffold(
         body: Center(
-          child: Lottie.asset('assets/animations/loading.json')
+          child: Lottie.asset('assets/animations/loading.json',width: 150)
         ),
       );
     }

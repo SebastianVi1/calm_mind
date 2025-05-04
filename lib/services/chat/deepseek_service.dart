@@ -10,7 +10,7 @@ import 'dart:async';
 /// This service provides a virtual therapist functionality through AI chat
 class DeepSeekService {
   late final UserModel _currentUser;
-  final QuestionViewModel _questionViewModel = QuestionViewModel();
+  QuestionViewModel _questionViewModel = QuestionViewModel();
   static const String _baseUrl = 'https://api.deepseek.com';
   late final String _apiKey;
   bool _isInitialized = false;
@@ -170,21 +170,16 @@ Recuerda que tu objetivo principal es proporcionar apoyo emocional y herramienta
     }
   }
 
-  /// Sends a message to the DeepSeek API and returns the response
-  /// [message] - The user's message to send
-  /// [systemMessage] - Optional system message to override the default context
-  /// Returns the AI's response as a string
+
+  /// Legacy method for non-streaming responses
   Future<String> sendMessage(String message, {String? systemMessage}) async {
-    // Initialize context if not already done
     if (!_isInitialized) {
       await _initializeContext();
     }
 
-    // Use provided system message, last used message, or default message
     final effectiveSystemMessage = systemMessage ?? _lastSystemMessage ?? _defaultSystemMessage;
     _lastSystemMessage = effectiveSystemMessage;
 
-    // Make HTTP POST request to DeepSeek API
     final response = await http.post(
       Uri.parse('$_baseUrl/chat/completions'),
       headers: {
@@ -203,7 +198,6 @@ Recuerda que tu objetivo principal es proporcionar apoyo emocional y herramienta
       }),
     );
 
-    // Process successful response
     if (response.statusCode == 200) {
       final data = jsonDecode(utf8.decode(response.bodyBytes));
       return data['choices'][0]['message']['content'];
@@ -212,4 +206,36 @@ Recuerda que tu objetivo principal es proporcionar apoyo emocional y herramienta
     }
   }
 
+  Future<List<Map<String, dynamic>>> generateTips() async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/chat/completions'),
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Authorization': 'Bearer $_apiKey',
+      },
+      body: jsonEncode({
+        'model': 'deepseek-chat',
+        'messages': [
+          {'role': 'system', 'content': _defaultSystemMessage}, 
+          {'role': 'user', 'content': 'Genera 5 tips de bienestar en formato JSON, con id,title,content y category'}
+        ],
+        'stream': false,
+        'temperature': 0.7,
+        'max_tokens': 1000,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(utf8.decode(response.bodyBytes));
+      final content = data['choices'][0]['message']['content'];
+      try {
+        final tips = jsonDecode(content);
+        return tips.map((tip) => tip.cast<String, dynamic>()).toList();
+      } catch (e) {
+        throw Exception('Failed to parse tips: $e');
+      }
+    } else {
+      throw Exception('Failed to generate tips: ${response.body}');
+    }
+  }
 } 

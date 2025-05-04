@@ -5,14 +5,14 @@ class ChatMessage {
   final String content;
   final DateTime timestamp;
   final bool isUser;
-  final String? sessionId;
+  final String sessionId;
 
   ChatMessage({
     required this.id,
     required this.content,
     required this.timestamp,
     required this.isUser,
-    this.sessionId,
+    required this.sessionId,
   });
 
   Map<String, dynamic> toMap() {

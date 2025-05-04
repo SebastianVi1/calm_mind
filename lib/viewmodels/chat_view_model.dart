@@ -4,6 +4,7 @@ import 'package:re_mind/models/chat_message.dart';
 import 'package:re_mind/models/user_model.dart';
 import 'package:uuid/uuid.dart';
 import '../services/deepseek_service.dart';
+import '../repositories/chat_messages_repository.dart';
 import 'dart:async';
 
 /// ViewModel for managing chat functionality
@@ -11,6 +12,8 @@ import 'dart:async';
 class ChatViewModel extends ChangeNotifier {
   // Service for AI communication
   final DeepSeekService _deepSeekService;
+  // Repository for chat persistence
+  final ChatMessagesRepository _chatRepository = ChatMessagesRepository();
   
   // List of chat messages
   final List<ChatMessage> _messages = [];
@@ -40,15 +43,96 @@ class ChatViewModel extends ChangeNotifier {
   String? _cachedUserContext;
   bool _hasSentContext = false;
 
+  // Current session ID
+  String _currentSessionId = '';
+
+  // Track if the session has any messages
+  bool _hasMessages = false;
+
+  // Stream subscription for chat history
+  StreamSubscription? _chatHistorySubscription;
+
+  final Map<String, List<ChatMessage>> _sessions = {};
+  Map<String, List<ChatMessage>> get sessions => _sessions;
 
   ChatViewModel(this._deepSeekService) {
-    // Initialize chat with welcome message
-    _messages.add(ChatMessage(
-      id: _uuid.v4(),
-      content: 'Hola, soy Albert ☺️. ¿En qué puedo ayudarte hoy?',
-      isUser: false,
-      timestamp: DateTime.now(),
-    ));
+    // Start a new session when the app starts
+    startNewSession();
+    // Load chat history for the history page
+    _loadChatHistory();
+  }
+
+  /// Loads chat history from Firestore
+  Future<void> _loadChatHistory() async {
+    try {
+      _chatHistorySubscription?.cancel();
+      _chatHistorySubscription = _chatRepository.getChatHistory().listen(
+        (messages) {
+          // Group messages by session
+          _sessions.clear();
+          for (final message in messages) {
+            _sessions.putIfAbsent(message.sessionId, () => []).add(message);
+          }
+
+          // Sort messages within each session
+          for (final session in _sessions.values) {
+            session.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+          }
+
+          notifyListeners();
+        },
+        onError: (error) {
+          print('Error loading chat history: $error');
+        },
+      );
+    } catch (e) {
+      print('Error setting up chat history subscription: $e');
+    }
+  }
+
+  /// Starts a new chat session
+  Future<void> startNewSession() async {
+    try {
+      _currentSessionId = _uuid.v4();
+      _messages.clear();
+      _hasSentContext = false;
+      _hasMessages = false;
+      _currentResponse = '';
+      _stopTypingAnimation();
+      
+      // Add welcome message but don't save it yet
+      final welcomeMessage = ChatMessage(
+        id: _uuid.v4(),
+        content: 'Hola, soy Albert ☺️. ¿En qué puedo ayudarte hoy?',
+        isUser: false,
+        timestamp: DateTime.now(),
+        sessionId: _currentSessionId,
+      );
+      _messages.add(welcomeMessage);
+      notifyListeners();
+    } catch (e) {
+      print('Error starting new session: $e');
+    }
+  }
+
+  /// Continues with an existing session
+  Future<void> continueSession(String sessionId) async {
+    try {
+      _currentSessionId = sessionId;
+      _messages.clear();
+      _hasSentContext = false;
+      _currentResponse = '';
+      _stopTypingAnimation();
+      
+      final sessionMessages = _sessions[sessionId];
+      if (sessionMessages != null && sessionMessages.isNotEmpty) {
+        _messages.addAll(sessionMessages);
+        _hasMessages = true;
+        notifyListeners();
+      }
+    } catch (e) {
+      print('Error continuing session: $e');
+    }
   }
 
   /// Sets the current user and sends their context to the AI
@@ -128,12 +212,26 @@ Guidelines:
     }
 
     // Add user message to chat
-    _messages.add(ChatMessage(
+    final userMessage = ChatMessage(
       id: _uuid.v4(),
       content: message,
       isUser: true,
       timestamp: DateTime.now(),
-    ));
+      sessionId: _currentSessionId,
+    );
+    _messages.add(userMessage);
+    
+    // Save messages only if this is the first message in the session
+    if (!_hasMessages) {
+      _hasMessages = true;
+      // Save the welcome message and user message
+      await _chatRepository.saveMessage(_messages.first);
+      await _chatRepository.saveMessage(userMessage);
+    } else {
+      // Just save the new message
+      await _chatRepository.saveMessage(userMessage);
+    }
+    
     notifyListeners();
 
     // Set loading state and start typing animation
@@ -148,6 +246,7 @@ Guidelines:
       content: '',
       isUser: false,
       timestamp: DateTime.now(),
+      sessionId: _currentSessionId,
     );
     _messages.add(aiMessage);
     notifyListeners();
@@ -161,14 +260,19 @@ Guidelines:
         _currentResponse += chunk;
         // Replace the last message with updated content
         _messages.removeLast();
-        _messages.add(ChatMessage(
-          id: _uuid.v4(),
+        final updatedAiMessage = ChatMessage(
+          id: aiMessage.id,
           content: _currentResponse,
           isUser: false,
           timestamp: DateTime.now(),
-        ));
+          sessionId: _currentSessionId,
+        );
+        _messages.add(updatedAiMessage);
         notifyListeners();
       }
+
+      // Save the complete AI message only after streaming is done
+      await _chatRepository.saveMessage(_messages.last);
 
       // Clean up after response is complete
       _stopTypingAnimation();
@@ -182,37 +286,57 @@ Guidelines:
       _currentResponse = '';
       
       _messages.removeLast();
-      _messages.add(ChatMessage(
+      final errorMessage = ChatMessage(
         id: _uuid.v4(),
         content: 'Lo siento, hubo un error al procesar tu mensaje. Por favor, intenta de nuevo.',
         isUser: false,
         timestamp: DateTime.now(),
-      ));
+        sessionId: _currentSessionId,
+      );
+      _messages.add(errorMessage);
+      // Save error message to Firestore
+      await _chatRepository.saveMessage(errorMessage);
       notifyListeners();
     }
   }
 
   /// Clears the chat history and resets to initial state
-  void clearChat() {
-    _messages.clear();
-    _stopTypingAnimation();
-    _currentResponse = '';
-    _isLoading = false;
-    _hasSentContext = false;
-    
-    // Add welcome message back
-    _messages.add(ChatMessage(
-      id: _uuid.v4(),
-      content: 'Hola, soy Albert ☺️. ¿En qué puedo ayudarte hoy?',
-      isUser: false,
-      timestamp: DateTime.now(),
-    ));
-    notifyListeners();
+  Future<void> clearChat() async {
+    try {
+      // Only delete sessions if they have messages
+      if (_hasMessages) {
+        await _chatRepository.clearAllSessions();
+      }
+      
+      _messages.clear();
+      _stopTypingAnimation();
+      _currentResponse = '';
+      _isLoading = false;
+      _hasSentContext = false;
+      _hasMessages = false;
+      
+      // Create new session
+      _currentSessionId = _uuid.v4();
+      
+      // Add welcome message back but don't save it yet
+      final welcomeMessage = ChatMessage(
+        id: _uuid.v4(),
+        content: 'Hola, soy Albert ☺️. ¿En qué puedo ayudarte hoy?',
+        isUser: false,
+        timestamp: DateTime.now(),
+        sessionId: _currentSessionId,
+      );
+      _messages.add(welcomeMessage);
+      notifyListeners();
+    } catch (e) {
+      print('Error clearing chat: $e');
+    }
   }
 
   @override
   void dispose() {
     _typingAnimationTimer?.cancel();
+    _chatHistorySubscription?.cancel();
     super.dispose();
   }
 } 

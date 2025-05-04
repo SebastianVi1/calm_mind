@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate_on_scroll/flutter_animate_on_scroll.dart';
 import 'package:provider/provider.dart';
 import 'package:re_mind/models/chat_message.dart';
+import 'package:re_mind/repositories/chat_messages_repository.dart';
 import 'package:re_mind/viewmodels/chat_view_model.dart';
 
 class TherapyPage extends StatelessWidget {
@@ -9,10 +10,23 @@ class TherapyPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Navigator(
+      onGenerateRoute: (settings) {
+        return MaterialPageRoute(
+          builder: (context) => _TherapyMainPage(),
+        );
+      },
+    );
+  }
+}
+
+class _TherapyMainPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title:  Text('Terapia',
+        title: Text('Terapia',
           style: Theme.of(context).textTheme.titleLarge,
           textAlign: TextAlign.start,
         ),
@@ -21,10 +35,40 @@ class TherapyPage extends StatelessWidget {
           color: Theme.of(context).brightness == Brightness.dark 
             ? Colors.white 
             : Theme.of(context).primaryColor,
-        ) ,
+        ),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => _ChatHistoryPage()),
+              );
+            },
+            icon: const Icon(Icons.history),
+          ),
+          IconButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Borrar historial'),
+                  content: const Text('¿Estás seguro de que quieres borrar todo el historial de chat?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Cancelar'),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        Navigator.pop(context);
+                        await context.read<ChatViewModel>().clearChat();
+                      },
+                      child: const Text('Borrar'),
+                    ),
+                  ],
+                ),
+              );
+            },
             icon: const Icon(Icons.delete_outline),
           ),
         ],
@@ -32,7 +76,6 @@ class TherapyPage extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            
             const Expanded(child: _MessageList()),
             const _MessageInput(),
           ],
@@ -42,7 +85,125 @@ class TherapyPage extends StatelessWidget {
   }
 }
 
+class _ChatHistoryPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Historial de sesiones'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () async {
+              final viewModel = context.read<ChatViewModel>();
+              await viewModel.startNewSession();
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
+            },
+            tooltip: 'Start New Chat',
+          ),
+        ],
+      ),
+      body: Consumer<ChatViewModel>(
+        builder: (context, viewModel, child) {
+          if (viewModel.sessions.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('No hay sesiones guardadas'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await viewModel.startNewSession();
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: const Text('Iniciar nueva sesión'),
+                  ),
+                ],
+              ),
+            );
+          }
 
+          return ListView.builder(
+            padding: const EdgeInsets.all(8),
+            itemCount: viewModel.sessions.length,
+            itemBuilder: (context, index) {
+              final sessionId = viewModel.sessions.keys.elementAt(index);
+              final sessionMessages = viewModel.sessions[sessionId]!;
+              
+              // Get first and last message
+              final firstMessage = sessionMessages.first;
+              final lastMessage = sessionMessages.last;
+              
+              // Find the first user message
+              final userMessages = sessionMessages.where((m) => m.isUser).toList();
+              final titleMessage = userMessages.isNotEmpty ? userMessages.first : firstMessage;
+              
+              return Card(
+                margin: const EdgeInsets.all(8),
+                child: ExpansionTile(
+                  title: Text(
+                    titleMessage.content.length > 50 
+                      ? '${titleMessage.content.substring(0, 50)}...' 
+                      : titleMessage.content,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  subtitle: Text(
+                    '${firstMessage.timestamp.day}/${firstMessage.timestamp.month}/${firstMessage.timestamp.year}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.play_arrow),
+                    onPressed: () async {
+                      await viewModel.continueSession(sessionId);
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                      }
+                    },
+                    tooltip: 'Continuar esta sesión',
+                  ),
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: sessionMessages.map((message) {
+                          return ListTile(
+                            leading: Icon(
+                              message.isUser ? Icons.person : Icons.psychology,
+                              color: message.isUser 
+                                ? Theme.of(context).colorScheme.primary 
+                                : Theme.of(context).colorScheme.secondary,
+                            ),
+                            title: Text(
+                              message.content,
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            subtitle: Text(
+                              '${message.timestamp.hour}:${message.timestamp.minute.toString().padLeft(2, '0')}',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
 
 class _MessageList extends StatelessWidget {
   const _MessageList();
@@ -185,11 +346,7 @@ class _MessageInputState extends State<_MessageInput> {
                     style: const TextStyle(fontSize: 24),
                   )
                 : const Icon(Icons.send_rounded),
-            onPressed: viewModel.isLoading ? null : (){
-              
-              _sendMessage(viewModel);
-              
-            },
+            onPressed: viewModel.isLoading ? null : () => _sendMessage(viewModel),
             tooltip: 'Send message',
           ),
         ],
