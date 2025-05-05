@@ -1,44 +1,55 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:re_mind/models/mood_model.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:re_mind/repositories/mood_repository.dart';
 
 /// MoodViewModel manages the user's mood state and history
 /// This class handles available moods, the currently selected mood,
 /// and maintains a history of previously selected moods
 class MoodViewModel extends ChangeNotifier{
+  final MoodRepository _moodRepository = MoodRepository();
+  final userId = FirebaseAuth.instance.currentUser!.uid;
   /// List of all available moods that users can select from
-  final List<MoodModel> availableMoods = [
-    MoodModel(
-      label: 'Feliz', 
-      lottieAsset: 'assets/animations/happy_emoji.json', 
-      timestamp: DateTime.now(),
-      color: Colors.blue
-    ),
-    MoodModel(
-      label: 'Neutral', 
-      lottieAsset: 'assets/animations/neutral_emoji.json', 
-      timestamp: DateTime.now(),
-      color: Colors.green
-    ),
-    MoodModel(
-      label: 'Enojado', 
-      lottieAsset: 'assets/animations/angry_emoji.json', 
-      timestamp: DateTime.now(),
-      color: Colors.orangeAccent
-    ),
-    MoodModel(
-      label: 'Triste', 
-      lottieAsset: 'assets/animations/sad_emoji.json', 
-      timestamp: DateTime.now(),
-      color: Colors.grey
-    ),
+  late List<MoodModel> availableMoods;
 
-  ];
+  late List<MoodModel> moodHistory = [];
+
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+  MoodViewModel() {
+    availableMoods = [
+      MoodModel(
+        label: 'Feliz', 
+        lottieAsset: 'assets/animations/happy_emoji.json', 
+        timestamp: DateTime.now(),
+        color: Colors.blue
+      ),
+      MoodModel(
+        label: 'Neutral', 
+        lottieAsset: 'assets/animations/neutral_emoji.json', 
+        timestamp: DateTime.now(),
+        color: Colors.green
+      ),
+      MoodModel(
+        label: 'Enojado', 
+        lottieAsset: 'assets/animations/angry_emoji.json', 
+        timestamp: DateTime.now(),
+        color: Colors.orangeAccent
+      ),
+      MoodModel(
+
+        label: 'Triste', 
+        lottieAsset: 'assets/animations/sad_emoji.json', 
+        timestamp: DateTime.now(),
+        color: Colors.grey
+      ),
+    ];
+  }
   
   /// History of all moods selected by the user
   /// Each entry includes the mood and when it was selected
-  List<MoodModel> moodHistory = [];
-
+  
   /// The currently selected mood
   MoodModel? _selectedMood;
   
@@ -56,21 +67,25 @@ class MoodViewModel extends ChangeNotifier{
   
   /// Saves the currently selected mood with optional note to history
   /// Call this when user presses the submit button
-  void saveMoodEntry() {
+  void saveMoodEntry(){
     if (_selectedMood == null) return;
     
     // Create a copy of the mood with the current timestamp and note
     final moodWithCurrentTime = MoodModel(
+
       label: _selectedMood!.label,
       lottieAsset: _selectedMood!.lottieAsset,
       color: _selectedMood!.color,
       timestamp: DateTime.now(),
       note: noteController.text.isNotEmpty ? noteController.text : null,
     );
+    _moodRepository.registerMood(userId, moodWithCurrentTime);
 
+     //
     // Add the timestamped mood to history
     moodHistory.add(moodWithCurrentTime);
-    
+   
+    notifyListeners();
     // Clear the note
     noteController.clear();
     
@@ -88,10 +103,35 @@ class MoodViewModel extends ChangeNotifier{
     notifyListeners();
   }
 
+  var firstTime = false;
+  Future<List<MoodModel>> fetchMoodHistory(String userId) async {
+    try{
+      if (!firstTime) {
+        setLoading(true);
+        await Future.delayed(Duration(seconds: 1));
+        firstTime = true;
+      }
+      
+      final fetchedMoodHistory = await _moodRepository.getMoodHistory(userId);
+      moodHistory = fetchedMoodHistory;
+      setLoading(false);
+      // Notify listeners about the change
+      notifyListeners();
+      // Convert the list to a map with timestamp as key
+      // and MoodModel as value
+      return moodHistory;
+    }
+    catch (e) {
+      print("Error fetching mood history: $e");
+      return [];
+    }   
+  }
   /// Gets all moods recorded for a specific date
   /// @param date The date to get moods for
   /// @return List of moods recorded on the specified date
   List<MoodModel> getMoodsForDate(DateTime date) {
+    fetchMoodHistory(userId);
+    // Filter the mood history to get moods for the specified date
     return moodHistory.where((mood) {
       
       final moodDate = mood.timestamp;
@@ -199,5 +239,10 @@ class MoodViewModel extends ChangeNotifier{
       default:
         return List.from(moodHistory.reversed); // Most recent first
     }
+  }
+
+  void setLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
   }
 }

@@ -94,7 +94,7 @@ class UserService {
       await saveUserData(userModel);
       return user.uid;
     } catch (e) {
-      throw Exception('Error al crear usuario anónimo: ${e.toString()}');
+      throw Exception('Error al crear usuario+ anónimo: ${e.toString()}');
     }
   }
 

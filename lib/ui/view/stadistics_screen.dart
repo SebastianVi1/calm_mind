@@ -178,7 +178,7 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
                               style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.grey),
                             ),
                           ),
-                          if (actualMood.note != null) 
+                          if (actualMood.note != null && actualMood.note!.trim().isNotEmpty) 
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                               child: Container(

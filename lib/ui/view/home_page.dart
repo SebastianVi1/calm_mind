@@ -8,6 +8,7 @@ import 'package:re_mind/ui/widgets/mood_lottie_container.dart';
 import 'package:re_mind/viewmodels/mood_view_model.dart';
 import 'package:re_mind/viewmodels/theme_view_model.dart';
 import 'package:re_mind/viewmodels/tips_view_model.dart';
+import 'package:re_mind/viewmodels/user_view_model.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -16,7 +17,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<MoodViewModel>(
       builder: (context, viewModel, child) {
-        var theme = Theme.of(context);
+        
         return Scaffold(
           appBar: AppBar(
             title: Icon(Icons.home, color: Theme.of(context).brightness == Brightness.dark ? Colors.white: Colors.black,),
@@ -113,11 +114,7 @@ class HomePage extends StatelessWidget {
                       )
                     ),
                     
-                    const SizedBox(height: 20),
-                    // Título y tendencia
                     
-                    const SizedBox(height: 10),
-                
                   ],
                 ),
               ),
@@ -129,6 +126,8 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _buildMoodStates(MoodViewModel viewModel, BuildContext context) {
+    var provider = Provider.of<MoodViewModel>(context);
+    bool isLoading = provider.isLoading;   
     return Column(
       children: [
         // Mood selection row
@@ -180,13 +179,15 @@ class HomePage extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: viewModel.selectedMood != null
                         ? () {
-                            viewModel.saveMoodEntry();
+                            
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
+                              SnackBar(
                                 content: Text('Tu estado de ánimo ha sido guardado'),
-                                duration: Duration(seconds: 2),
+                                duration: Duration(seconds: 1),
+                                backgroundColor: viewModel.selectedMood?.color ?? Colors.white,
                               ),
                             );
+                            viewModel.saveMoodEntry();
                           }
                         : null,
                       
@@ -195,13 +196,27 @@ class HomePage extends StatelessWidget {
                   ),
                   Flexible(
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const StadisticsScreen()),
-                        );
+                      onPressed: () async {
+                       
+
+                        try {
+                          await context.read<MoodViewModel>().fetchMoodHistory(context.read<UserViewModel>().currentUser.uid);
+                         
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const StadisticsScreen()),
+                          );
+                        } catch (e) {
+                          Navigator.pop(context); // Cerrar el indicador de carga
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Error al cargar el historial: $e'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
                       },
-                      child: const Text('Historial'),
+                      child: isLoading ? Lottie.asset('assets/animations/loading.json', width: 24, height: 20) : const Text('Historial'),
                     ),
                   ),
                 ],
@@ -224,4 +239,4 @@ class HomePage extends StatelessWidget {
       }
     );
   }
-} 
+}
