@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate_on_scroll/flutter_animate_on_scroll.dart';
 import 'package:provider/provider.dart';
 import 'package:re_mind/models/chat_message.dart';
-import 'package:re_mind/repositories/chat_messages_repository.dart';
 import 'package:re_mind/viewmodels/chat_view_model.dart';
 
 class TherapyPage extends StatelessWidget {
@@ -90,7 +89,10 @@ class _ChatHistoryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Historial de sesiones'),
+        title: Text(
+          'Historial de sesiones',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
@@ -141,7 +143,7 @@ class _ChatHistoryPage extends StatelessWidget {
               
               // Get first and last message
               final firstMessage = sessionMessages.first;
-              final lastMessage = sessionMessages.last;
+              
               
               // Find the first user message
               final userMessages = sessionMessages.where((m) => m.isUser).toList();

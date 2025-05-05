@@ -55,4 +55,29 @@ class MoodRepository {
       throw Exception("Error al obtener el historial de moods: $error");
     }
   }
+
+  Future<void> deleteMood(userId, MoodModel mood) async {
+    try {
+      final userMoodDoc = _db.collection("mood_history").doc(userId);
+
+      // get the user document
+      final docSnapshot = await userMoodDoc.get();
+
+      if (!docSnapshot.exists) {
+        throw Exception("El documento no existe");
+      } else {
+        // Update the existing document
+        final data = docSnapshot.data() as Map<String, dynamic>;
+        final moods = List<Map<String, dynamic>>.from(data['moods'] ?? []);
+        moods.removeWhere((m) => m['timestamp'] == mood.timestamp.millisecondsSinceEpoch);
+
+        await userMoodDoc.update({
+          'moods': moods,
+          'lastUpdated': FieldValue.serverTimestamp(),
+        });
+      }
+    } catch (error) {
+      throw Exception("Error al eliminar el mood: $error");
+    }
+  }
 }

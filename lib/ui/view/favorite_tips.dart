@@ -87,9 +87,7 @@ class _FavoriteTipsPageState extends State<FavoriteTipsPage> with SingleTickerPr
           style: theme.textTheme.titleLarge,
         ),
         backgroundColor: Colors.transparent,
-        iconTheme: IconThemeData(
-          color: theme.brightness == Brightness.dark ? Colors.white: Colors.black
-        ),
+        
       ),
       body: Column(
         children: [

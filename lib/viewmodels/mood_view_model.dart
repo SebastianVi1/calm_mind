@@ -103,13 +103,13 @@ class MoodViewModel extends ChangeNotifier{
     notifyListeners();
   }
 
-  var firstTime = false;
+  bool _firstTime = false;
   Future<List<MoodModel>> fetchMoodHistory(String userId) async {
     try{
-      if (!firstTime) {
+      if (!_firstTime) {
         setLoading(true);
         await Future.delayed(Duration(seconds: 1));
-        firstTime = true;
+        _firstTime = true;
       }
       
       final fetchedMoodHistory = await _moodRepository.getMoodHistory(userId);
@@ -244,5 +244,16 @@ class MoodViewModel extends ChangeNotifier{
   void setLoading(bool value) {
     _isLoading = value;
     notifyListeners();
+  }
+
+  /// Deletes a mood from the history and updates the database
+  Future<void> deleteMood(MoodModel mood, String userId) async {
+    try {
+      moodHistory.remove(mood);
+      await _moodRepository.deleteMood(userId, mood);
+      notifyListeners();
+    } catch (e) {
+      throw Exception("Error deleting mood: $e");
+    }
   }
 }

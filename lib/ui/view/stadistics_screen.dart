@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:re_mind/ui/widgets/mood_lottie_title.dart';
 import 'package:re_mind/viewmodels/mood_view_model.dart';
 
+
 class StadisticsScreen extends StatefulWidget {
   const StadisticsScreen({super.key});
 
@@ -21,10 +22,6 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 40,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        iconTheme: const IconThemeData(
-          color: Colors.blue
-        ),
       ),
       body: Consumer<MoodViewModel>(
         builder: (context, viewModel, child) {
@@ -150,53 +147,61 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
 
                   config: BaseAnimationConfig(
                       useScrollForAnimation: true,
-                      delay: 2000.ms,
+                      delay: 300.ms,
                       curves: Curves.easeInOut,
-                      child: Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                        child: Padding(
-                      padding: const EdgeInsets.all(6.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ListTile(
-                            leading: Lottie.asset(
-                              actualMood.lottieAsset,
-                              animate: false,
-                              frameRate: FrameRate.max,
-                            ),
-                            title: Text(
-                              actualMood.label,
-                              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                color: actualMood.color,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1.5
+                      child: GestureDetector(
+                        onLongPress: () {
+                          
+                        },
+                        child: Card(
+                          margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                          child: Padding(
+                        padding: const EdgeInsets.all(6.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ListTile(
+                              leading: Lottie.asset(
+                                actualMood.lottieAsset,
+                                animate: false,
+                                frameRate: FrameRate.max,
+                              ),
+                              title: Text(
+                                actualMood.label,
+                                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                  color: actualMood.color,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.5
+                                ),
+                              ),
+                              subtitle: Text(
+                                dateString,
+                                style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.grey),
                               ),
                             ),
-                            subtitle: Text(
-                              dateString,
-                              style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.grey),
-                            ),
+                            if (actualMood.note != null && actualMood.note!.trim().isNotEmpty) 
+                              Padding(
+                                padding: const EdgeInsets.only(left: 16.0),
+                                child: Container(
+                                  padding: const EdgeInsets.all(10),
+                                  
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[400],
+                                    borderRadius: BorderRadius.circular(20)
+                                  ),
+                                  
+                                  child: Text(
+                                    actualMood.note!,
+                                    style: Theme.of(context).textTheme.labelMedium,
+                                    textAlign: TextAlign.start
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          if (actualMood.note != null && actualMood.note!.trim().isNotEmpty) 
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                              child: Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[400],
-                                  borderRadius: BorderRadius.circular(20)
-                                ),
-                                child: Text(
-                                  actualMood.note!,
-                                  style: Theme.of(context).textTheme.labelMedium,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                        )
+                                            ),
                       )
-                    )
                   )
                 );
               }

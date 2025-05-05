@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate_on_scroll/flutter_animate_on_scroll.dart';
 import 'package:provider/provider.dart';
+import 'package:re_mind/ui/view/therapy_page.dart';
 import 'package:re_mind/ui/view/welcome_screen.dart';
 import 'package:re_mind/viewmodels/auth_view_model.dart';
+import 'package:re_mind/viewmodels/chat_view_model.dart';
 import 'package:re_mind/viewmodels/user_view_model.dart';
-import 'package:lottie/lottie.dart';
+
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -26,10 +27,6 @@ class _ProfilePageState extends State<ProfilePage> {
         title: Text(
           'Perfil',
           style: Theme.of(context).textTheme.titleLarge,
-        ),
-        backgroundColor: Colors.transparent,
-        actionsIconTheme: IconThemeData(
-          color: Theme.of(context).brightness == Brightness.dark ? Colors.red : Colors.black,
         ),
         actions: [
           IconButton(onPressed: (){
@@ -141,6 +138,50 @@ class _ProfilePageState extends State<ProfilePage> {
             user.email ?? 'Usuario anonimo',
             style: Theme.of(context).textTheme.bodySmall,
           ),
+          const SizedBox(height: 20),
+          if (context.read<ChatViewModel>().sessions.isNotEmpty)
+
+            Card(
+              
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Theme.of(context).colorScheme.primary,
+                      Theme.of(context).colorScheme.secondary,
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: ListTile(
+                  title: Text(
+                    'Continua tu ultima sesion',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.arrow_forward),
+                    onPressed: () {
+                      final lastSession = context.read<ChatViewModel>().sessions.keys.last;
+                      context.read<ChatViewModel>().continueSession(lastSession);
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => TherapyPage(),
+                        ),
+                      );
+                    },
+                    
+                  ),
+                  subtitle: Text(
+                    context.read<ChatViewModel>().sessions.values.last[0].content,
+                    style: Theme.of(context).textTheme.bodySmall,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    ),
+                ),
+              ),
+            )
           
         ],
       ),

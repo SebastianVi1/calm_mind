@@ -55,11 +55,12 @@ class Themes {
     ),
     
     appBarTheme: AppBarTheme(
+      color: Colors.transparent,
       actionsIconTheme: IconThemeData(
-        color: Colors.white
+        color: lightOnSecondary
       ),
       centerTitle: true,
-      iconTheme: IconThemeData(color: lightOnPrimary,),
+      iconTheme: IconThemeData(color: lightOnSecondary,),
       toolbarHeight: 40,
       
     ),
@@ -137,11 +138,16 @@ class Themes {
       ),
     ),
     appBarTheme: AppBarTheme(
-      backgroundColor: darkPrimary,
+      backgroundColor: Colors.transparent,
       foregroundColor: darkOnPrimary,
       elevation: 0,
       centerTitle: true,
-      iconTheme: IconThemeData(color: darkOnPrimary),
+      iconTheme: IconThemeData(color: darkOnSurface),
+      actionsIconTheme: IconThemeData(
+        color: darkOnSurface,
+      ),
+      
+      
     ),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: darkSurface,

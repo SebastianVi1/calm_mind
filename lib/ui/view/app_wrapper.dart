@@ -93,7 +93,7 @@ class _AppWrapperState extends State<AppWrapper> {
     if (_isLoading) {
       return  Scaffold(
         body: Center(
-          child: Lottie.asset('assets/animations/loading.json')
+          child: Lottie.asset('assets/animations/loading.json',width: 150)
         ),
       );
     }
