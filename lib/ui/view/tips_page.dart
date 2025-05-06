@@ -208,13 +208,13 @@ class _TipsPageState extends State<TipsPage> with SingleTickerProviderStateMixin
                           Icon(
                             Icons.info_outline,
                             size: 48,
-                            color: colorScheme.primary.withOpacity(0.5),
+                            color: colorScheme.primary.withAlpha(150),
                           ),
                           const SizedBox(height: 16),
                           Text(
                             'No hay consejos disponibles',
                             style: theme.textTheme.titleMedium?.copyWith(
-                              color: colorScheme.onSurface.withOpacity(0.7),
+                              color: colorScheme.onSurface.withAlpha(200),
                             ),
                           ),
                         ],

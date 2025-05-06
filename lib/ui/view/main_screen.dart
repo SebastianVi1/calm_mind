@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:provider/provider.dart';
 import 'package:re_mind/ui/view/forum_page.dart';
 import 'package:re_mind/ui/view/therapy_page.dart';
@@ -33,6 +34,7 @@ class MainScreen extends StatelessWidget {
           ),
           
           bottomNavigationBar: NavigationBar(
+            
             // Índice actual seleccionado
             selectedIndex: navigationViewModel.currentIndex,
             
@@ -47,20 +49,20 @@ class MainScreen extends StatelessWidget {
             // Destinos de navegación
             destinations: [
               NavigationDestination(
-                icon: const Icon(Icons.home_outlined),
-                selectedIcon: const Icon(Icons.home),
+                icon:  HugeIcon(icon: HugeIcons.strokeRoundedHome09, color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white),
+                selectedIcon: HugeIcon(icon: HugeIcons.strokeRoundedHome09, color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,),
                 label: 'Inicio',
                 tooltip: 'Página de inicio',
               ),
               NavigationDestination(
-                icon: const Icon(Icons.person_outline),
-                selectedIcon: const Icon(Icons.person),
+                icon: HugeIcon(icon: HugeIcons.strokeRoundedChatBot, color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white),
+                selectedIcon: HugeIcon(icon: HugeIcons.strokeRoundedChatBot, color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white),
                 label: 'Terapia',
                 tooltip: 'Terapia con un chat de IA',
               ),
               NavigationDestination(
-                icon: const Icon(Icons.lightbulb_outline),
-                selectedIcon: const Icon(Icons.lightbulb),
+                icon:HugeIcon(icon: HugeIcons.strokeRoundedIdea01, color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white),
+                selectedIcon: HugeIcon(icon: HugeIcons.strokeRoundedIdea01, color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white),
                 label: 'Consejos',
                 tooltip: 'Consejos generales para salud mental',
               ),

@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:re_mind/models/mood_model.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:re_mind/repositories/mood_repository.dart';
+import 'package:uuid/uuid.dart';
 
 /// MoodViewModel manages the user's mood state and history
 /// This class handles available moods, the currently selected mood,
@@ -69,10 +71,10 @@ class MoodViewModel extends ChangeNotifier{
   /// Call this when user presses the submit button
   void saveMoodEntry(){
     if (_selectedMood == null) return;
-    
+    Uuid uuid = const Uuid();
     // Create a copy of the mood with the current timestamp and note
     final moodWithCurrentTime = MoodModel(
-
+      moodId: uuid.v4(),
       label: _selectedMood!.label,
       lottieAsset: _selectedMood!.lottieAsset,
       color: _selectedMood!.color,
@@ -246,14 +248,9 @@ class MoodViewModel extends ChangeNotifier{
     notifyListeners();
   }
 
-  /// Deletes a mood from the history and updates the database
-  Future<void> deleteMood(MoodModel mood, String userId) async {
-    try {
-      moodHistory.remove(mood);
-      await _moodRepository.deleteMood(userId, mood);
-      notifyListeners();
-    } catch (e) {
-      throw Exception("Error deleting mood: $e");
-    }
+  void deleteMood(MoodModel mood) {
+    _moodRepository.deleteMood(userId, mood);
+    moodHistory.remove(mood);
+    notifyListeners();
   }
 }

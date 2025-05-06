@@ -4,8 +4,11 @@ import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:re_mind/ui/view/profile_page.dart';
 import 'package:re_mind/ui/view/stadistics_screen.dart';
+import 'package:re_mind/ui/view/therapy_page.dart';
 import 'package:re_mind/ui/widgets/mood_lottie_container.dart';
+import 'package:re_mind/viewmodels/chat_view_model.dart';
 import 'package:re_mind/viewmodels/mood_view_model.dart';
+import 'package:re_mind/viewmodels/navigation_view_model.dart';
 import 'package:re_mind/viewmodels/theme_view_model.dart';
 import 'package:re_mind/viewmodels/tips_view_model.dart';
 import 'package:re_mind/viewmodels/user_view_model.dart';
@@ -64,6 +67,7 @@ class _HomePageMain extends StatelessWidget {
                         child: _buildMoodStates(viewModel, context),
                       )
                     ),
+                    
                     
                     
                   ],

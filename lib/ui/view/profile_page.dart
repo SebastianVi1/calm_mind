@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:provider/provider.dart';
 import 'package:re_mind/ui/view/therapy_page.dart';
 import 'package:re_mind/ui/view/welcome_screen.dart';
 import 'package:re_mind/viewmodels/auth_view_model.dart';
 import 'package:re_mind/viewmodels/chat_view_model.dart';
+import 'package:re_mind/viewmodels/navigation_view_model.dart';
 import 'package:re_mind/viewmodels/user_view_model.dart';
 
 
@@ -54,7 +56,7 @@ class _ProfilePageState extends State<ProfilePage> {
               },
             );
             
-          }, icon: Icon(Icons.logout_outlined))
+          }, icon: HugeIcon(icon: HugeIcons.strokeRoundedLogout02, color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white))
         ],
       ),
       body: Column(
@@ -81,7 +83,10 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildProfileImage(BuildContext context, UserViewModel viewModel) {
     return GestureDetector(
       onTap: (){
-        viewModel.pickImageFromGallery().then((file) => viewModel.updateProfilePicture(file));
+        viewModel.pickImageFromGallery().then((file) {
+          viewModel.updateProfilePicture(file);
+
+        } );
       },
       child: Container(
         width: 100,
@@ -142,7 +147,6 @@ class _ProfilePageState extends State<ProfilePage> {
           if (context.read<ChatViewModel>().sessions.isNotEmpty)
 
             Card(
-              
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -163,6 +167,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   trailing: IconButton(
                     icon: const Icon(Icons.arrow_forward),
                     onPressed: () {
+                      context.read<NavigationViewModel>().changeIndex(1);
                       final lastSession = context.read<ChatViewModel>().sessions.keys.last;
                       context.read<ChatViewModel>().continueSession(lastSession);
                       Navigator.of(context).push(
@@ -174,7 +179,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     
                   ),
                   subtitle: Text(
-                    context.read<ChatViewModel>().sessions.values.last[0].content,
+                    
+                    context.read<ChatViewModel>().sessions.values.last[1].content,
                     style: Theme.of(context).textTheme.bodySmall,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

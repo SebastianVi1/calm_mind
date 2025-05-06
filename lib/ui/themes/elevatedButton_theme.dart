@@ -38,7 +38,7 @@ class TElevatedbuttonTheme {
       overlayColor: WidgetStateProperty.resolveWith<Color>(
         (Set<WidgetState> states) {
           if (states.contains(WidgetState.pressed)) {
-            return Themes.lightOnPrimary.withOpacity(0.1);
+            return Themes.lightOnPrimary.withAlpha( 40);
           }
           return Colors.transparent;
         },
@@ -58,7 +58,7 @@ class TElevatedbuttonTheme {
       backgroundColor: WidgetStateProperty.resolveWith<Color>(
         (Set<WidgetState> states) {
           if (states.contains(WidgetState.disabled)) {
-            return Themes.darkPrimary.withOpacity(0.5);
+            return Themes.darkPrimary..withAlpha( 40);
           }
           return Themes.darkPrimary;
         },
@@ -66,7 +66,7 @@ class TElevatedbuttonTheme {
       foregroundColor: WidgetStateProperty.resolveWith<Color>(
         (Set<WidgetState> states) {
           if (states.contains(WidgetState.disabled)) {
-            return Themes.darkOnPrimary.withOpacity(0.5);
+            return Themes.darkOnPrimary..withAlpha( 40);
           }
           return Themes.darkOnPrimary;
         },
@@ -82,7 +82,7 @@ class TElevatedbuttonTheme {
       overlayColor: WidgetStateProperty.resolveWith<Color>(
         (Set<WidgetState> states) {
           if (states.contains(WidgetState.pressed)) {
-            return Themes.darkOnPrimary.withOpacity(0.1);
+            return Themes.darkOnPrimary.withAlpha( 40);
           }
           return Colors.transparent;
         },

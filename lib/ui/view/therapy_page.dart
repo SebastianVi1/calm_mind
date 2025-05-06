@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate_on_scroll/flutter_animate_on_scroll.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:provider/provider.dart';
 import 'package:re_mind/models/chat_message.dart';
 import 'package:re_mind/viewmodels/chat_view_model.dart';
+import 'package:re_mind/viewmodels/user_view_model.dart';
 
 class TherapyPage extends StatelessWidget {
   const TherapyPage({super.key});
@@ -94,12 +96,12 @@ class _ChatHistoryPage extends StatelessWidget {
           style: Theme.of(context).textTheme.titleLarge,
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: HugeIcon(icon: HugeIcons.strokeRoundedArrowLeft02, color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: HugeIcon(icon: HugeIcons.strokeRoundedBubbleChatAdd, color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white),
             onPressed: () async {
               final viewModel = context.read<ChatViewModel>();
               await viewModel.startNewSession();
@@ -150,53 +152,65 @@ class _ChatHistoryPage extends StatelessWidget {
               final titleMessage = userMessages.isNotEmpty ? userMessages.first : firstMessage;
               
               return Card(
+                
                 margin: const EdgeInsets.all(8),
-                child: ExpansionTile(
-                  title: Text(
-                    titleMessage.content.length > 50 
-                      ? '${titleMessage.content.substring(0, 50)}...' 
-                      : titleMessage.content,
-                    style: Theme.of(context).textTheme.titleMedium,
+                
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    
                   ),
-                  subtitle: Text(
-                    '${firstMessage.timestamp.day}/${firstMessage.timestamp.month}/${firstMessage.timestamp.year}',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.play_arrow),
-                    onPressed: () async {
-                      await viewModel.continueSession(sessionId);
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                      }
-                    },
-                    tooltip: 'Continuar esta sesión',
-                  ),
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        children: sessionMessages.map((message) {
-                          return ListTile(
-                            leading: Icon(
-                              message.isUser ? Icons.person : Icons.psychology,
-                              color: message.isUser 
-                                ? Theme.of(context).colorScheme.primary 
-                                : Theme.of(context).colorScheme.secondary,
-                            ),
-                            title: Text(
-                              message.content,
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                            subtitle: Text(
-                              '${message.timestamp.hour}:${message.timestamp.minute.toString().padLeft(2, '0')}',
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          );
-                        }).toList(),
-                      ),
+                  child: ExpansionTile(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  ],
+                    title: Text(
+                      titleMessage.content.length > 50 
+                        ? '${titleMessage.content.substring(0, 50)}...' 
+                        : titleMessage.content,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    subtitle: Text(
+                      '${firstMessage.timestamp.day}/${firstMessage.timestamp.month}/${firstMessage.timestamp.year}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.play_arrow),
+                      onPressed: () async {
+                        await viewModel.continueSession(sessionId);
+                        if (context.mounted) {
+                          Navigator.pop(context);
+                        }
+                      },
+                      tooltip: 'Continuar esta sesión',
+                    ),
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: sessionMessages.map((message) {
+                            return ListTile(
+                              leading: Icon(
+                                message.isUser ? Icons.person : Icons.psychology,
+                                color: message.isUser 
+                                  ? Theme.of(context).colorScheme.primary 
+                                  : Theme.of(context).colorScheme.secondary,
+                              ),
+                              title: Text(
+                                message.content,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                              subtitle: Text(
+                                '${message.timestamp.hour}:${message.timestamp.minute.toString().padLeft(2, '0')}',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
@@ -226,7 +240,20 @@ class _MessageList extends StatelessWidget {
           itemCount: viewModel.messages.length,
           itemBuilder: (context, index) {
             final message = viewModel.messages[viewModel.messages.length - 1 - index];
-            return _MessageBubble(message: message);
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _MessageBubble(message: message),
+                Container(
+                  width: 50,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: DecorationImage(image: context.read<UserViewModel>().getProfileImage())
+                  )
+                  ,
+                )
+              ],
+            );
           },
         );
       },
@@ -309,7 +336,7 @@ class _MessageInputState extends State<_MessageInput> {
         color: theme.scaffoldBackgroundColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withAlpha(40),
             blurRadius: 4,
             offset: const Offset(0, -2),
           ),

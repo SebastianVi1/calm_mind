@@ -48,7 +48,7 @@ class MoodRepository {
 
       final data = docSnapshot.data() as Map<String, dynamic>;
       final moods = List<Map<String, dynamic>>.from(data['moods'] ?? []);
-      print('hecho');
+
       return moods.map((mood) => MoodModel.fromJson(mood)).toList();
     } catch (error) {
   

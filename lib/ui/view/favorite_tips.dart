@@ -187,13 +187,13 @@ class _FavoriteTipsPageState extends State<FavoriteTipsPage> with SingleTickerPr
                         Icon(
                           Icons.favorite_border,
                           size: 48,
-                          color: colorScheme.primary.withOpacity(0.5),
+                          color: colorScheme.primary.withAlpha(150),
                         ),
                         const SizedBox(height: 16),
                         Text(
                           'No hay consejos favoritos',
                           style: theme.textTheme.titleMedium?.copyWith(
-                            color: colorScheme.onSurface.withOpacity(0.7),
+                            color: colorScheme.onSurface.withAlpha(200),
                           ),
                         ),
                       ],

@@ -46,7 +46,7 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(20),
             
-            child: Lottie.asset('assets/animations/meditation.json',width: 200,)
+            child: Lottie.asset('assets/animations/meditation.json',width: 150,)
           ),
         ),
       );
@@ -96,7 +96,7 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
                 backgroundColor: WidgetStateProperty.resolveWith<Color?>(
                   (Set<WidgetState> states) {
                     if (states.contains(WidgetState.selected)) {
-                      return Theme.of(context).primaryColor.withOpacity(0.2);
+                      return Theme.of(context).primaryColor.withAlpha(50);
                     }
                     return null;
                   },
@@ -256,8 +256,8 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
 
                 gradient: LinearGradient(
                   colors: [
-                    Theme.of(context).primaryColor.withAlpha(100),
-                    Theme.of(context).primaryColor,
+                    Theme.of(context).colorScheme.primary, //Color of the line in the chart
+                    Theme.of(context).colorScheme.secondary,
                   ],
                 ),
                 barWidth: 4,
@@ -277,8 +277,8 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
                   show: true,
                   gradient: LinearGradient(
                     colors: [
-                      Theme.of(context).primaryColor.withOpacity(0.3),
-                      Theme.of(context).primaryColor.withOpacity(0.0),
+                      Theme.of(context).primaryColor.withAlpha(80),
+                      Theme.of(context).primaryColor,
                     ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
@@ -286,6 +286,7 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
                 ),
               ),
             ],
+
             titlesData: FlTitlesData(
               bottomTitles: AxisTitles(
                 sideTitles: SideTitles(
@@ -330,7 +331,7 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
               horizontalInterval: 1,
               getDrawingHorizontalLine: (value) {
                 return FlLine(
-                  color: Theme.of(context).dividerColor.withOpacity(0.2),
+                  color: Theme.of(context).dividerColor.withAlpha(50),
                   strokeWidth: 1,
                 );
               },
@@ -338,10 +339,11 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
             borderData: FlBorderData(
               show: true,
               border: Border.all(
-                color: Theme.of(context).dividerColor.withOpacity(0.2),
+                color: Theme.of(context).dividerColor.withAlpha(50),
               ),
             ),
             lineTouchData: LineTouchData(
+              
               touchTooltipData: LineTouchTooltipData(
                 getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
                   return touchedBarSpots.map((barSpot) {
