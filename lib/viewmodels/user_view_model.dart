@@ -127,6 +127,8 @@ class UserViewModel extends ChangeNotifier {
   /// 2. Base64 encoded image from Firestore (if any)
   /// 3. Default blank profile picture
   ImageProvider getProfileImage() {
+    var photo =currentUser.photoURL;
+    
     if (_selectedImage != null) {
       return FileImage(_selectedImage!);
     } else if (photoURL != null) {

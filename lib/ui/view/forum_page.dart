@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:lottie/lottie.dart';
+import 'package:re_mind/ui/widgets/drawer_key.dart';
 
 class ForumPage extends StatelessWidget {
   const ForumPage({super.key});
@@ -28,6 +29,13 @@ class _ForumPageMain extends StatelessWidget {
           'Foro',
           style: Theme.of(context).textTheme.titleLarge,
         ),
+        actions: [
+          // Botón para abrir el drawer global
+          IconButton(
+            icon: Icon(Icons.menu),
+            onPressed: () => openGlobalEndDrawer(context),
+          ),
+        ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -55,6 +63,15 @@ class _ForumPageMain extends StatelessWidget {
             child: Container(
               alignment: Alignment.center,
               decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(context).brightness == Brightness.dark ? Colors.blue.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.2),
+                    
+                    blurRadius: 4,
+                    offset: Offset(3,5)
+                    
+                  )
+                ],
                 borderRadius: BorderRadius.circular(8),
                 gradient: LinearGradient(
                   colors: [
@@ -91,124 +108,138 @@ class _ForumPageMain extends StatelessWidget {
             spacing: 10,
             children: [
               Expanded(
-                child: InkWell(
+                child: Container(
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Theme.of(context).brightness == Brightness.dark ? Colors.blue.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.2),
+                        
+                        blurRadius: 4,
+                        offset: Offset(3,5)
+                        
+                      )
+                    ],
+                    gradient: LinearGradient(colors: [Colors.purple, Colors.deepOrange, Colors.orange]),
+                    borderRadius: BorderRadius.circular(16)
+                  ),
+                   child: Column(
+                    spacing: 5,
+                    
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        alignment: Alignment.topRight,
+                        child: Lottie.asset('assets/animations/music_hearing.json',width: 100),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        child: Text(
+                          'Relajacion',
+                          style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold, color: Colors.white),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        child: Text(
+                          'Musica',
+                          style: Theme.of(context).textTheme.labelMedium?.copyWith(color: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(height: 10,),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Text(
+                            '3-10 MIN',
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w900, color: Colors.white),
+                          ),
+                          SizedBox(
+                            height: 40,
+                            
+                            child: FilledButton(
+                              style: ButtonStyle(
+                                backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                              
+                              ),
+                              onPressed: (){},
+                              child: HugeIcon(icon: HugeIcons.strokeRoundedPlay, color: Colors.white)
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10,)
+                
+                    ],
+                   ),
+                ),
+              ),
+              Expanded(
+                child: Flexible(
+                  
                   child: Container(
+                    
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: [Colors.purple, Colors.deepOrange, Colors.orange]),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).brightness == Brightness.dark ? Colors.blue.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.2),
+                          spreadRadius: 2,
+                          blurRadius: 3,
+                          offset: Offset(0,1)
+                          
+                        )
+                      ],
+                      gradient: LinearGradient(colors: [Color(0xFFD8B5FF), Color(0xFF1EAE98)]),
                       borderRadius: BorderRadius.circular(16)
                     ),
-                     child: Column(
+                    child: Column(
                       spacing: 5,
-                      
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
+
                           alignment: Alignment.topRight,
-                          child: Lottie.asset('assets/animations/music_hearing.json',width: 100),
+                          child: Lottie.asset('assets/animations/focus_brain.json', 
+                          width: 100
+                          )
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 15),
                           child: Text(
-                            'Relajacion',
-                            style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold, color: Colors.white),
+                            'Concentrate',
+                            style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          padding: EdgeInsets.symmetric(horizontal: 15),
                           child: Text(
-                            'Musica',
-                            style: Theme.of(context).textTheme.labelMedium?.copyWith(color: Colors.white),
+                            'Meditacion',
+                            style: Theme.of(context).textTheme.labelMedium?.copyWith(),
                           ),
                         ),
                         const SizedBox(height: 10,),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Text(
-                              '3-10 MIN',
-                              style: Theme.of(context).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w900, color: Colors.white),
-                            ),
-                            SizedBox(
-                              height: 40,
-                              
-                              child: FilledButton(
-                                style: ButtonStyle(
-                                  backgroundColor: WidgetStatePropertyAll(Colors.transparent),
-                                
-                                ),
-                                onPressed: (){},
-                                child: HugeIcon(icon: HugeIcons.strokeRoundedPlay, color: Colors.white)
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10,)
-
-                      ],
-                     ),
-                  ),
-                
-                ),
-              ),
-              Expanded(
-                child: InkWell(
-                  child: Flexible(
-                    flex: 2,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(colors: [Color(0xFFD8B5FF), Color(0xFF1EAE98)]),
-                        borderRadius: BorderRadius.circular(16)
-                      ),
-                      child: Column(
-                        spacing: 5,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          Container(
-                            alignment: Alignment.topRight,
-                            child: Lottie.asset('assets/animations/focus_brain.json', 
-                            width: 100
-                            )
+                          Text(
+                            '3-10 MIN',
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w900, color: Colors.white),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 15),
-                            child: Text(
-                              'Concentrate',
-                              style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 15),
-                            child: Text(
-                              'Meditacion',
-                              style: Theme.of(context).textTheme.labelMedium?.copyWith(),
-                            ),
-                          ),
-                          const SizedBox(height: 10,),
-                          Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Text(
-                              '3-10 MIN',
-                              style: Theme.of(context).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w900, color: Colors.white),
-                            ),
-                            SizedBox(
-                              height: 40,
-                              child: FilledButton(
-                                style: ButtonStyle(
-                                  backgroundColor: WidgetStatePropertyAll(Colors.transparent),
-                                ),
-                                onPressed: (){},
-                                child: HugeIcon(icon: HugeIcons.strokeRoundedPlay, color: Colors.white)
+                          SizedBox(
+                            height: 40,
+                            child: FilledButton(
+                              style: ButtonStyle(
+                                backgroundColor: WidgetStatePropertyAll(Colors.transparent),
                               ),
+                              onPressed: (){},
+                              child: HugeIcon(icon: HugeIcons.strokeRoundedPlay, color: Colors.white)
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 10,)
+                          ),
                         ],
                       ),
+                      const SizedBox(height: 10,)
+                      ],
                     ),
                   ),
-                
                 ),
               )
               

@@ -3,6 +3,8 @@ import 'package:flutter_animate_on_scroll/flutter_animate_on_scroll.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:provider/provider.dart';
 import 'package:re_mind/models/chat_message.dart';
+import 'package:re_mind/ui/widgets/drawer_key.dart';
+import 'package:re_mind/ui/widgets/end_drawer.dart';
 import 'package:re_mind/viewmodels/chat_view_model.dart';
 import 'package:re_mind/viewmodels/user_view_model.dart';
 
@@ -22,21 +24,20 @@ class TherapyPage extends StatelessWidget {
 }
 
 class _TherapyMainPage extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      
       appBar: AppBar(
+        
         centerTitle: true,
         title: Text('Terapia',
           style: Theme.of(context).textTheme.titleLarge,
           textAlign: TextAlign.start,
         ),
         backgroundColor: Colors.transparent,
-        actionsIconTheme: IconThemeData(
-          color: Theme.of(context).brightness == Brightness.dark 
-            ? Colors.white 
-            : Theme.of(context).primaryColor,
-        ),
+        
         actions: [
           IconButton(
             onPressed: () {
@@ -46,6 +47,51 @@ class _TherapyMainPage extends StatelessWidget {
               );
             },
             icon: const Icon(Icons.history),
+          ),
+
+          IconButton(
+            icon: Icon(Icons.menu),
+            onPressed: () => openGlobalEndDrawer(context),
+          )
+        ],
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            const Expanded(child: _MessageList()),
+            const _MessageInput(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ChatHistoryPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Historial de sesiones',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        leading: IconButton(
+          icon: HugeIcon(icon: HugeIcons.strokeRoundedArrowLeft02, color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+
+        actions: [
+          IconButton(
+            icon: HugeIcon(icon: HugeIcons.strokeRoundedBubbleChatAdd, color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white),
+            onPressed: () async {
+              final viewModel = context.read<ChatViewModel>();
+              await viewModel.startNewSession();
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
+            },
+            tooltip: 'Start New Chat',
           ),
           IconButton(
             onPressed: () {
@@ -74,45 +120,7 @@ class _TherapyMainPage extends StatelessWidget {
           ),
         ],
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            const Expanded(child: _MessageList()),
-            const _MessageInput(),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ChatHistoryPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Historial de sesiones',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        leading: IconButton(
-          icon: HugeIcon(icon: HugeIcons.strokeRoundedArrowLeft02, color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          IconButton(
-            icon: HugeIcon(icon: HugeIcons.strokeRoundedBubbleChatAdd, color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white),
-            onPressed: () async {
-              final viewModel = context.read<ChatViewModel>();
-              await viewModel.startNewSession();
-              if (context.mounted) {
-                Navigator.pop(context);
-              }
-            },
-            tooltip: 'Start New Chat',
-          ),
-        ],
-      ),
+      endDrawer: WEndDrawer(),
       body: Consumer<ChatViewModel>(
         builder: (context, viewModel, child) {
           if (viewModel.sessions.isEmpty) {
@@ -142,32 +150,32 @@ class _ChatHistoryPage extends StatelessWidget {
             itemBuilder: (context, index) {
               final sessionId = viewModel.sessions.keys.elementAt(index);
               final sessionMessages = viewModel.sessions[sessionId]!;
-              
+
               // Get first and last message
               final firstMessage = sessionMessages.first;
-              
-              
+
+
               // Find the first user message
               final userMessages = sessionMessages.where((m) => m.isUser).toList();
               final titleMessage = userMessages.isNotEmpty ? userMessages.first : firstMessage;
-              
+
               return Card(
-                
+
                 margin: const EdgeInsets.all(8),
-                
+
                 child: Container(
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(12),
-                    
+
                   ),
                   child: ExpansionTile(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                     title: Text(
-                      titleMessage.content.length > 50 
-                        ? '${titleMessage.content.substring(0, 50)}...' 
+                      titleMessage.content.length > 50
+                        ? '${titleMessage.content.substring(0, 50)}...'
                         : titleMessage.content,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
@@ -193,8 +201,8 @@ class _ChatHistoryPage extends StatelessWidget {
                             return ListTile(
                               leading: Icon(
                                 message.isUser ? Icons.person : Icons.psychology,
-                                color: message.isUser 
-                                  ? Theme.of(context).colorScheme.primary 
+                                color: message.isUser
+                                  ? Theme.of(context).colorScheme.primary
                                   : Theme.of(context).colorScheme.secondary,
                               ),
                               title: Text(
@@ -240,20 +248,7 @@ class _MessageList extends StatelessWidget {
           itemCount: viewModel.messages.length,
           itemBuilder: (context, index) {
             final message = viewModel.messages[viewModel.messages.length - 1 - index];
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _MessageBubble(message: message),
-                Container(
-                  width: 50,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: DecorationImage(image: context.read<UserViewModel>().getProfileImage())
-                  )
-                  ,
-                )
-              ],
-            );
+            return _MessageBubble(message: message);
           },
         );
       },
@@ -275,31 +270,64 @@ class _MessageBubble extends StatelessWidget {
       config: BaseAnimationConfig(
         child: Align(
           alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-          child: Container(
-            constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width * 0.75,
-            ),
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            decoration: BoxDecoration(
-              color: isUser
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.secondary,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black,
-                  blurRadius: 2,
-                  offset: const Offset(0, 1),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            textDirection: isUser ? TextDirection.rtl : TextDirection.ltr,
+            children: [
+              if (isUser)
+              Container(
+                
+                width: MediaQuery.of(context).size.width *.15,
+                height: 40,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                    image: context.read<UserViewModel>().getProfileImage(),
+                    fit: BoxFit.cover
+                  )
+                  
                 ),
-              ],
-            ),
-            child: Text(
-              message.content,
-              style: TextStyle(
-                color: isUser ? Colors.white : theme.textTheme.bodyLarge?.color,
+                child: null,
               ),
-            ),
+              if(!isUser)
+              Container(
+                width: MediaQuery.of(context).size.width *.09,
+                height: 50,
+                margin: EdgeInsets.symmetric(horizontal: 1, vertical: 4),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle
+                ),
+                child: HugeIcon(icon: HugeIcons.strokeRoundedBot, color: Theme.of(context).brightness == Brightness.dark ? Colors.blue : Colors.black),
+
+              ),
+
+              Container(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width * 0.75,
+                ),
+                margin: const EdgeInsets.symmetric(horizontal: 1, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: isUser
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.secondary,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black,
+                      blurRadius: 2,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
+                ),
+                child: Text(
+                  message.content,
+                  style: TextStyle(
+                    color: isUser ? Colors.white : theme.textTheme.bodyLarge?.color,
+                  ),
+                ),
+              ),
+            ],
           ),
         )
       ),
@@ -391,4 +419,4 @@ class _MessageInputState extends State<_MessageInput> {
       _focusNode.requestFocus();
     }
   }
-} 
+}

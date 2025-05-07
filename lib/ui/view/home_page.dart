@@ -2,14 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate_on_scroll/flutter_animate_on_scroll.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
-import 'package:re_mind/ui/view/profile_page.dart';
 import 'package:re_mind/ui/view/stadistics_screen.dart';
-import 'package:re_mind/ui/view/therapy_page.dart';
+import 'package:re_mind/ui/widgets/drawer_key.dart';
 import 'package:re_mind/ui/widgets/mood_lottie_container.dart';
-import 'package:re_mind/viewmodels/chat_view_model.dart';
 import 'package:re_mind/viewmodels/mood_view_model.dart';
-import 'package:re_mind/viewmodels/navigation_view_model.dart';
-import 'package:re_mind/viewmodels/theme_view_model.dart';
 import 'package:re_mind/viewmodels/tips_view_model.dart';
 import 'package:re_mind/viewmodels/user_view_model.dart';
 
@@ -41,9 +37,16 @@ class _HomePageMain extends StatelessWidget {
           appBar: AppBar(
             title: Icon(Icons.home, color: Theme.of(context).brightness == Brightness.dark ? Colors.white: Colors.black,),
             toolbarHeight: 30,
+            actions: [
+              // Botón para abrir el drawer global
+              IconButton(
+                icon: Icon(Icons.menu),
+                onPressed: () => openGlobalEndDrawer(context),
+              ),
+            ],
           ),
-
-          endDrawer: _buildDrawer(context),
+          // Eliminamos el endDrawer local
+          
           body: SafeArea(
             child: SingleChildScrollView(
               child: Padding(
@@ -79,59 +82,7 @@ class _HomePageMain extends StatelessWidget {
       }
     );
   }
-  Widget _buildDrawer(BuildContext context){
-    return Drawer(
-      width: 250,
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            
-            child: Center(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Lottie.asset('assets/animations/meditation.json',width: 200,)
-              )
-            ),
-            
-          ),
-          ListTile(
-            title: const Text('Perfil',textAlign: TextAlign.start,),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfilePage()),
-              );
-            },
-
-            leading: Icon(Icons.person),
-            
-          ),
-          ListTile(
-            title: const Text('Modo oscuro', textAlign: TextAlign.start,),
-            leading: Icon(Icons.dark_mode),
-            trailing: Consumer<ThemeViewModel>(
-              builder: (context, themeViewModel, child) {
-                return Switch(
-                  value: themeViewModel.isDarkModeActive,
-                  onChanged: (value) {
-                    themeViewModel.toggleTheme();
-                  },
-                );
-              },
-            ),
-          ),
-          ListTile(
-            title: const Text('Terminos y condiciones',textAlign: TextAlign.start,),
-            leading: Icon(Icons.file_copy_outlined),
-            
-          )
-        ],
-      ),
-    );
+  
   }
   Widget _buildMoodStates(MoodViewModel viewModel, BuildContext context) {
     var provider = Provider.of<MoodViewModel>(context);
@@ -247,4 +198,3 @@ class _HomePageMain extends StatelessWidget {
       }
     );
   }
-}

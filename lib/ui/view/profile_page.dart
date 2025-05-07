@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:provider/provider.dart';
+import 'package:re_mind/ui/view/main_screen.dart';
 import 'package:re_mind/ui/view/therapy_page.dart';
 import 'package:re_mind/ui/view/welcome_screen.dart';
+import 'package:re_mind/ui/widgets/drawer_key.dart';
+import 'package:re_mind/ui/widgets/end_drawer.dart';  // Importamos el EndDrawer
 import 'package:re_mind/viewmodels/auth_view_model.dart';
 import 'package:re_mind/viewmodels/chat_view_model.dart';
 import 'package:re_mind/viewmodels/navigation_view_model.dart';
@@ -18,6 +21,9 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  // Clave local para el Scaffold del ProfilePage
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<UserViewModel>(context);
@@ -25,12 +31,14 @@ class _ProfilePageState extends State<ProfilePage> {
 
     
     return Scaffold(
+      key: _scaffoldKey,  
       appBar: AppBar(
         title: Text(
           'Perfil',
           style: Theme.of(context).textTheme.titleLarge,
         ),
         actions: [
+          
           IconButton(onPressed: (){
             showDialog(
               context: context,
@@ -56,9 +64,18 @@ class _ProfilePageState extends State<ProfilePage> {
               },
             );
             
-          }, icon: HugeIcon(icon: HugeIcons.strokeRoundedLogout02, color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white))
+          }, icon: HugeIcon(icon: HugeIcons.strokeRoundedLogout02, color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white)),
+          IconButton(
+            icon: Icon(Icons.menu),
+            onPressed: () {
+              
+              _scaffoldKey.currentState?.openEndDrawer();
+            },
+          )
         ],
       ),
+      // Agregamos el mismo EndDrawer usado en el resto de la aplicación
+      endDrawer: WEndDrawer(),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.start,

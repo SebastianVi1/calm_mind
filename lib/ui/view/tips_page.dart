@@ -3,6 +3,8 @@ import 'package:flutter_animate_on_scroll/flutter_animate_on_scroll.dart';
 import 'package:provider/provider.dart';
 import 'package:re_mind/ui/view/favorite_tips.dart';
 import 'package:re_mind/ui/widgets/animated_tip_card.dart';
+import 'package:re_mind/ui/widgets/drawer_key.dart';
+import 'package:re_mind/ui/widgets/end_drawer.dart';
 import 'package:re_mind/viewmodels/tips_view_model.dart';
 import 'package:lottie/lottie.dart';
 
@@ -90,9 +92,6 @@ class _TipsPageState extends State<TipsPage> with SingleTickerProviderStateMixin
     return Scaffold(
       appBar: AppBar(
         
-        actionsIconTheme: IconThemeData(
-          color: theme.brightness == Brightness.dark ? Colors.white: Colors.red[900],
-        ),
         title: Text(
           'Consejos',
           style: theme.textTheme.titleLarge,
@@ -103,11 +102,16 @@ class _TipsPageState extends State<TipsPage> with SingleTickerProviderStateMixin
             onPressed: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) => FavoriteTipsPage()));
             },
-            icon: const Icon(Icons.favorite_outline),
+            icon: Icon(Icons.favorite_outline, color: theme.brightness == Brightness.dark ? Colors.white: Colors.red[900],),
+          ),
+          // Botón para abrir el drawer global
+          IconButton(
+            icon: Icon(Icons.menu),
+            onPressed: () => openGlobalEndDrawer(context),
           ),
         ],
       ),
-      
+            
       body: SafeArea(
         child: Column(
           children: [
