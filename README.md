@@ -1,3 +1,3 @@
-# re_mind
+# CalmMind
 
 A new Flutter project.
