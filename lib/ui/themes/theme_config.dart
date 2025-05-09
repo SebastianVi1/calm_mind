@@ -34,7 +34,6 @@ class Themes {
       
       primary: lightPrimary,
       secondary: lightSecondary,
-      background: lightBackground,
       surface: lightSurface,
       error: lightError,
       onPrimary: lightOnPrimary,
@@ -118,7 +117,6 @@ class Themes {
     colorScheme: ColorScheme.dark(
       primary: darkPrimary,
       secondary: darkSecondary,
-      background: darkBackground,
       surface: darkSurface,
       error: darkError,
       onPrimary: darkOnPrimary,

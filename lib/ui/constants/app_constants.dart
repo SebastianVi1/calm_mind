@@ -22,7 +22,7 @@ class AppConstants {
   static const String nextQuestionText = 'Siguiente pregunta';
   static const String backgroundImagePath = 'assets/images/questions_background.jpg';
   static const String backgroundMainImagePath = 'assets/images/background_main.jpg';
-  static const String appName = 'ReMind';
+  static const String appName = 'CalmMind';
   static const String appSlogan = 'Relaja tu mente, calma tu ser';
   static const String continueWithoutUser = 'Continua sin usuario';
   static const String loginButtonText = 'Iniciar sesión';

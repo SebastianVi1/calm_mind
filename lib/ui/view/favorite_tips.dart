@@ -122,7 +122,7 @@ class _FavoriteTipsPageState extends State<FavoriteTipsPage> with SingleTickerPr
                                 style: FilledButton.styleFrom(
                                   backgroundColor: isSelected 
                                     ? colorScheme.primary 
-                                    : colorScheme.surfaceVariant,
+                                    : colorScheme.surfaceContainerHighest,
                                   foregroundColor: isSelected 
                                     ? colorScheme.onPrimary 
                                     : colorScheme.onSurfaceVariant,

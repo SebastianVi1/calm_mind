@@ -16,7 +16,7 @@ class WBuildLogo {
           ],
         ),
         child: Image.asset(
-          'assets/images/remind_logo.jpg',
+          'assets/images/calm_mind.png',
           scale: scale ?? 8,
           fit: BoxFit.cover,
         ),

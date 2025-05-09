@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:re_mind/ui/view/favorite_tips.dart';
 import 'package:re_mind/ui/widgets/animated_tip_card.dart';
 import 'package:re_mind/ui/widgets/drawer_key.dart';
-import 'package:re_mind/ui/widgets/end_drawer.dart';
 import 'package:re_mind/viewmodels/tips_view_model.dart';
 import 'package:lottie/lottie.dart';
 
@@ -146,7 +145,7 @@ class _TipsPageState extends State<TipsPage> with SingleTickerProviderStateMixin
                                   style: FilledButton.styleFrom(
                                     backgroundColor: isSelected 
                                       ? colorScheme.primary 
-                                      : colorScheme.surfaceVariant,
+                                      : colorScheme.surfaceContainerHighest,
                                     foregroundColor: isSelected 
                                       ? colorScheme.onPrimary 
                                       : colorScheme.onSurfaceVariant,

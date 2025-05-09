@@ -93,7 +93,7 @@ class _WQuestionWidgetState extends State<WQuestionWidget> {
           speed: AppConstants.textAnimationDuration,
           textAlign: TextAlign.center,
           textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.8),
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
           ),
         )
       ],

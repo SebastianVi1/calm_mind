@@ -1,25 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
+import 'package:re_mind/ui/view/meditation_scree.dart';
 import 'package:re_mind/ui/widgets/drawer_key.dart';
+import 'package:re_mind/viewmodels/content_view_model.dart';
+
+
 
 class ForumPage extends StatelessWidget {
   const ForumPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Navigator(
-      onGenerateRoute: (settings) {
-        return MaterialPageRoute(
-          builder: (context) => _ForumPageMain()
-        );
-      }
-    );  
-  }
-}
-
-class _ForumPageMain extends StatelessWidget {
-  const _ForumPageMain();
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +42,7 @@ class _ForumPageMain extends StatelessWidget {
       child: Column(
         spacing: 10,
         children: [
-          InkWell(
+          InkWell( // Meditation room card
             
             borderRadius: BorderRadius.circular(8),
             splashColor: Theme.of(context).colorScheme.primary.withAlpha(120),
@@ -107,7 +97,7 @@ class _ForumPageMain extends StatelessWidget {
             
             spacing: 10,
             children: [
-              Expanded(
+              Expanded( // Relaxing card
                 child: Container(
                   decoration: BoxDecoration(
                     boxShadow: [
@@ -173,7 +163,7 @@ class _ForumPageMain extends StatelessWidget {
                    ),
                 ),
               ),
-              Expanded(
+              Expanded( //Meditation card
                 child: Flexible(
                   
                   child: Container(
@@ -230,7 +220,9 @@ class _ForumPageMain extends StatelessWidget {
                               style: ButtonStyle(
                                 backgroundColor: WidgetStatePropertyAll(Colors.transparent),
                               ),
-                              onPressed: (){},
+                              onPressed: (){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => MeditationScreen()));
+                              },
                               child: HugeIcon(icon: HugeIcons.strokeRoundedPlay, color: Colors.white)
                             ),
                           ),

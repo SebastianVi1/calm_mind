@@ -12,7 +12,12 @@
           "package_name": "com.example.re_mind"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "611948694857-g4605ip3mihltu7bqqeboog22k2sndt4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBXTFI87ZUM7O7HPxo1hJZFjj8moMHA8G4"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "611948694857-g4605ip3mihltu7bqqeboog22k2sndt4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "611948694857-78vviqcjuq068k0g48qtar4f5gk61v36.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.reMind"
+              }
+            }
+          ]
         }
       }
     }

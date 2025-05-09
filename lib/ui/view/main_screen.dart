@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:lottie/lottie.dart';
+
 import 'package:provider/provider.dart';
 import 'package:re_mind/ui/view/forum_page.dart';
 import 'package:re_mind/ui/view/therapy_page.dart';
@@ -9,7 +9,6 @@ import 'package:re_mind/ui/view/tips_page.dart';
 import 'package:re_mind/ui/widgets/drawer_key.dart';
 import 'package:re_mind/ui/widgets/end_drawer.dart';
 import 'package:re_mind/viewmodels/navigation_view_model.dart';
-import 'package:re_mind/viewmodels/theme_view_model.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({
