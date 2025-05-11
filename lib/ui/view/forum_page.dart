@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:lottie/lottie.dart';
 import 'package:re_mind/ui/view/meditation_picker.dart';
-import 'package:re_mind/ui/view/meditation_scree.dart';
+import 'package:re_mind/ui/view/relaxing_music_picker.dart.dart';
 import 'package:re_mind/ui/widgets/drawer_key.dart';
 
 
@@ -150,7 +150,9 @@ class ForumPage extends StatelessWidget {
                                 backgroundColor: WidgetStatePropertyAll(Colors.transparent),
                               
                               ),
-                              onPressed: (){},
+                              onPressed: (){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => RelaxingMusicPicker()));
+                              },
                               child: HugeIcon(icon: HugeIcons.strokeRoundedPlay, color: Colors.white)
                             ),
                           ),

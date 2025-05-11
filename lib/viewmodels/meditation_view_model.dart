@@ -130,7 +130,7 @@ class MeditationViewModel extends ChangeNotifier {
       _errorMessage = "Error loading video: $error";
       loadingVideo = false;
       notifyListeners();
-      throw error;
+      rethrow;
     }
   }
 
@@ -183,6 +183,7 @@ class MeditationViewModel extends ChangeNotifier {
       
       await _audioPlayer.setUrl(_selectedMeditation!.url);
       await _audioPlayer.setVolume(1.0);
+      
 
       _loadingAudio = false;
       notifyListeners();

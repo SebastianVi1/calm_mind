@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:re_mind/firebase_options.dart';
 import 'package:re_mind/services/auth/i_auth_service.dart';
 import 'package:re_mind/services/auth/firebase_auth_service.dart';
+import 'package:re_mind/services/relaxing_music_service.dart';
 import 'package:re_mind/services/user_service.dart';
 import 'package:re_mind/services/deepseek_service.dart';
 import 'package:re_mind/ui/themes/theme_config.dart';
@@ -16,6 +17,7 @@ import 'package:re_mind/viewmodels/mood_view_model.dart';
 import 'package:re_mind/viewmodels/navigation_view_model.dart';
 import 'package:re_mind/viewmodels/on_boarding_viewmodel.dart';
 import 'package:re_mind/viewmodels/chat_view_model.dart';
+import 'package:re_mind/viewmodels/relaxing_music_view_model.dart';
 import 'package:re_mind/viewmodels/user_view_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -75,6 +77,7 @@ class _MainAppState extends State<MainApp> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        
         ChangeNotifierProvider<UserViewModel>(
           create: (_) => UserViewModel(),
         ),
@@ -90,7 +93,12 @@ class _MainAppState extends State<MainApp> {
         Provider<DeepSeekService>(
           create: (_) => DeepSeekService(),
         ),
-        ChangeNotifierProvider(create: (context) => OnBoardingViewmodel()),
+        Provider(
+          create: (_) => RelaxingMusicService(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => OnBoardingViewmodel()
+        ),
         ChangeNotifierProvider(
           create: (context) => AuthViewModel(
             context.read<IAuthService>(),
@@ -117,7 +125,13 @@ class _MainAppState extends State<MainApp> {
         ),
         ChangeNotifierProvider(
           create: (context) => MeditationViewModel(),
-        )
+        ),
+        ChangeNotifierProvider(
+          create: (context) => RelaxingMusicViewModel(
+            context.read<RelaxingMusicService>(),
+          )
+        ),
+        
       ],
       child: Consumer<ThemeViewModel>(
         builder: (context, themeViewModel, child) {
