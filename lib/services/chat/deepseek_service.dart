@@ -10,7 +10,7 @@ import 'dart:async';
 /// This service provides a virtual therapist functionality through AI chat
 class DeepSeekService {
   late final UserModel _currentUser;
-  QuestionViewModel _questionViewModel = QuestionViewModel();
+  final QuestionViewModel _questionViewModel = QuestionViewModel();
   static const String _baseUrl = 'https://api.deepseek.com';
   late final String _apiKey;
   bool _isInitialized = false;

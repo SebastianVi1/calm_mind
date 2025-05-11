@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:just_audio/just_audio.dart';
+import 'package:hugeicons/hugeicons.dart';
+import 'package:provider/provider.dart';
+import 'package:re_mind/viewmodels/meditation_view_model.dart';
+import 'package:video_player/video_player.dart';
+import 'package:lottie/lottie.dart';
 
+/// A screen that displays a meditation session with video background and audio controls.
+/// Handles the display of loading states, error messages, and the meditation interface.
 class MeditationScreen extends StatefulWidget {
   const MeditationScreen({super.key});
 
@@ -9,158 +15,164 @@ class MeditationScreen extends StatefulWidget {
 }
 
 class _MeditationScreenState extends State<MeditationScreen> {
-  final player = AudioPlayer();
-  Duration position = Duration.zero;
-  Duration duration = Duration.zero;
-  String? errorMessage;
-  bool loadingAudio = true;
+  late MeditationViewModel _viewModel;
   
-  String formatDuration(Duration d){
-    final minutes = d.inMinutes.remainder(60);
-    final seconds = d.inSeconds.remainder(60);
-    return "${minutes.toString().padLeft(2, '0')} : ${seconds.toString().padLeft(2,'0')}";
+  @override
+  void initState() {
+    super.initState();
+    // Delayed initialization to ensure context is available
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeViewModel();
+    });
   }
-
-  void handlePlayPause(){
-    if (player.playing){
-      player.pause();
-    } else {
-      player.play();
-    }
-    setState(() {}); // Add setState here to refresh UI
-  }
-
-  void handleSeek(double value){
-    player.seek(Duration(seconds: value.toInt()));
+  
+  void _initializeViewModel() {
+    _viewModel = Provider.of<MeditationViewModel>(context, listen: false);
+    _viewModel.initializeResources();
   }
   
   @override
-  void initState(){
-    super.initState();
-    
-    loadAudio();
-    
-    //Listen to position updates
-    player.positionStream.listen((p) {
-      setState(() {
-        position = p;
-      });
-    });
-    //Listen to duration updates
-    player.durationStream.listen((d){
-      setState(() {
-        duration = d ?? Duration.zero;
-        loadingAudio = false;
-      });
-    });
-    player.playerStateStream.listen((state){
-      if (state.processingState == ProcessingState.completed) {
-        setState(() {
-          position = Duration.zero;
-        });
-        player.pause();
-        player.seek(position);
-      }
-    });
-    
-    // Escuchar errores
-    player.errorStream.listen((error) {
-      setState(() {
-        errorMessage = "Error: ${error.message} (código: ${error.code})";
-        loadingAudio = false;
-      });
-      print("ERROR DE AUDIO: ${error.message}");
-    });
-  }
-  
-  Future<void> loadAudio() async {
-    try {
-      setState(() {
-        loadingAudio = true;
-        errorMessage = null;
-      });
-      
-      // Intenta cargar el audio con wait: true para esperar a que se cargue completamente
-      await player.setUrl('https://cdn.pixabay.com/download/audio/2025/04/25/audio_a37120f89e.mp3?filename=wide-flower-fields-atmospheric-ambient-332274.mp3');
-      
-      setState(() {
-        loadingAudio = false;
-      });
-    } catch (e) {
-      setState(() {
-        errorMessage = "Error al cargar el audio: $e";
-        loadingAudio = false;
-      });
-      print("ERROR DE CARGA: $e");
-    }
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _viewModel = Provider.of<MeditationViewModel>(context, listen: false);
   }
   
   @override
   void dispose() {
-    player.dispose(); // Importante liberar recursos cuando el widget se destruye
+    _viewModel.cleanup();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Meditación'),
-      ),
-      backgroundColor: Colors.blue[700],
-      body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (loadingAudio)
-              const Center(
-                child: CircularProgressIndicator(color: Colors.white),
+      
+      body: Consumer<MeditationViewModel>(
+        builder: (context, viewModel, child) {
+          // Show loading screen while resources are being initialized
+          if (!viewModel.videoInitialized || viewModel.loadingAudio) {              return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Animated loading indicator
+                  Lottie.asset(
+                    'assets/animations/audio_loading.json',
+                    width: 150,
+                    height: 150,
+                  ),
+                  const SizedBox(height: 16),
+                const Text(
+                    'Preparando tu sesion de meditacion',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                  if (viewModel.errorMessage != null)
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          Text(
+                            viewModel.errorMessage!,
+                            style: const TextStyle(color: Colors.red),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 12),
+                          ElevatedButton( 
+                            onPressed: () => viewModel.initializeResources(),
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
               ),
-              
-            if (errorMessage != null)
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  errorMessage!,
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
+            );            
+          }            
+          // Show main interface when everything is ready
+          return Stack(
+            children: [
+              // Background video
+              SizedBox.expand(
+                child: FittedBox(
+                  fit: BoxFit.cover,
+                  child: SizedBox(
+                    
+                    width: viewModel.videoController.value.size.width,
+                    height: viewModel.videoController.value.size.height,
+                    child: VideoPlayer(viewModel.videoController),
+                  ),
+                ),
+              ),
+              Container(width: double.infinity, height: double.infinity, color: Colors.black.withValues(alpha: 0.1),),
+                // Back button
+              Positioned(
+                top: 30,
+                left: 10,
+                child: IconButton(
+                  icon: HugeIcon(
+                    icon: HugeIcons.strokeRoundedPictureInPictureExit, 
+                    color: Colors.black,
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
                 ),
               ),
               
-            if (!loadingAudio && errorMessage == null) ...[
-              Text(
-                formatDuration(position), 
-                style: const TextStyle(color: Colors.white)
-              ),
-              Slider(
-                min: 0.0,
-                max: duration.inSeconds > 0 ? duration.inSeconds.toDouble() : 0.0,
-                value: position.inSeconds < duration.inSeconds ? position.inSeconds.toDouble() : duration.inSeconds.toDouble(),
-                onChanged: handleSeek,
-                activeColor: Colors.white,
-              ),
-              Text(
-                formatDuration(duration),
-                style: const TextStyle(color: Colors.white)
-              ),
-              IconButton(
-                icon: Icon(
-                  player.playing ? Icons.pause : Icons.play_arrow,
-                  color: Colors.white,
-                  size: 48,
+              // Audio controls
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.5),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        viewModel.formatDuration(viewModel.position), 
+                        style: const TextStyle(color: Colors.white)
+                      ),
+                      Slider(
+                        min: 0.0,
+                        max: viewModel.duration.inSeconds > 0 ? viewModel.duration.inSeconds.toDouble() : 0.0,
+                        value: viewModel.position.inSeconds < viewModel.duration.inSeconds 
+                          ? viewModel.position.inSeconds.toDouble() 
+                          : viewModel.duration.inSeconds.toDouble(),
+                        onChanged: viewModel.handleSeek,
+                        activeColor: Colors.white,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            viewModel.formatDuration(viewModel.duration),
+                            style: const TextStyle(color: Colors.white)
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              viewModel.isPlaying ? Icons.pause : Icons.play_arrow,
+                              color: Colors.white,
+                              size: 48,
+                            ),
+                            onPressed: viewModel.handlePlayPause,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-                onPressed: handlePlayPause,
-              )
+              ),
             ],
-            
-            // Botón para reintentar cargar el audio
-            if (errorMessage != null)
-              ElevatedButton(
-                onPressed: loadAudio,
-                child: const Text('Reintentar'),
-              ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
