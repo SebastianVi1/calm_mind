@@ -86,19 +86,39 @@ class RelaxingMusicViewModel extends ChangeNotifier {
 
    void handleSeek(double value) {
     _player.seek(Duration(seconds: value.toInt()));
-  }
-
-  void _resetState() {
-    // Stop active playback
-    if (_player.playing) {
-      _player.stop();
+  }  void nextSong(){
+    if (_selectedSong == null || _musicList.isEmpty) return;
+    
+    // Find the index of the current song
+    final currentIndex = _musicList.indexWhere((song) => 
+      song.name == _selectedSong!.name && song.url == _selectedSong!.url);
+    
+    // If found, select the next song or loop back to the first one
+    if (currentIndex != -1) {
+      final nextIndex = (currentIndex + 1) % _musicList.length;
+      _selectedSong = _musicList[nextIndex];
+      loadAudio();
     }
     
-    _position = Duration.zero;
-    _duration = Duration.zero;
     notifyListeners();
   }
-
+  
+  void previousSong(){
+    if (_selectedSong == null || _musicList.isEmpty) return;
+    
+    // Find the index of the current song
+    final currentIndex = _musicList.indexWhere((song) => 
+      song.name == _selectedSong!.name && song.url == _selectedSong!.url);
+    
+    // If found, select the previous song or loop back to the last one
+    if (currentIndex != -1) {
+      final previousIndex = (currentIndex - 1 + _musicList.length) % _musicList.length;
+      _selectedSong = _musicList[previousIndex];
+      loadAudio();
+    }
+    
+    notifyListeners();
+  }
   void setSelectedSong(RelaxingMusicModel song) {
     _selectedSong = song;
     notifyListeners();
@@ -107,24 +127,22 @@ class RelaxingMusicViewModel extends ChangeNotifier {
   // Load and play audio from the selected song
   Future<void> loadAudio({bool autoPlay = true}) async {
   try {
-    // Evitamos operaciones múltiples
     if (_loadingAudio) return;
     
     _loadingAudio = true;
     _errorMessage = '';
     notifyListeners();
     
-    // Verificar que tengamos una canción seleccionada
+    
     if (_selectedSong == null) {
       throw Exception("No hay canción seleccionada");
     }
     
-    // Verificar que la URL sea válida
+    // Check if the url is valid
     if (_selectedSong!.url.isEmpty) {
       throw Exception("URL de audio no válida");
     }
-    
-    print("Intentando cargar audio desde: ${_selectedSong!.url}");
+  
 
     await _player.stop();
 
@@ -136,15 +154,13 @@ class RelaxingMusicViewModel extends ChangeNotifier {
 
     if (autoPlay) {
       await _player.play();
-      print("Audio reproduciendo...");
+
     }
     
     _loadingAudio = false;
     notifyListeners();
     
-  } catch (e, stack) {
-    print("Error cargando audio: $e");
-    print("Stack trace: $stack");
+  } catch (e) {
     _errorMessage = "Error al cargar audio: $e";
     _loadingAudio = false;
     notifyListeners();

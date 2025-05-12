@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:re_mind/viewmodels/relaxing_music_view_model.dart';
 
@@ -9,7 +10,9 @@ class MusicPlayerScreen extends StatefulWidget {
   State<MusicPlayerScreen> createState() => _MusicPlayerScreenState();
 }
 
-class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
+class _MusicPlayerScreenState extends State<MusicPlayerScreen> with TickerProviderStateMixin{
+
+  
   @override
   void initState() {
     super.initState();
@@ -20,14 +23,17 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
         viewModel.loadAudio();
       }
     });
+    
   }
   
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       body: Consumer<RelaxingMusicViewModel>(
         builder: (context, viewModel, child) {
-          // Verificar si hay una canción seleccionada
+          
+          // verify if there is a song selected
           if (viewModel.selectedSong == null) {
             return const Center(child: Text('No hay canción seleccionada'));
           }
@@ -35,19 +41,21 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
           return Stack(
             fit: StackFit.expand,
             children: [
-              // Fondo con imagen o gradiente (opcional)
+              // background with gradient
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [Colors.blue.shade200, Colors.purple.shade200],
+                    colors: [ Colors.blue[900]!, Colors.purple, Colors.lightBlueAccent],
                   ),
                 ),
               ),
               
               // Contenido principal
               SafeArea(
+                top: true,
+                bottom: false,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -64,7 +72,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                       ),
                     ),
                     
-                    // Información de la canción
+                    // Song info
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.all(24.0),
@@ -80,34 +88,40 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                                 borderRadius: BorderRadius.circular(20),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),
+                                    color: Colors.black.withValues(alpha: 0.22),
                                     blurRadius: 10,
                                     spreadRadius: 2,
                                   ),
                                 ],
                               ),
-                              child: const Icon(Icons.music_note, size: 80, color: Colors.white),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: Lottie.asset(
+                                  'assets/animations/relaxing_bg.json',
+                                  animate: viewModel.isPlaying ? true : false,
+                                ),
+                                
+                              ),
                             ),
                             const SizedBox(height: 32),
-                            
-                            // Nombre de la canción
-                            Text(
-                              viewModel.selectedSong?.name ?? 'Desconocido',
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
+                              // Name of the song
+                            Hero(
+                              tag: "music-${viewModel.selectedSong?.name ?? 'unknown'}",
+                              child: Material(
+                                color: Colors.transparent,
+                                child: Text(
+                                  viewModel.selectedSong?.name ?? 'Desconocido',
+                                  style: Theme.of(context).textTheme.displayMedium,
+                                  textAlign: TextAlign.center,
+                                ),
                               ),
-                              textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 8),
                             
                             // Autor
                             Text(
                               viewModel.selectedSong?.author ?? 'Artista desconocido',
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.grey.shade700,
-                              ),
+                              style: Theme.of(context).textTheme.bodyLarge
                             ),
                           ],
                         ),
@@ -118,11 +132,8 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                     Container(
                       padding: const EdgeInsets.all(24.0),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.05),
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(30),
-                          topRight: Radius.circular(30),
-                        ),
+                        color: Colors.black.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(16)
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -159,14 +170,13 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                           ),
                           const SizedBox(height: 16),
                           
-                          // Controles de reproducción
+                        
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              IconButton(
+                            children: [                              IconButton(
                                 icon: const Icon(Icons.skip_previous, size: 36),
                                 onPressed: () {
-                                  // Implementar función para ir a la canción anterior
+                                  viewModel.previousSong();
                                 },
                               ),
                               const SizedBox(width: 16),
@@ -187,15 +197,15 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                                   },
                                 ),
                               ),
-                              const SizedBox(width: 16),
-                              IconButton(
+                              const SizedBox(width: 16),                              IconButton(
                                 icon: const Icon(Icons.skip_next, size: 36),
                                 onPressed: () {
-                                  // Implementar función para ir a la siguiente canción
+                                  viewModel.nextSong();
                                 },
                               ),
                             ],
                           ),
+                          const SizedBox(height: 10,)
                         ],
                       ),
                     ),

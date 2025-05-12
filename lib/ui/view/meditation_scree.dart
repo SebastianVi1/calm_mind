@@ -50,7 +50,9 @@ class _MeditationScreenState extends State<MeditationScreen> {
       body: Consumer<MeditationViewModel>(
         builder: (context, viewModel, child) {
           // Show loading screen while resources are being initialized
-          if (!viewModel.videoInitialized || viewModel.loadingAudio) {              return Center(
+          if (!viewModel.videoInitialized || viewModel.loadingAudio) {
+            Future.delayed(Duration(seconds: 2));
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -60,6 +62,7 @@ class _MeditationScreenState extends State<MeditationScreen> {
                     width: 150,
                     height: 150,
                   ),
+                  
                   const SizedBox(height: 16),
                 const Text(
                     'Preparando tu sesion de meditacion',
@@ -103,8 +106,7 @@ class _MeditationScreenState extends State<MeditationScreen> {
                   ),
                 ),
               ),
-              Container(width: double.infinity, height: double.infinity, color: Colors.black.withValues(alpha: 0.1),),
-                // Back button
+              Container(width: double.infinity, height: double.infinity, color: Colors.black.withValues(alpha: 0.1),),              // Back button
               Positioned(
                 top: 30,
                 left: 10,
@@ -116,6 +118,36 @@ class _MeditationScreenState extends State<MeditationScreen> {
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
+                ),
+              ),
+              
+              // Título de la meditación con animación Hero
+              Positioned(
+                top: 40,
+                left: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(8.0),
+                  margin: const EdgeInsets.symmetric(horizontal: 50.0),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Hero(
+                    tag: "meditation-${viewModel.selectedMeditation?.title ?? 'unknown'}",
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Text(
+                        viewModel.selectedMeditation?.title ?? "Meditación",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
                 ),
               ),
               

@@ -77,7 +77,6 @@ class _MainAppState extends State<MainApp> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        
         ChangeNotifierProvider<UserViewModel>(
           create: (_) => UserViewModel(),
         ),
