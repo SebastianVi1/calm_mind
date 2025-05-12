@@ -12,18 +12,27 @@ class MusicPlayerScreen extends StatefulWidget {
 
 class _MusicPlayerScreenState extends State<MusicPlayerScreen> with TickerProviderStateMixin{
 
+    // Store a reference to the ViewModel to avoid context access in dispose
+  late final RelaxingMusicViewModel _viewModel;
   
   @override
   void initState() {
     super.initState();
-    // Inicializar audio cuando la pantalla se abre
+    _viewModel = context.read<RelaxingMusicViewModel>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final viewModel = context.read<RelaxingMusicViewModel>();
-      if (viewModel.selectedSong != null && !viewModel.isPlaying) {
-        viewModel.loadAudio();
+      if (mounted && _viewModel.selectedSong != null && !_viewModel.isPlaying) {
+        _viewModel.loadAudio();
       }
     });
-    
+  }
+    @override
+  void dispose() {
+    // Pausar reproducción de audio antes de desmontar el widget
+    // Usar un Future delayed para evitar problemas de actualización en el widget tree
+    Future.microtask(() {
+      _viewModel.cleanup();
+    });
+    super.dispose();
   }
   
   @override
@@ -51,15 +60,13 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> with TickerProvid
                   ),
                 ),
               ),
-              
-              // Contenido principal
-              SafeArea(
+                SafeArea(
                 top: true,
                 bottom: false,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Botón de regreso
+               
                     Align(
                       alignment: Alignment.topLeft,
                       child: IconButton(
@@ -138,7 +145,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> with TickerProvid
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          // Barra de progreso
+                         
                           SliderTheme(
                             data: SliderTheme.of(context).copyWith(
                               thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
@@ -197,7 +204,8 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> with TickerProvid
                                   },
                                 ),
                               ),
-                              const SizedBox(width: 16),                              IconButton(
+                              const SizedBox(width: 16),
+                              IconButton(
                                 icon: const Icon(Icons.skip_next, size: 36),
                                 onPressed: () {
                                   viewModel.nextSong();

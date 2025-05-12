@@ -203,9 +203,44 @@ class MeditationViewModel extends ChangeNotifier {
     }
     notifyListeners();
   }
-
   void handleSeek(double value) {
     _audioPlayer.seek(Duration(seconds: value.toInt()));
+  }
+  
+  // Cambiar a la siguiente meditación
+  void nextMeditation() {
+    if (_selectedMeditation == null || urls.isEmpty) return;
+    
+    // Find the index of the current meditation
+    final currentIndex = urls.indexWhere((meditation) => 
+      meditation.title == _selectedMeditation!.title && meditation.url == _selectedMeditation!.url);
+    
+    // If found, select the next meditation or loop back to the first one
+    if (currentIndex != -1) {
+      final nextIndex = (currentIndex + 1) % urls.length;
+      _selectedMeditation = urls[nextIndex];
+      loadAudio();
+    }
+    
+    notifyListeners();
+  }
+  
+  // Cambiar a la meditación anterior
+  void previousMeditation() {
+    if (_selectedMeditation == null || urls.isEmpty) return;
+    
+    // Find the index of the current meditation
+    final currentIndex = urls.indexWhere((meditation) => 
+      meditation.title == _selectedMeditation!.title && meditation.url == _selectedMeditation!.url);
+    
+    // If found, select the previous meditation or loop back to the last one
+    if (currentIndex != -1) {
+      final previousIndex = (currentIndex - 1 + urls.length) % urls.length;
+      _selectedMeditation = urls[previousIndex];
+      loadAudio();
+    }
+    
+    notifyListeners();
   }
 
   String formatDuration(Duration d) {

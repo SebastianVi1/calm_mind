@@ -31,10 +31,6 @@ class _RelaxingMusicPickerState extends State<RelaxingMusicPicker> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 
                 children: [
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: const Icon(Icons.arrow_back),
-                    ),
 
                   Center(child: Lottie.asset('assets/animations/audio_loading.json')),
                   Center(

@@ -47,29 +47,31 @@ class RelaxingMusicViewModel extends ChangeNotifier {
   // Initialize audio player listeners
   void _initializeAudioListeners() {
     _player.positionStream.listen((p) {
+      if (_isDisposed) return;
       _position = p;
       notifyListeners();
     });
 
     _player.durationStream.listen((d) {
+      if (_isDisposed) return;
       _duration = d ?? Duration.zero;
       _loadingAudio = false;
       notifyListeners();
     });
 
     _player.playerStateStream.listen((state) {
-     
+      if (_isDisposed) return;
       
       if (state.processingState == ProcessingState.completed) {
         _position = Duration.zero;
         _player.pause();
         _player.seek(_position);
-
         notifyListeners();
       }
     });    // Listen for errors
     _player.playbackEventStream.listen((event) {}, 
       onError: (Object e, StackTrace stackTrace) {
+        if (_isDisposed) return;
         _errorMessage = "Error de reproduccion: $e";
         _loadingAudio = false;
         notifyListeners();
@@ -82,57 +84,71 @@ class RelaxingMusicViewModel extends ChangeNotifier {
     final minutes = d.inMinutes.remainder(60);
     final seconds = d.inSeconds.remainder(60);
     return "${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2,'0')}";
-  }
-
-   void handleSeek(double value) {
+  }  void handleSeek(double value) {
     _player.seek(Duration(seconds: value.toInt()));
-  }  void nextSong(){
-    if (_selectedSong == null || _musicList.isEmpty) return;
-    
-    // Find the index of the current song
-    final currentIndex = _musicList.indexWhere((song) => 
-      song.name == _selectedSong!.name && song.url == _selectedSong!.url);
-    
-    // If found, select the next song or loop back to the first one
-    if (currentIndex != -1) {
-      final nextIndex = (currentIndex + 1) % _musicList.length;
-      _selectedSong = _musicList[nextIndex];
-      loadAudio();
-    }
-    
-    notifyListeners();
   }
-  
-  void previousSong(){
-    if (_selectedSong == null || _musicList.isEmpty) return;
+    void nextSong() {
+    if (_isDisposed || _selectedSong == null || _musicList.isEmpty) return;
     
-    // Find the index of the current song
-    final currentIndex = _musicList.indexWhere((song) => 
-      song.name == _selectedSong!.name && song.url == _selectedSong!.url);
-    
-    // If found, select the previous song or loop back to the last one
-    if (currentIndex != -1) {
-      final previousIndex = (currentIndex - 1 + _musicList.length) % _musicList.length;
-      _selectedSong = _musicList[previousIndex];
-      loadAudio();
+    try {
+      // Find the index of the current song
+      final currentIndex = _musicList.indexWhere((song) => 
+        song.name == _selectedSong!.name && song.url == _selectedSong!.url);
+      
+      // If found, select the next song or loop back to the first one
+      if (currentIndex != -1) {
+        final nextIndex = (currentIndex + 1) % _musicList.length;
+        _selectedSong = _musicList[nextIndex];
+        loadAudio();
+      }
+      
+      // Solo notificar si el objeto no ha sido eliminado
+      if (!_isDisposed) {
+        notifyListeners();
+      }
+    } catch (e) {
+      print('Error al cambiar a la siguiente canción: $e');
     }
+  }
+    void previousSong() {
+    if (_isDisposed || _selectedSong == null || _musicList.isEmpty) return;
     
-    notifyListeners();
+    try {
+      // Find the index of the current song
+      final currentIndex = _musicList.indexWhere((song) => 
+        song.name == _selectedSong!.name && song.url == _selectedSong!.url);
+      
+      // If found, select the previous song or loop back to the last one
+      if (currentIndex != -1) {
+        final previousIndex = (currentIndex - 1 + _musicList.length) % _musicList.length;
+        _selectedSong = _musicList[previousIndex];
+        loadAudio();
+      }
+      
+      // Solo notificar si el objeto no ha sido eliminado
+      if (!_isDisposed) {
+        notifyListeners();
+      }
+    } catch (e) {
+      print('Error al cambiar a la canción anterior: $e');
+    }
   }
   void setSelectedSong(RelaxingMusicModel song) {
     _selectedSong = song;
     notifyListeners();
     }
-
   // Load and play audio from the selected song
   Future<void> loadAudio({bool autoPlay = true}) async {
   try {
-    if (_loadingAudio) return;
+    if (_isDisposed || _loadingAudio) return;
     
     _loadingAudio = true;
     _errorMessage = '';
-    notifyListeners();
     
+    // Solo notificar si no ha sido eliminado
+    if (!_isDisposed) {
+      notifyListeners();
+    }
     
     if (_selectedSong == null) {
       throw Exception("No hay canción seleccionada");
@@ -143,38 +159,67 @@ class RelaxingMusicViewModel extends ChangeNotifier {
       throw Exception("URL de audio no válida");
     }
   
-
+    // Comprobar si ha sido eliminado antes de cada operación
+    if (_isDisposed) return;
     await _player.stop();
 
     await Future.delayed(const Duration(milliseconds: 100));
-
+    if (_isDisposed) return;
+    
     await _player.setUrl(_selectedSong!.url);
 
     await Future.delayed(const Duration(milliseconds: 100));
-
+    if (_isDisposed) return;
+    
     if (autoPlay) {
       await _player.play();
-
     }
     
     _loadingAudio = false;
-    notifyListeners();
+    // Solo notificar si no ha sido eliminado
+    if (!_isDisposed) {
+      notifyListeners();
+    }
     
   } catch (e) {
+    if (_isDisposed) return;
+    
     _errorMessage = "Error al cargar audio: $e";
     _loadingAudio = false;
-    notifyListeners();
+    
+    // Solo notificar si no ha sido eliminado
+    if (!_isDisposed) {
+      notifyListeners();
+    }
   }
 }
-
   // Toggle play/pause state
   Future<void> togglePlayPause() async {
-    if (_player.playing) {
-      await _player.pause(); // CORRECCIÓN: Pausa cuando está reproduciendo
-    } else {
-      await _player.play();  // Reproduce cuando está pausado
+    try {
+      if (_player.playing) {
+        await _player.pause(); 
+      } else {
+        await _player.play();  
+      }
+      // Verificar si el objeto ya fue eliminado antes de notificar
+      if (!_isDisposed) {
+        notifyListeners();
+      }
+    } catch (e) {
+      print('Error al cambiar reproducción: $e');
+      // No propagar el error para evitar crasheos
     }
-    notifyListeners();
+  }// Method to cleanup resources when temporarily navigating away
+  Future<void> cleanup() async {
+    try {
+      if (_player.playing) {
+        await _player.pause();
+      }
+      // No llamamos a notifyListeners() para evitar actualizaciones de UI durante la navegación
+    } catch (e) {
+      // Ignorar errores durante la limpieza para evitar excepciones durante la navegación
+      print('Error durante la limpieza del reproductor: $e');
+    }
   }
 
   //Fetch all relaxing music
@@ -217,12 +262,25 @@ class RelaxingMusicViewModel extends ChangeNotifier {
     _errorMessage = '';
     notifyListeners();
   }
-
   // Clean up resources when the ViewModel is disposed
   @override
   void dispose() {
+    // Marcar como eliminado primero para evitar notificaciones adicionales
     _isDisposed = true;
-    _player.dispose();
+    
+    try {
+      // Detener la reproducción de audio antes de eliminar el reproductor
+      if (_player.playing) {
+        _player.pause();
+      }
+      // Esperar un momento antes de liberar los recursos
+      Future.delayed(Duration(milliseconds: 100), () {
+        _player.dispose();
+      });
+    } catch (e) {
+      print('Error durante la disposición del reproductor de audio: $e');
+    }
+    
     super.dispose();
   }
 }
