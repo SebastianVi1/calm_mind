@@ -211,7 +211,7 @@ class MoodViewModel extends ChangeNotifier{
     
     if (average > 3.5) return "Tendencia positiva 📈";
     if (average < 2.5) return "Tendencia negativa 📉";
-    return "Tendencia estable ↔️";
+    return "Tendencia irregular ↔️";
   }
 
   List<MoodModel> filterMoods(String filter) {
@@ -221,6 +221,7 @@ class MoodViewModel extends ChangeNotifier{
 
     switch (filter) {
       case 'hoy':
+        
         return moodHistory.where((mood) {
           final moodDate = mood.timestamp;
           return moodDate.year == today.year &&
@@ -235,10 +236,13 @@ class MoodViewModel extends ChangeNotifier{
         }).toList().reversed.toList(); // Most recent first
 
       case 'todos':
-        return List.from(moodHistory.reversed); // Most recent first
+      
+        return List.from(moodHistory); // Most recent first
 
       default:
+      
         return List.from(moodHistory.reversed); // Most recent first
+        
     }
   }
 
@@ -252,4 +256,68 @@ class MoodViewModel extends ChangeNotifier{
     moodHistory.remove(mood);
     notifyListeners();
   }
+
+
+  //Pie chart data
+  int _touchedIndex = -1;
+  int get tochedIndex => _touchedIndex;
+
+  void setTouchedIndex (int newValue){
+    _touchedIndex = newValue;
+    notifyListeners();
+  }
+
+  Map<String, int> logicPieChart(MoodViewModel viewModel){
+    List<MoodModel> currentHistory = getAllMoodHistory();
+
+    Map<String, int> moodCount;
+
+    int happyCounter = 0;
+    int neutralCounter = 0;
+    int angryCounter = 0;
+    int sadCounter = 0;
+
+    if (currentHistory.isEmpty) {
+      print('error vacio');
+      return {};
+    }
+    for (MoodModel mood in currentHistory) {
+      switch (mood.label) {
+        case "Feliz":
+          happyCounter = happyCounter + 1;
+        case "Neutral":
+          neutralCounter = neutralCounter + 1;
+        case "Enojado":
+          angryCounter = angryCounter + 1;
+        case "Triste":
+          sadCounter = sadCounter + 1;
+      }
+    }
+
+    moodCount = {
+      'happy': happyCounter,
+      'neutral' : neutralCounter,
+      'angry' : angryCounter,
+      'sad' : sadCounter,
+    };
+
+    return moodCount;
+
+  }
+  
+  double porcentage(String emotion){
+    double porcentage = 0;
+    int total = 0;
+    var map = logicPieChart(this);
+    if (map.isEmpty) {
+      return 0;
+    }
+    for (int value in map.values) {
+      total = total + value;
+    }
+    int current = map[emotion] ?? 0;
+    porcentage = ((current * 100) / total);
+    return porcentage;
+  }
+
 }

@@ -201,7 +201,7 @@ class RelaxingMusicViewModel extends ChangeNotifier {
       } else {
         await _player.play();  
       }
-      // Verificar si el objeto ya fue eliminado antes de notificar
+      
       if (!_isDisposed) {
         notifyListeners();
       }

@@ -151,7 +151,7 @@ class _MainAppState extends State<MainApp> {
                 themeMode: themeViewModel.useSystemTheme 
                   ? ThemeMode.system 
                   : (themeViewModel.isDarkMode ? ThemeMode.dark : ThemeMode.light),
-                title: 'ReMind',
+                title: 'CalmMind',
                 home: const AppWrapper(),
               ),
             ),
