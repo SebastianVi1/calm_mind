@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:re_mind/ui/themes/elevatedButton_theme.dart';
-import 'package:re_mind/ui/themes/text_field_theme.dart';
-import 'package:re_mind/ui/themes/text_theme.dart';
+import 'package:calm_mind/ui/themes/elevatedButton_theme.dart';
+import 'package:calm_mind/ui/themes/text_field_theme.dart';
+import 'package:calm_mind/ui/themes/text_theme.dart';
 
 class Themes {
   // Colors for light theme

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:provider/provider.dart';
-import 'package:re_mind/viewmodels/meditation_view_model.dart';
+import 'package:calm_mind/viewmodels/meditation_view_model.dart';
 import 'package:lottie/lottie.dart';
 
 /// A screen that displays a meditation session with video background and audio controls.
@@ -48,7 +48,7 @@ class _MeditationScreenState extends State<MeditationScreen> {
       body: Consumer<MeditationViewModel>(
         builder: (context, viewModel, child) {
           // Show loading screen while resources are being initialized
-          if (!viewModel.videoInitialized || viewModel.loadingAudio) {
+          if (viewModel.loadingAudio) {
             return Stack(
               
               children: [

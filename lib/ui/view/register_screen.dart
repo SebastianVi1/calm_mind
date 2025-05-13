@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:re_mind/ui/widgets/text_field.dart';
-import 'package:re_mind/viewmodels/login_view_model.dart';
-import 'package:re_mind/ui/view/app_wrapper.dart';
+import 'package:calm_mind/ui/widgets/text_field.dart';
+import 'package:calm_mind/viewmodels/login_view_model.dart';
+import 'package:calm_mind/ui/view/app_wrapper.dart';
 import 'package:lottie/lottie.dart';
 
 /// Screen that handles user registration

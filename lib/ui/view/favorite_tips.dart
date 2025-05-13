@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:re_mind/ui/widgets/animated_tip_card.dart';
-import 'package:re_mind/viewmodels/tips_view_model.dart';
+import 'package:calm_mind/ui/widgets/animated_tip_card.dart';
+import 'package:calm_mind/viewmodels/tips_view_model.dart';
 import 'package:lottie/lottie.dart';
 
 class FavoriteTipsPage extends StatefulWidget {

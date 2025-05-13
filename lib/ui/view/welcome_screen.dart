@@ -1,10 +1,10 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
-import 'package:re_mind/ui/constants/app_constants.dart';
-import 'package:re_mind/ui/view/login_screen.dart';
-import 'package:re_mind/ui/view/on_boarding_screen.dart';
+import 'package:calm_mind/ui/constants/app_constants.dart';
+import 'package:calm_mind/ui/view/login_screen.dart';
+import 'package:calm_mind/ui/view/on_boarding_screen.dart';
 
-import 'package:re_mind/ui/widgets/build_logo.dart';
+import 'package:calm_mind/ui/widgets/build_logo.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});

@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate_on_scroll/flutter_animate_on_scroll.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:provider/provider.dart';
-import 'package:re_mind/models/chat_message.dart';
-import 'package:re_mind/ui/widgets/drawer_key.dart';
-import 'package:re_mind/ui/widgets/end_drawer.dart';
-import 'package:re_mind/viewmodels/chat_view_model.dart';
-import 'package:re_mind/viewmodels/user_view_model.dart';
+import 'package:calm_mind/models/chat_message.dart';
+import 'package:calm_mind/ui/widgets/drawer_key.dart';
+import 'package:calm_mind/ui/widgets/end_drawer.dart';
+import 'package:calm_mind/viewmodels/chat_view_model.dart';
+import 'package:calm_mind/viewmodels/user_view_model.dart';
 
 class TherapyPage extends StatelessWidget {
   const TherapyPage({super.key});

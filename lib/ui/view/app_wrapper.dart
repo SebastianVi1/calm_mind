@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
-import 'package:re_mind/models/auth/auth_state.dart';
-import 'package:re_mind/services/user_service.dart';
-import 'package:re_mind/ui/view/main_screen.dart';
-import 'package:re_mind/ui/view/on_boarding_screen.dart';
-import 'package:re_mind/ui/view/welcome_screen.dart';
-import 'package:re_mind/viewmodels/auth_view_model.dart';
+import 'package:calm_mind/models/auth/auth_state.dart';
+import 'package:calm_mind/services/user_service.dart';
+import 'package:calm_mind/ui/view/main_screen.dart';
+import 'package:calm_mind/ui/view/on_boarding_screen.dart';
+import 'package:calm_mind/ui/view/welcome_screen.dart';
+import 'package:calm_mind/viewmodels/auth_view_model.dart';
 
 /// Main navigation wrapper for the application
 /// Handles routing based on authentication and onboarding status

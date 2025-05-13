@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:re_mind/models/user_model.dart';
-import 'package:re_mind/viewmodels/question_view_model.dart';
+import 'package:calm_mind/models/user_model.dart';
+import 'package:calm_mind/viewmodels/question_view_model.dart';
 import 'dart:async';
 
 /// Service that handles communication with the DeepSeek AI API

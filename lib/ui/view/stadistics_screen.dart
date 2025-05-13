@@ -2,10 +2,10 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
-import 'package:re_mind/ui/view/emotions_screen.dart';
+import 'package:calm_mind/ui/view/emotions_screen.dart';
 
-import 'package:re_mind/ui/widgets/mood_lottie_title.dart';
-import 'package:re_mind/viewmodels/mood_view_model.dart';
+import 'package:calm_mind/ui/widgets/mood_lottie_title.dart';
+import 'package:calm_mind/viewmodels/mood_view_model.dart';
 
 
 class StadisticsScreen extends StatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'package:re_mind/models/mood_model.dart';
+import 'package:calm_mind/models/mood_model.dart';
 
 class MoodRepository {
   final FirebaseFirestore _db = FirebaseFirestore.instance;

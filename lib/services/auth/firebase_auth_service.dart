@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:re_mind/services/auth/i_auth_service.dart';
+import 'package:calm_mind/services/auth/i_auth_service.dart';
 
 import '../../models/user_model.dart';
 

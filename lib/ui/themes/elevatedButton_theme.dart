@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:re_mind/ui/themes/theme_config.dart';
+import 'package:calm_mind/ui/themes/theme_config.dart';
 
 class TElevatedbuttonTheme {
   static final ElevatedButtonThemeData elevatedButtonLightTheme = ElevatedButtonThemeData(

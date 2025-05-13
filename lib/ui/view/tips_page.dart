@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate_on_scroll/flutter_animate_on_scroll.dart';
 import 'package:provider/provider.dart';
-import 'package:re_mind/ui/view/favorite_tips.dart';
-import 'package:re_mind/ui/widgets/animated_tip_card.dart';
-import 'package:re_mind/ui/widgets/drawer_key.dart';
-import 'package:re_mind/viewmodels/tips_view_model.dart';
+import 'package:calm_mind/ui/view/favorite_tips.dart';
+import 'package:calm_mind/ui/widgets/animated_tip_card.dart';
+import 'package:calm_mind/ui/widgets/drawer_key.dart';
+import 'package:calm_mind/viewmodels/tips_view_model.dart';
 import 'package:lottie/lottie.dart';
 
 /// A page that displays a list of tips with filtering capabilities

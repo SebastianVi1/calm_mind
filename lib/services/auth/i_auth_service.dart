@@ -1,4 +1,4 @@
-import 'package:re_mind/models/user_model.dart';
+import 'package:calm_mind/models/user_model.dart';
 
 abstract class IAuthService {
   Stream<UserModel?> get authStateChanges;

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:provider/provider.dart';
-import 'package:re_mind/ui/view/therapy_page.dart';
-import 'package:re_mind/ui/view/welcome_screen.dart';
-import 'package:re_mind/ui/widgets/end_drawer.dart';  // Importamos el EndDrawer
-import 'package:re_mind/viewmodels/auth_view_model.dart';
-import 'package:re_mind/viewmodels/chat_view_model.dart';
-import 'package:re_mind/viewmodels/navigation_view_model.dart';
-import 'package:re_mind/viewmodels/user_view_model.dart';
+import 'package:calm_mind/ui/view/therapy_page.dart';
+import 'package:calm_mind/ui/view/welcome_screen.dart';
+import 'package:calm_mind/ui/widgets/end_drawer.dart';  // Importamos el EndDrawer
+import 'package:calm_mind/viewmodels/auth_view_model.dart';
+import 'package:calm_mind/viewmodels/chat_view_model.dart';
+import 'package:calm_mind/viewmodels/navigation_view_model.dart';
+import 'package:calm_mind/viewmodels/user_view_model.dart';
 
 
 class ProfilePage extends StatefulWidget {

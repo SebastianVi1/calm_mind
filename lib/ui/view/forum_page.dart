@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:lottie/lottie.dart';
-import 'package:re_mind/ui/view/meditation_picker.dart';
-import 'package:re_mind/ui/view/relaxing_music_picker.dart.dart';
-import 'package:re_mind/ui/widgets/drawer_key.dart';
+import 'package:calm_mind/ui/view/meditation_picker.dart';
+import 'package:calm_mind/ui/view/relaxing_music_picker.dart.dart';
+import 'package:calm_mind/ui/widgets/drawer_key.dart';
 
 
 

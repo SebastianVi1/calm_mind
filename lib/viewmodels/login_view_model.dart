@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:re_mind/models/auth/auth_state.dart';
-import 'package:re_mind/services/auth/i_auth_service.dart';
+import 'package:calm_mind/models/auth/auth_state.dart';
+import 'package:calm_mind/services/auth/i_auth_service.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 /// ViewModel responsible for handling login and registration operations
 /// Implements ChangeNotifier to notify listeners of state changes

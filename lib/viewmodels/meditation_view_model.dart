@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:re_mind/models/meditation_audio_model.dart';
-import 'package:video_player/video_player.dart';
+import 'package:calm_mind/models/meditation_audio_model.dart';
+
 
 /// ViewModel for the meditation screen that handles the audio and video resources.
 /// Manages the playback state, loading, and error handling for meditation sessions.
@@ -17,13 +17,8 @@ class MeditationViewModel extends ChangeNotifier {
   Duration _duration = Duration.zero;
   Duration get duration => _duration;
   bool get isPlaying => _audioPlayer.playing;
-    // Video player
-  late VideoPlayerController _videoController;
-  bool loadingVideo = false;
-  VideoPlayerController get videoController => _videoController;
-  bool _videoInitialized = false;
-  bool get videoInitialized => _videoInitialized;
-  
+
+
   // Track initialization state
   bool _isInitialized = false;
   // Track disposal state
@@ -80,7 +75,7 @@ class MeditationViewModel extends ChangeNotifier {
 
       // Initialize both video and audio in parallel
       await Future.wait([
-        _initializeVideo(), // Make sure to initialize video
+        
         loadAudio(),
       ]);
       
@@ -104,36 +99,7 @@ class MeditationViewModel extends ChangeNotifier {
     _duration = Duration.zero;
     notifyListeners();
   }
-  Future<void> _initializeVideo() async {
-    loadingVideo = true;
-    notifyListeners();
-    
-    // If a controller is already initialized, release it
-    if (_videoInitialized) {
-      await _videoController.dispose();
-      _videoInitialized = false;
-    }
-    
-    // Use local asset
-    _videoController = VideoPlayerController.asset('assets/video/background_meditation.mp4');
-    
-    try {
-      await _videoController.initialize();
-      _videoInitialized = true;
-      _videoController.setLooping(true);
-      _videoController.setPlaybackSpeed(0.25);
-      _videoController.setVolume(0.0);
-      _videoController.play();
-      loadingVideo = false;
-      notifyListeners();
-    } catch (error) {      print("Error initializing video: $error");
-      _errorMessage = "Error loading video: $error";
-      loadingVideo = false;
-      notifyListeners();
-      rethrow;
-    }
-  }
-
+  
   void _initializeAudioListeners() {
     _audioPlayer.positionStream.listen((p) {
       _position = p;
@@ -207,7 +173,7 @@ class MeditationViewModel extends ChangeNotifier {
     _audioPlayer.seek(Duration(seconds: value.toInt()));
   }
   
-  // Cambiar a la siguiente meditación
+  
   void nextMeditation() {
     if (_selectedMeditation == null || urls.isEmpty) return;
     
@@ -225,7 +191,7 @@ class MeditationViewModel extends ChangeNotifier {
     notifyListeners();
   }
   
-  // Cambiar a la meditación anterior
+  
   void previousMeditation() {
     if (_selectedMeditation == null || urls.isEmpty) return;
     
@@ -251,19 +217,13 @@ class MeditationViewModel extends ChangeNotifier {
   void cleanup() {
     if (_audioPlayer.playing) {
       _audioPlayer.pause();
+      }
     }
-    if (_videoInitialized && _videoController.value.isPlaying) {
-      _videoController.pause();
-    }
-  }
   @override
   void dispose() {
-    _isDisposed = true; // Mark as disposed to prevent operations on disposed objects
+    _isDisposed = true;
     _audioPlayer.stop();
     _audioPlayer.dispose();
-    if (_videoInitialized) {
-      _videoController.dispose();
-    }
     super.dispose();
   }
 }

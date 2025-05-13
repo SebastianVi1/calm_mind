@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:re_mind/models/chat_message.dart';
+import 'package:calm_mind/models/chat_message.dart';
 import 'package:uuid/uuid.dart';
 
 class ChatMessagesRepository {

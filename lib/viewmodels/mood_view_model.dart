@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:re_mind/models/mood_model.dart';
+import 'package:calm_mind/models/mood_model.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:re_mind/repositories/mood_repository.dart';
+import 'package:calm_mind/repositories/mood_repository.dart';
 import 'package:uuid/uuid.dart';
 
 /// MoodViewModel manages the user's mood state and history
@@ -121,9 +121,8 @@ class MoodViewModel extends ChangeNotifier{
       // Convert the list to a map with timestamp as key
       // and MoodModel as value
       return moodHistory;
-    }
-    catch (e) {
-      print("Error fetching mood history: $e");
+    }    catch (e) {
+      // Error silently handled
       return [];
     }   
   }
@@ -275,10 +274,8 @@ class MoodViewModel extends ChangeNotifier{
     int happyCounter = 0;
     int neutralCounter = 0;
     int angryCounter = 0;
-    int sadCounter = 0;
-
-    if (currentHistory.isEmpty) {
-      print('error vacio');
+    int sadCounter = 0;    if (currentHistory.isEmpty) {
+      // No mood history data available
       return {};
     }
     for (MoodModel mood in currentHistory) {

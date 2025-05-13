@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate_on_scroll/flutter_animate_on_scroll.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
-import 'package:re_mind/ui/view/stadistics_screen.dart';
-import 'package:re_mind/ui/widgets/drawer_key.dart';
-import 'package:re_mind/ui/widgets/mood_lottie_container.dart';
-import 'package:re_mind/viewmodels/mood_view_model.dart';
-import 'package:re_mind/viewmodels/tips_view_model.dart';
-import 'package:re_mind/viewmodels/user_view_model.dart';
+import 'package:calm_mind/ui/view/stadistics_screen.dart';
+import 'package:calm_mind/ui/widgets/drawer_key.dart';
+import 'package:calm_mind/ui/widgets/mood_lottie_container.dart';
+import 'package:calm_mind/viewmodels/mood_view_model.dart';
+import 'package:calm_mind/viewmodels/tips_view_model.dart';
+import 'package:calm_mind/viewmodels/user_view_model.dart';
 
 
 class HomePage extends StatelessWidget {

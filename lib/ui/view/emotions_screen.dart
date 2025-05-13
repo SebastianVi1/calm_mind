@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate_on_scroll/flutter_animate_on_scroll.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
-import 'package:re_mind/viewmodels/mood_view_model.dart';
+import 'package:calm_mind/viewmodels/mood_view_model.dart';
 
 class EmotionsScreen extends StatefulWidget {
   const EmotionsScreen({super.key});

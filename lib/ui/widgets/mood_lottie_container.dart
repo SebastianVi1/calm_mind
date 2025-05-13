@@ -1,7 +1,7 @@
 // lib/ui/widgets/mood_lottie_button.dart
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:re_mind/models/mood_model.dart';
+import 'package:calm_mind/models/mood_model.dart';
 
 // A widget that displays a mood animation using Lottie and handles selection state
 class WMoodLottieContainer extends StatefulWidget {

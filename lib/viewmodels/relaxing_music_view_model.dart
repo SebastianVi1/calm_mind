@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:re_mind/services/relaxing_music_service.dart';
-import 'package:re_mind/models/relaxing_music_model.dart';
+import 'package:calm_mind/services/relaxing_music_service.dart';
+import 'package:calm_mind/models/relaxing_music_model.dart';
 
 enum RelaxingMusicState {
   initial,
@@ -105,9 +105,8 @@ class RelaxingMusicViewModel extends ChangeNotifier {
       // Solo notificar si el objeto no ha sido eliminado
       if (!_isDisposed) {
         notifyListeners();
-      }
-    } catch (e) {
-      print('Error al cambiar a la siguiente canción: $e');
+      }    } catch (e) {
+      // Error handled silently
     }
   }
     void previousSong() {
@@ -125,12 +124,12 @@ class RelaxingMusicViewModel extends ChangeNotifier {
         loadAudio();
       }
       
-      // Solo notificar si el objeto no ha sido eliminado
+      
       if (!_isDisposed) {
         notifyListeners();
       }
     } catch (e) {
-      print('Error al cambiar a la canción anterior: $e');
+      // Error handled silently
     }
   }
   void setSelectedSong(RelaxingMusicModel song) {
@@ -207,7 +206,7 @@ class RelaxingMusicViewModel extends ChangeNotifier {
       }
     } catch (e) {
       print('Error al cambiar reproducción: $e');
-      // No propagar el error para evitar crasheos
+      
     }
   }// Method to cleanup resources when temporarily navigating away
   Future<void> cleanup() async {

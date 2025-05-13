@@ -1,9 +1,9 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
-import 'package:re_mind/models/question_model.dart';
-import 'package:re_mind/ui/constants/app_constants.dart';
-import 'package:re_mind/ui/view/main_screen.dart';
-import 'package:re_mind/viewmodels/question_view_model.dart';
+import 'package:calm_mind/models/question_model.dart';
+import 'package:calm_mind/ui/constants/app_constants.dart';
+import 'package:calm_mind/ui/view/main_screen.dart';
+import 'package:calm_mind/viewmodels/question_view_model.dart';
 import 'package:provider/provider.dart';
 
 /// Widget that displays a question with multiple choice options.

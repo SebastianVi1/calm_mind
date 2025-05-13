@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate_on_scroll/flutter_animate_on_scroll.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
-import 'package:re_mind/models/relaxing_music_model.dart';
-import 'package:re_mind/ui/view/music_player_screen.dart';
-import 'package:re_mind/viewmodels/relaxing_music_view_model.dart';
+import 'package:calm_mind/models/relaxing_music_model.dart';
+import 'package:calm_mind/ui/view/music_player_screen.dart';
+import 'package:calm_mind/viewmodels/relaxing_music_view_model.dart';
 
 class RelaxingMusicPicker extends StatefulWidget {
   const RelaxingMusicPicker({super.key});

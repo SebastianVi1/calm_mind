@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate_on_scroll/flutter_animate_on_scroll.dart';
 import 'package:provider/provider.dart';
-import 'package:re_mind/models/meditation_audio_model.dart';
-import 'package:re_mind/ui/view/meditation_scree.dart';
-import 'package:re_mind/viewmodels/meditation_view_model.dart';
+import 'package:calm_mind/models/meditation_audio_model.dart';
+import 'package:calm_mind/ui/view/meditation_scree.dart';
+import 'package:calm_mind/viewmodels/meditation_view_model.dart';
 
 class MeditationPicker extends StatelessWidget {
   const MeditationPicker({super.key});

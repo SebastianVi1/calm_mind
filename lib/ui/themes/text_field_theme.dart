@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:re_mind/ui/themes/theme_config.dart';
+import 'package:calm_mind/ui/themes/theme_config.dart';
 
 class TTextFieldTheme {
   static InputDecorationTheme lightInputDecorationTheme = InputDecorationTheme(
@@ -29,7 +29,7 @@ class TTextFieldTheme {
       borderSide: BorderSide(color: Themes.lightError, width: 2),
     ),
     labelStyle: TextStyle(color: Themes.lightOnSurface),
-    hintStyle: TextStyle(color: Themes.lightOnSurface.withOpacity(0.6)),
+    hintStyle: TextStyle(color: Themes.lightOnSurface.withValues(alpha:0.6)),
     errorStyle: TextStyle(color: Themes.lightError),
   );
 

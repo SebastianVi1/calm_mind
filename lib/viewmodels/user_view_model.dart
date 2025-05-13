@@ -4,8 +4,8 @@ import 'dart:typed_data';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:re_mind/models/user_model.dart';
-import 'package:re_mind/services/user_service.dart';
+import 'package:calm_mind/models/user_model.dart';
+import 'package:calm_mind/services/user_service.dart';
 import 'package:image/image.dart' as img;
 
 /// ViewModel responsible for managing user-related functionality

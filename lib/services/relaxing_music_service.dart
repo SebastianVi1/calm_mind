@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:re_mind/models/relaxing_music_model.dart';
+import 'package:calm_mind/models/relaxing_music_model.dart';
 
 class RelaxingMusicService {
   final String musicApiUrl = 'https://magicloops.dev/api/loop/66ff2c88-88ec-4427-9d34-cdc56011083c/run';
