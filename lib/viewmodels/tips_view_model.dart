@@ -81,6 +81,84 @@ class TipsViewModel extends ChangeNotifier {
           content: 'Escribe tres cosas por las que estés agradecido cada día. Esto ayuda a mantener una perspectiva positiva.',
           category: 'Bienestar',
         ),
+        Tip(
+          id: '5',
+          title: 'Respiración Profunda',
+          content: 'Practica la respiración 4-7-8: inhala por 4 segundos, mantén por 7 y exhala por 8. Repite 4 veces para reducir el estrés.',
+          category: 'Meditacion',
+        ),
+        Tip(
+          id: '6',
+          title: 'Hidratación Consciente',
+          content: 'Bebe un vaso de agua al despertar y mantén una botella cerca durante el día. La hidratación mejora la concentración y el bienestar.',
+          category: 'Nutricion',
+        ),
+        Tip(
+          id: '7',
+          title: 'Estiramientos Matutinos',
+          content: 'Dedica 5 minutos cada mañana a estirar tu cuerpo. Esto mejora la flexibilidad y prepara tu cuerpo para el día.',
+          category: 'Ejercicio',
+        ),
+        Tip(
+          id: '8',
+          title: 'Pausas Activas',
+          content: 'Cada hora, toma 5 minutos para levantarte, caminar y estirar. Esto mejora la circulación y reduce la tensión muscular.',
+          category: 'Ejercicio',
+        ),
+        Tip(
+          id: '9',
+          title: 'Mindful Eating',
+          content: 'Antes de comer, toma un momento para apreciar los colores y aromas de tu comida. Esto mejora la digestión y el disfrute.',
+          category: 'Nutricion',
+        ),
+        Tip(
+          id: '10',
+          title: 'Diario de Emociones',
+          content: 'Escribe tus emociones diariamente. Esto te ayuda a procesar sentimientos y mantener un mejor equilibrio emocional.',
+          category: 'Bienestar',
+        ),
+        Tip(
+          id: '11',
+          title: 'Meditación Guiada',
+          content: 'Usa una aplicación de meditación guiada para principiantes. 10 minutos al día pueden transformar tu bienestar mental.',
+          category: 'Meditacion',
+        ),
+        Tip(
+          id: '12',
+          title: 'Snacks Saludables',
+          content: 'Prepara snacks saludables como frutas, nueces o yogur. Tener opciones nutritivas a mano evita elecciones impulsivas.',
+          category: 'Nutricion',
+        ),
+        Tip(
+          id: '13',
+          title: 'Escaneo Corporal',
+          content: 'Realiza un escaneo corporal de 5 minutos: recorre mentalmente tu cuerpo desde los pies hasta la cabeza, notando sensaciones y tensiones.',
+          category: 'Meditacion',
+        ),
+        Tip(
+          id: '14',
+          title: 'Rutina de Yoga Básica',
+          content: 'Practica 3 posturas básicas de yoga cada mañana: postura del niño, perro boca abajo y montaña. Mantén cada una por 30 segundos.',
+          category: 'Ejercicio',
+        ),
+        Tip(
+          id: '15',
+          title: 'Planificación de Comidas',
+          content: 'Dedica 30 minutos el domingo para planificar tus comidas de la semana. Esto reduce el estrés y mejora tus elecciones alimenticias.',
+          category: 'Nutricion',
+        ),
+        Tip(
+          id: '16',
+          title: 'Técnica de Liberación Emocional',
+          content: 'Cuando sientas estrés, golpea suavemente con los dedos en el punto de karate (borde de la mano) mientras repites una afirmación positiva.',
+          category: 'Bienestar',
+        ),
+        Tip(
+          id: '17',
+          title: 'Caminata Consciente',
+          content: 'Durante tus caminatas, concéntrate en la sensación de tus pies tocando el suelo y el ritmo de tu respiración. Esto transforma el ejercicio en meditación.',
+          category: 'Ejercicio',
+        ),
       ];
 
       _filterTips(); // Apply initial filtering

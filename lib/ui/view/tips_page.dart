@@ -117,48 +117,45 @@ class _TipsPageState extends State<TipsPage> with SingleTickerProviderStateMixin
             // Animated filter bar that shows/hides based on scroll
             SizeTransition(
               sizeFactor: _animation,
-              child: FadeTransition(
-                opacity: _animation,
-                child: SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(0, -1),
-                    end: Offset.zero,
-                  ).animate(_animation),
-                  child: Consumer<TipsViewModel>(
-                    builder: (context, viewModel, child) {
-                      return SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Container(
-                          margin: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(20)
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: viewModel.categories.map((category) {
-                              final bool isSelected = viewModel.selectedCategory == category['id'];
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                                child: FilledButton(
-                                  onPressed: () => viewModel.onCategorySelected(category['id']!),
-                                  style: FilledButton.styleFrom(
-                                    backgroundColor: isSelected 
-                                      ? colorScheme.primary 
-                                      : colorScheme.surfaceContainerHighest,
-                                    foregroundColor: isSelected 
-                                      ? colorScheme.onPrimary 
-                                      : colorScheme.onSurfaceVariant,
-                                  ),
-                                  child: Text(category['name']!),
-                                ),
-                              );
-                            }).toList(),
-                          ),
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, -1),
+                  end: Offset.zero,
+                ).animate(_animation),
+                child: Consumer<TipsViewModel>(
+                  builder: (context, viewModel, child) {
+                    return SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Container(
+                        margin: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(20)
                         ),
-                      );
-                    },
-                  ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: viewModel.categories.map((category) {
+                            final bool isSelected = viewModel.selectedCategory == category['id'];
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                              child: FilledButton(
+                                onPressed: () => viewModel.onCategorySelected(category['id']!),
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: isSelected 
+                                    ? colorScheme.primary 
+                                    : colorScheme.surfaceContainerHighest,
+                                  foregroundColor: isSelected 
+                                    ? colorScheme.onPrimary 
+                                    : colorScheme.onSurfaceVariant,
+                                ),
+                                child: Text(category['name']!),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ),

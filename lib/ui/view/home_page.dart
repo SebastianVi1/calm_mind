@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate_on_scroll/flutter_animate_on_scroll.dart';
 import 'package:lottie/lottie.dart';
@@ -45,7 +47,6 @@ class _HomePageMain extends StatelessWidget {
               ),
             ],
           ),
-          // Eliminamos el endDrawer local
           
           body: SafeArea(
             child: SingleChildScrollView(
@@ -71,7 +72,14 @@ class _HomePageMain extends StatelessWidget {
                       )
                     ),
                     
-                    
+                    FadeInLeft(
+                      config: BaseAnimationConfig(
+                        
+                        delay: 800.ms,
+                        useScrollForAnimation: true,
+                        child: _buildTipCard(),
+                      ),
+                    )
                     
                   ],
                 ),
@@ -94,7 +102,7 @@ class _HomePageMain extends StatelessWidget {
           margin: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             border: Border.all(color: viewModel.selectedMood?.color ?? Theme.of(context).primaryColor, width: 2),
-            borderRadius: BorderRadius.circular(20)
+            borderRadius: BorderRadius.circular(20),
             
           ),
           child: Column(
@@ -190,11 +198,55 @@ class _HomePageMain extends StatelessWidget {
     );
   }
 
-  Widget _buildMoodAdvice() {
+  Widget _buildTipCard() {
+
     return Consumer<TipsViewModel>(
       builder: (context, viewModel, child) {
-        return Container();
-        //TODO: add a card with an advice depending on the mood selected
+        var moodList = viewModel.tips;
+        var moodListLength = moodList.length;
+        var rng = Random();
+        var randomNumber = rng.nextInt(moodListLength-1);
+        var tip = moodList[randomNumber];
+        var theme = Theme.of(context);
+        return Padding(
+          padding: const EdgeInsets.all(10),
+          child: Container(
+            padding: EdgeInsets.all(15),
+           
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              color: theme.colorScheme.secondary,
+              border: Border.all(color: theme.colorScheme.primary,width: 2),
+              boxShadow: [
+                BoxShadow(
+                  offset: Offset(1, 5),
+                  color: Colors.black.withValues(alpha: 0.2),
+                  blurRadius: 5,
+                )
+              ]
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  tip.title,
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  ),
+                ),
+                SizedBox(height: 8,),
+                Text(
+                  tip.content,
+                  style: theme.textTheme.labelLarge,
+                ),
+                
+                
+                
+              ],
+            ),
+          ),
+        );
+        
       }
     );
   }

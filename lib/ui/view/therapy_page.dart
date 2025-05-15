@@ -283,7 +283,7 @@ class _MessageBubble extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   image: DecorationImage(
-                    image: context.read<UserViewModel>().getProfileImage(),
+                    image: Provider.of<UserViewModel>(context, listen: false).getProfileImage(),
                     fit: BoxFit.cover
                   )
                   
