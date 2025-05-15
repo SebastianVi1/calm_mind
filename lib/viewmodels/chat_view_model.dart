@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-
 import 'package:calm_mind/models/chat_message.dart';
 import 'package:calm_mind/models/user_model.dart';
 import 'package:uuid/uuid.dart';
@@ -39,9 +38,7 @@ class ChatViewModel extends ChangeNotifier {
   // Animation frames for typing indicator
   final List<String> _typingAnimationFrames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
 
-  // Cache for user context to avoid sending it multiple times
-  String? _cachedUserContext;
-  bool _hasSentContext = false;
+ 
 
   // Current session ID
   String _currentSessionId = '';
@@ -59,11 +56,11 @@ class ChatViewModel extends ChangeNotifier {
     // Start a new session when the app starts
     startNewSession();
     // Load chat history for the history page
-    _loadChatHistory();
+    loadChatHistory();
   }
 
   /// Loads chat history from Firestore
-  Future<void> _loadChatHistory() async {
+  Future<void> loadChatHistory() async {
     try {
       _chatHistorySubscription?.cancel();
       _chatHistorySubscription = _chatRepository.getChatHistory().listen(
@@ -78,6 +75,18 @@ class ChatViewModel extends ChangeNotifier {
           for (final session in _sessions.values) {
             session.sort((a, b) => a.timestamp.compareTo(b.timestamp));
           }
+
+          // Sort sessions by most recent first
+          final sortedSessions = Map.fromEntries(
+            _sessions.entries.toList()
+              ..sort((a, b) {
+                final aLastMessage = a.value.last.timestamp;
+                final bLastMessage = b.value.last.timestamp;
+                return bLastMessage.compareTo(aLastMessage); // Reverse order
+              })
+          );
+          _sessions.clear();
+          _sessions.addAll(sortedSessions);
 
           notifyListeners();
         },
@@ -95,7 +104,6 @@ class ChatViewModel extends ChangeNotifier {
     try {
       _currentSessionId = _uuid.v4();
       _messages.clear();
-      _hasSentContext = false;
       _hasMessages = false;
       _currentResponse = '';
       _stopTypingAnimation();
@@ -103,7 +111,7 @@ class ChatViewModel extends ChangeNotifier {
       // Add welcome message but don't save it yet
       final welcomeMessage = ChatMessage(
         id: _uuid.v4(),
-        content: 'Hola, soy Albert ☺️. ¿En qué puedo ayudarte hoy?',
+        content: 'Hola, soy Numa☺️. ¿En qué puedo ayudarte hoy?',
         isUser: false,
         timestamp: DateTime.now(),
         sessionId: _currentSessionId,
@@ -120,7 +128,6 @@ class ChatViewModel extends ChangeNotifier {
     try {
       _currentSessionId = sessionId;
       _messages.clear();
-      _hasSentContext = false;
       _currentResponse = '';
       _stopTypingAnimation();
       
@@ -139,44 +146,11 @@ class ChatViewModel extends ChangeNotifier {
   void setUser(UserModel user) {
     if (_currentUser?.uid != user.uid) {
       _currentUser = user;
-      _hasSentContext = false;
-      _sendUserContext();
+  
     }
   }
 
-  /// Sends the user's context to the AI without showing it in the chat
-  Future<void> _sendUserContext() async {
-    if (_currentUser == null || _hasSentContext) return;
-
-    final context = '''
-You are Albert, a concise virtual therapist. User context:
-Name: ${_currentUser!.displayName ?? 'Not provided'}
-Email: ${_currentUser!.email ?? 'Not provided'}
-${_currentUser!.questionAnswers != null && _currentUser!.questionAnswers!.isNotEmpty 
-  ? 'Previous answers: ${_currentUser!.questionAnswers!.join(" | ")}'
-  : ''}
-
-Guidelines:
-- Be direct and concise
-- Focus on practical advice
-- Keep responses under 3 sentences
-- Use simple language
-- Stay solution-oriented
-- Be empathetic but professional
-- Avoid medical diagnoses
-- Suggest professional help when needed
-''';
-
-    _cachedUserContext = context;
-
-    try {
-      await _deepSeekService.sendMessageStream('', systemMessage: context).drain();
-      _hasSentContext = true;
-    } catch (e) {
-      print('Error sending context: $e');
-      _hasSentContext = false;
-    }
-  }
+  
 
   // Getters for public access to private fields
   List<ChatMessage> get messages => _messages;
@@ -206,10 +180,6 @@ Guidelines:
   Future<void> sendMessage(String message) async {
     if (message.trim().isEmpty) return;
 
-    // Ensure context is sent before first message
-    if (!_hasSentContext && _currentUser != null) {
-      await _sendUserContext();
-    }
 
     // Add user message to chat
     final userMessage = ChatMessage(
@@ -255,7 +225,6 @@ Guidelines:
       // Stream AI response and update UI in real-time
       await for (final chunk in _deepSeekService.sendMessageStream(
         message,
-        systemMessage: _cachedUserContext ?? 'Be concise and direct.',
       )) {
         _currentResponse += chunk;
         // Replace the last message with updated content
@@ -312,7 +281,6 @@ Guidelines:
       _stopTypingAnimation();
       _currentResponse = '';
       _isLoading = false;
-      _hasSentContext = false;
       _hasMessages = false;
       
       // Create new session
@@ -321,7 +289,7 @@ Guidelines:
       // Add welcome message back but don't save it yet
       final welcomeMessage = ChatMessage(
         id: _uuid.v4(),
-        content: 'Hola, soy Albert ☺️. ¿En qué puedo ayudarte hoy?',
+        content: 'Hola, soy Numa ☺️. ¿En qué puedo ayudarte hoy?',
         isUser: false,
         timestamp: DateTime.now(),
         sessionId: _currentSessionId,

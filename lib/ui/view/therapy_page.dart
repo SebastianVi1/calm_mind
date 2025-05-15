@@ -41,6 +41,7 @@ class _TherapyMainPage extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {
+              
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => _ChatHistoryPage()),
@@ -69,7 +70,7 @@ class _TherapyMainPage extends StatelessWidget {
 
 class _ChatHistoryPage extends StatelessWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) { 
     return Scaffold(
       appBar: AppBar(
         title: Text(
