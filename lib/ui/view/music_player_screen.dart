@@ -27,8 +27,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> with TickerProvid
   }
     @override
   void dispose() {
-    // Pausar reproducción de audio antes de desmontar el widget
-    // Usar un Future delayed para evitar problemas de actualización en el widget tree
+
     Future.microtask(() {
       _viewModel.cleanup();
     });

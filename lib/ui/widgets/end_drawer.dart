@@ -1,3 +1,4 @@
+import 'package:calm_mind/ui/view/achievements_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
@@ -39,6 +40,17 @@ class WEndDrawer extends StatelessWidget {
 
             leading: Icon(Icons.person),
             
+          ),
+          ListTile(
+            title: const Text('Logros'),
+            leading: Icon(Icons.place),
+            onTap: (){
+              Navigator.push(
+                context,
+                 MaterialPageRoute(
+                builder: (context) => AchievementsScreen(),
+              ));
+            },
           ),
           ListTile(
             title: const Text('Modo oscuro', textAlign: TextAlign.start,),

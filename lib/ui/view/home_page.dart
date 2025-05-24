@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_animate_on_scroll/flutter_animate_on_scroll.dart';
 import 'package:lottie/lottie.dart';
@@ -10,7 +9,7 @@ import 'package:calm_mind/ui/widgets/mood_lottie_container.dart';
 import 'package:calm_mind/viewmodels/mood_view_model.dart';
 import 'package:calm_mind/viewmodels/tips_view_model.dart';
 import 'package:calm_mind/viewmodels/user_view_model.dart';
-
+import 'dart:async';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -27,8 +26,45 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class _HomePageMain extends StatelessWidget {
+class _HomePageMain extends StatefulWidget {
   const _HomePageMain();
+
+  @override
+  State<_HomePageMain> createState() => _HomePageMainState();
+}
+
+class _HomePageMainState extends State<_HomePageMain> {
+  int _timeRemaining = 10;
+  Timer? _timer;
+  Random rng = Random();
+  int randomNumber = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _startTimer();
+  }
+
+  @override
+  void dispose(){
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _startTimer(){
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer){
+      setState((){
+        _timeRemaining--;
+        if(_timeRemaining <=0) {
+          _timer?.cancel();
+          randomNumber = rng.nextInt(context.read<TipsViewModel>().tips.length);
+          _timeRemaining = 10;
+          _startTimer();
+        }
+      });
+    });
+  }
+  
   
   @override
   Widget build(BuildContext context) {
@@ -40,7 +76,7 @@ class _HomePageMain extends StatelessWidget {
             title: Icon(Icons.home, color: Theme.of(context).brightness == Brightness.dark ? Colors.white: Colors.black,),
             toolbarHeight: 30,
             actions: [
-              // Botón para abrir el drawer global
+              
               IconButton(
                 icon: Icon(Icons.menu),
                 onPressed: () => openGlobalEndDrawer(context),
@@ -66,7 +102,7 @@ class _HomePageMain extends StatelessWidget {
                     const SizedBox(height: 10),
                     FadeInLeft(
                       config: BaseAnimationConfig(
-                        delay: 800.ms,
+                        delay: 150.ms,
                         useScrollForAnimation: true,
                         child: _buildMoodStates(viewModel, context),
                       )
@@ -75,11 +111,11 @@ class _HomePageMain extends StatelessWidget {
                     FadeInLeft(
                       config: BaseAnimationConfig(
                         
-                        delay: 800.ms,
+                        delay: 150.ms,
                         useScrollForAnimation: true,
-                        child: _buildTipCard(),
+                        child: _buildTipCard(randomNumber, _timeRemaining),
                       ),
-                    )
+                    ),
                     
                   ],
                 ),
@@ -90,8 +126,7 @@ class _HomePageMain extends StatelessWidget {
       }
     );
   }
-  
-  }
+}
   Widget _buildMoodStates(MoodViewModel viewModel, BuildContext context) {
     var provider = Provider.of<MoodViewModel>(context);
     bool isLoading = provider.isLoading;   
@@ -198,55 +233,66 @@ class _HomePageMain extends StatelessWidget {
     );
   }
 
-  Widget _buildTipCard() {
-
+  Widget _buildTipCard(int randomNumber, int timeRemaining) {
     return Consumer<TipsViewModel>(
       builder: (context, viewModel, child) {
         var moodList = viewModel.tips;
-        var moodListLength = moodList.length;
-        var rng = Random();
-        var randomNumber = rng.nextInt(moodListLength-1);
         var tip = moodList[randomNumber];
         var theme = Theme.of(context);
-        return Padding(
-          padding: const EdgeInsets.all(10),
-          child: Container(
-            padding: EdgeInsets.all(15),
-           
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              color: theme.colorScheme.secondary,
-              border: Border.all(color: theme.colorScheme.primary,width: 2),
-              boxShadow: [
-                BoxShadow(
-                  offset: Offset(1, 5),
-                  color: Colors.black.withValues(alpha: 0.2),
-                  blurRadius: 5,
-                )
-              ]
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  tip.title,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+        
+        return SizedBox(
+          height: 150,
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 1500),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return FadeTransition(
+                  opacity: CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeInOut,
+                    reverseCurve: Curves.easeInOut,
                   ),
+                  child: child,
+                );
+              },
+              child: Container(
+                key: ValueKey<int>(randomNumber),
+                padding: EdgeInsets.all(15),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  color: Theme.of(context).brightness == Brightness.dark ? Color(0xFF0D47A1).withValues(alpha: 0.6) : Color(0xFFF0F4FF), // Lavender,
+                  
+                  boxShadow: [
+                    BoxShadow(
+                      offset: Offset(1, 5),
+                      color: Colors.black.withValues(alpha: 0.2),
+                      blurRadius: 5,
+                    )
+                  ]
                 ),
-                SizedBox(height: 8,),
-                Text(
-                  tip.content,
-                  style: theme.textTheme.labelLarge,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      tip.title,
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        shadows: [Shadow(color: Colors.black.withValues(alpha: 0.2), offset: Offset(1, 1))]
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      tip.content,
+                      style: theme.textTheme.labelLarge,
+                    ),
+                  ],
                 ),
-                
-                
-                
-              ],
+              ),
             ),
           ),
         );
-        
       }
     );
   }

@@ -35,7 +35,7 @@ class RelaxingMusicViewModel extends ChangeNotifier {
   bool get isPlaying => _player.playing;
   
   // Track initialization and disposal state
-  bool _isInitialized = false;
+  final bool _isInitialized = false;
   bool _isDisposed = false;
 
   RelaxingMusicViewModel(this._relaxingMusicService) {

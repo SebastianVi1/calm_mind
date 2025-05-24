@@ -23,6 +23,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:calm_mind/viewmodels/tips_view_model.dart';
 import 'package:calm_mind/viewmodels/theme_view_model.dart';
+import 'package:calm_mind/viewmodels/achievement_view_model.dart';
 
 Future<void> main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -130,7 +131,9 @@ class _MainAppState extends State<MainApp> {
             context.read<RelaxingMusicService>(),
           )
         ),
-        
+        ChangeNotifierProvider(
+          create: (context) => AchievementViewModel(),
+        ),
       ],
       child: Consumer<ThemeViewModel>(
         builder: (context, themeViewModel, child) {

@@ -33,10 +33,13 @@ class MeditationPicker extends StatelessWidget {
                   child: ListView.builder(
                     itemCount: viewModel.urls.length,
                     itemBuilder: (context, index) {
-                      var meditation = viewModel.urls[index];                      return Padding(
+                      var meditation = viewModel.urls[index];                      
+                      return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 5),
                         child: FadeInRight(
                           config: BaseAnimationConfig(
+                            delay: 100.ms,
+                            duration: 150.ms,
                             child: _PulsatingMeditationTile(
                               meditation: meditation,
                               onTap: () => _navigateToMeditation(context, meditation),

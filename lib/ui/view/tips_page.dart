@@ -232,7 +232,8 @@ class _TipsPageState extends State<TipsPage> with SingleTickerProviderStateMixin
                       return FadeInDown(
                         config: BaseAnimationConfig(
                           useScrollForAnimation: true,
-                          delay: 200.ms,
+                          curves: Curves.easeInOut,
+                          delay: 10.ms,
                           child: WAnimatedTipCard(
                             title: tip.title,
                             content: tip.content,

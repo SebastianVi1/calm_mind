@@ -55,7 +55,7 @@ class RelaxingMusicService {
       }
     } catch (e) {
       print('Error en triggerMagicLoopsAPI: $e');
-      throw e; // Re-lanzamos la excepción para que el ViewModel la maneje
+      rethrow; // Re-lanzamos la excepción para que el ViewModel la maneje
     }
   }
 }

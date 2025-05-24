@@ -165,73 +165,70 @@ class ForumPage extends StatelessWidget {
                 ),
               ),
               Expanded( //Meditation card
-                child: Flexible(
+                child: Container(
                   
-                  child: Container(
-                    
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                          color: Theme.of(context).brightness == Brightness.dark ? Colors.blue.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.2),
-                          spreadRadius: 2,
-                          blurRadius: 3,
-                          offset: Offset(0,1)
-                          
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Theme.of(context).brightness == Brightness.dark ? Colors.blue.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.2),
+                        spreadRadius: 2,
+                        blurRadius: 3,
+                        offset: Offset(0,1)
+                        
+                      )
+                    ],
+                    gradient: LinearGradient(colors: [Color(0xFFD8B5FF), Color(0xFF1EAE98)]),
+                    borderRadius: BorderRadius.circular(16)
+                  ),
+                  child: Column(
+                    spacing: 5,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                
+                        alignment: Alignment.topRight,
+                        child: Lottie.asset('assets/animations/focus_brain.json', 
+                        width: 100
                         )
-                      ],
-                      gradient: LinearGradient(colors: [Color(0xFFD8B5FF), Color(0xFF1EAE98)]),
-                      borderRadius: BorderRadius.circular(16)
-                    ),
-                    child: Column(
-                      spacing: 5,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-
-                          alignment: Alignment.topRight,
-                          child: Lottie.asset('assets/animations/focus_brain.json', 
-                          width: 100
-                          )
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 15),
-                          child: Text(
-                            'Concentrate',
-                            style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 15),
-                          child: Text(
-                            'Meditacion',
-                            style: Theme.of(context).textTheme.labelMedium?.copyWith(),
-                          ),
-                        ),
-                        const SizedBox(height: 10,),
-                        Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Text(
-                            '3-10 MIN',
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w900, color: Colors.white),
-                          ),
-                          SizedBox(
-                            height: 40,
-                            child: FilledButton(
-                              style: ButtonStyle(
-                                backgroundColor: WidgetStatePropertyAll(Colors.transparent),
-                              ),
-                              onPressed: (){
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => MeditationPicker()));
-                              },
-                              child: HugeIcon(icon: HugeIcons.strokeRoundedPlay, color: Colors.white)
-                            ),
-                          ),
-                        ],
                       ),
-                      const SizedBox(height: 10,)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        child: Text(
+                          'Concentrate',
+                          style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 15),
+                        child: Text(
+                          'Meditacion',
+                          style: Theme.of(context).textTheme.labelMedium?.copyWith(),
+                        ),
+                      ),
+                      const SizedBox(height: 10,),
+                      Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Text(
+                          '3-10 MIN',
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w900, color: Colors.white),
+                        ),
+                        SizedBox(
+                          height: 40,
+                          child: FilledButton(
+                            style: ButtonStyle(
+                              backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                            ),
+                            onPressed: (){
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => MeditationPicker()));
+                            },
+                            child: HugeIcon(icon: HugeIcons.strokeRoundedPlay, color: Colors.white)
+                          ),
+                        ),
                       ],
                     ),
+                    const SizedBox(height: 10,)
+                    ],
                   ),
                 ),
               )

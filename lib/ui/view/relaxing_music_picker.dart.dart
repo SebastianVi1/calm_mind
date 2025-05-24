@@ -23,9 +23,9 @@ class _RelaxingMusicPickerState extends State<RelaxingMusicPicker> {
         
           builder: (context, viewModel, child) {
             
-            var _state = viewModel.state;
+            var state = viewModel.state;
             
-            if (_state == RelaxingMusicState.loading) {
+            if (state == RelaxingMusicState.loading) {
               return Column(
 
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -42,7 +42,7 @@ class _RelaxingMusicPickerState extends State<RelaxingMusicPicker> {
                 ],
               );
             }
-            if (_state == RelaxingMusicState.error) {
+            if (state == RelaxingMusicState.error) {
               return Center(
                 child: Column(
                   children: [
