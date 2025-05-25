@@ -11,7 +11,10 @@ class AchievementsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Logros'),
+        title: Text(
+          'Logros',
+            style: Theme.of(context).textTheme.titleLarge,
+        ),
         centerTitle: true,
       ),
       body: Consumer<AchievementViewModel>(
@@ -119,12 +122,6 @@ class AchievementsScreen extends StatelessWidget {
         return 'Meditación';
       case AchievementType.SELF_CARE:
         return 'Autocuidado';
-      case AchievementType.GOAL_COMPLETION:
-        return 'Metas';
-      case AchievementType.COMMUNITY:
-        return 'Comunidad';
-      case AchievementType.CONSISTENCY:
-        return 'Consistencia';
     }
   }
 }

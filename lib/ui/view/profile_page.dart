@@ -1,3 +1,7 @@
+import 'dart:ui';
+
+import 'package:calm_mind/ui/view/achievements_screen.dart';
+import 'package:calm_mind/viewmodels/achievement_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:provider/provider.dart';
@@ -80,7 +84,7 @@ class _ProfilePageState extends State<ProfilePage> {
         children: [
           
           _buildProfileInfo(context, viewModel, user),
-          
+         
           if (viewModel.error != null)
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -117,6 +121,44 @@ class _ProfilePageState extends State<ProfilePage> {
             ? const CircularProgressIndicator()
             : null,
       ),
+    );
+  }
+
+  Widget _buildBadgeObtained(){
+    List<String> assets = context.read<AchievementViewModel>().getUnlockedBadges();
+    return Column(
+      children: [
+        Text(
+          'Logros obtenidos',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 8,),
+        Container(
+          
+          decoration: BoxDecoration(
+            gradient: LinearGradient(colors: [Colors.blue, Colors.blueGrey, Colors.redAccent]),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: GestureDetector(
+            onTap: ()=> Navigator.push(context, MaterialPageRoute(builder: (context) => AchievementsScreen(),)),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: assets.map((asset) {
+                return Padding(
+                  padding: const EdgeInsets.all(1),
+                  child: Image.asset(
+                    asset,
+                    width: 45,
+                    
+                  ),
+                );
+              }
+              ).toList(),
+            ),
+          ),
+        )
+    
+      ],
     );
   }
 
@@ -158,9 +200,14 @@ class _ProfilePageState extends State<ProfilePage> {
             user.email ?? 'Usuario anonimo',
             style: Theme.of(context).textTheme.bodySmall,
           ),
-          const SizedBox(height: 20),
+         
+          _buildBadgeObtained(),
+          const SizedBox(height: 15,),
           if (context.read<ChatViewModel>().sessions.isNotEmpty)
-
+            Text(
+              'Numa',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             Card(
               child: Container(
                 decoration: BoxDecoration(
@@ -202,7 +249,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                 ),
               ),
-            )
+            ),
           
         ],
       ),

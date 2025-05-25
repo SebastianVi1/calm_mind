@@ -2,9 +2,6 @@ enum AchievementType {
   MOOD_STREAK,
   MEDITATION_TIME,
   SELF_CARE,
-  GOAL_COMPLETION,
-  COMMUNITY,
-  CONSISTENCY
 }
 
 class Achievement {

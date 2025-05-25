@@ -39,7 +39,15 @@ class AchievementViewModel extends ChangeNotifier {
   List<Achievement> getAchievementsByType(AchievementType type) {
     return _achievements.where((a) => a.type == type).toList();
   }
-
+  List<String> getUnlockedBadges (){
+    List<String> unlockedBadges = [];
+    for (Achievement ach in _getPredefinedAchievements()){
+      if (ach.isUnlocked){
+        unlockedBadges.add(ach.iconAsset);
+      }
+    }
+    return unlockedBadges;
+  }
   List<Achievement> _getPredefinedAchievements() {
     return [
       // Logros de Estado de Ánimo
@@ -52,6 +60,7 @@ class AchievementViewModel extends ChangeNotifier {
         type: AchievementType.MOOD_STREAK,
         level: 'BRONZE',
         requirement: 3,
+        isUnlocked: true,
       ),
       Achievement(
         id: 'mood_streak_7',
@@ -62,6 +71,7 @@ class AchievementViewModel extends ChangeNotifier {
         type: AchievementType.MOOD_STREAK,
         level: 'SILVER',
         requirement: 7,
+        isUnlocked: true,
       ),
       
       Achievement(
@@ -71,7 +81,7 @@ class AchievementViewModel extends ChangeNotifier {
         iconAsset: 'assets/images/achievements/trofeo_3.png',
         points: 100,
         type: AchievementType.MOOD_STREAK,
-        level: 'SILVER',
+        level: 'GOLD',
         requirement: 7,
       ),
       Achievement(
@@ -81,7 +91,7 @@ class AchievementViewModel extends ChangeNotifier {
         iconAsset: 'assets/images/achievements/trofeo_4.png',
         points: 100,
         type: AchievementType.MOOD_STREAK,
-        level: 'SILVER',
+        level: 'DIAMOND',
         requirement: 7,
       ),
       // Meditation achievements
@@ -94,6 +104,7 @@ class AchievementViewModel extends ChangeNotifier {
         type: AchievementType.MEDITATION_TIME,
         level: 'BRONZE',
         requirement: 60,
+        isUnlocked: true,
       ),
       Achievement(
         id: 'meditation_5h',
@@ -103,9 +114,7 @@ class AchievementViewModel extends ChangeNotifier {
         points: 80,
         type: AchievementType.MEDITATION_TIME,
         level: 'SILVER',
-        requirement: 300,
-        isUnlocked: true,
-        
+        requirement: 300,      
       ),
       Achievement(
         id: 'meditation_10h',
@@ -114,7 +123,7 @@ class AchievementViewModel extends ChangeNotifier {
         iconAsset: 'assets/images/achievements/meditation_badge_3.png',
         points: 80,
         type: AchievementType.MEDITATION_TIME,
-        level: 'SILVER',
+        level: 'GOLD',
         requirement: 300,
       ),
       Achievement(
@@ -124,11 +133,54 @@ class AchievementViewModel extends ChangeNotifier {
         iconAsset: 'assets/images/achievements/meditation_badge_4.png',
         points: 80,
         type: AchievementType.MEDITATION_TIME,
-        level: 'SILVER',
+        level: 'DIAMOND',
         requirement: 300,
       ),
-      
-      
+        
+      Achievement(
+        id: 'self-care_1h',
+        title: 'Autocuidado 1',
+        description: 'Ten almenos una sesion de autocuidado con numa',
+        iconAsset: 'assets/images/achievements/self-care_1.png',
+        level: 'COPPPER',
+        points: 50,
+        requirement: 400,
+        type: AchievementType.SELF_CARE,
+        isUnlocked: true,
+      ),
+      Achievement(
+        id: 'self-care_1h',
+        title: 'Autocuidado 1',
+        description: 'Ten almenos cinco sesiones de autocuidado con numa',
+        iconAsset: 'assets/images/achievements/self-care_2.png',
+        level: 'SILVER',
+        points: 50,
+        requirement: 400,
+        type: AchievementType.SELF_CARE,
+        isUnlocked: true,
+      ),
+      Achievement(
+        id: 'self-care_1h',
+        title: 'Autocuidado 1',
+        description: 'Ten almenos 15 sesiones de autocuidado con numa',
+        iconAsset: 'assets/images/achievements/self-care_3.png',
+        level: 'GOLD',
+        points: 50,
+        requirement: 400,
+        type: AchievementType.SELF_CARE,
+        isUnlocked: true,
+      ),
+      Achievement(
+        id: 'self-care_1h',
+        title: 'Autocuidado 1',
+        description: 'Ten almenos 30 de autocuidado con numa',
+        iconAsset: 'assets/images/achievements/self-care_4.png',
+        level: 'DIAMOND',
+        points: 50,
+        requirement: 400,
+        type: AchievementType.SELF_CARE,
+        isUnlocked: false,
+      ),
       
     ];
   }
