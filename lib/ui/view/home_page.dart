@@ -241,7 +241,7 @@ class _HomePageMainState extends State<_HomePageMain> {
         var theme = Theme.of(context);
         
         return SizedBox(
-          height: 150,
+          
           child: Padding(
             padding: const EdgeInsets.all(10),
             child: AnimatedSwitcher(

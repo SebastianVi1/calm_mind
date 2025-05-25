@@ -144,13 +144,10 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: assets.map((asset) {
-                return Padding(
-                  padding: const EdgeInsets.all(1),
-                  child: Image.asset(
-                    asset,
-                    width: 45,
-                    
-                  ),
+                return Image.asset(
+                  asset,
+                  width: 45,
+                  
                 );
               }
               ).toList(),

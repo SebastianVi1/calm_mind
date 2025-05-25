@@ -25,7 +25,7 @@ class WelcomeScreen extends StatelessWidget {
                 const SizedBox(height: 30,),
                 _buildTitle(context),
                 const SizedBox(height: 40,),
-                WBuildLogo.buildLogo(),
+                WBuildLogo.buildLogo(context: context),
                 const SizedBox(height: 20,),
                 _buildSlogan(context),
                 const SizedBox(height: 50),

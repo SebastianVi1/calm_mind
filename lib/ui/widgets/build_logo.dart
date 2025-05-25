@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class WBuildLogo {
-  static Widget buildLogo({double? scale}) {
+  late BuildContext context;
+  static Widget buildLogo({double? scale, required BuildContext context}) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: Container(
@@ -16,7 +17,7 @@ class WBuildLogo {
           ],
         ),
         child: Image.asset(
-          'assets/images/calm_mind.png',
+          Theme.of(context).brightness == Brightness.light ? 'assets/images/calm_mind_logo_light.png' : 'assets/images/calm_mind_logo_dark.png',
           scale: scale ?? 8,
           fit: BoxFit.cover,
         ),

@@ -93,7 +93,7 @@ class AchievementsScreen extends StatelessWidget {
                       physics: const NeverScrollableScrollPhysics(),
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
-                        childAspectRatio: 0.8,
+                        childAspectRatio: 0.7,
                         crossAxisSpacing: 16,
                         mainAxisSpacing: 16,
                       ),
@@ -150,76 +150,91 @@ class _AchievementCard extends StatelessWidget {
         ],
       ),
       child: Stack(
-        children: [Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            
-            
-            Image.asset(
-              achievement.iconAsset,
-              width: 80,
-              height: 80,
-              fit: BoxFit.contain,
-            ),
-            const SizedBox(height: 12),
-            
-            // Título
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Text(
-                achievement.title,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: achievement.isUnlocked
-                      ? Theme.of(context).textTheme.bodyLarge?.color
-                      : Colors.grey,
+        children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                achievement.iconAsset,
+                width: 80,
+                height: 80,
+                fit: BoxFit.contain,
+              ),
+              const SizedBox(height: 12),
+              
+              // Title
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Text(
+                  achievement.title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: achievement.isUnlocked
+                        ? Theme.of(context).textTheme.bodyLarge?.color
+                        : Colors.grey,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
               ),
-            ),
-            const SizedBox(height: 8),
-            
-            
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Text(
-                achievement.description,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: achievement.isUnlocked
-                      ? Theme.of(context).textTheme.bodyMedium?.color
-                      : Colors.grey,
+              const SizedBox(height: 8),
+              
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Text(
+                  achievement.description,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: achievement.isUnlocked
+                        ? Theme.of(context).textTheme.bodyMedium?.color
+                        : Colors.grey,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
               ),
-            ),
-            const SizedBox(height: 8),
-            
-         
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(
-                color: achievement.isUnlocked
-                    ? Theme.of(context).primaryColor
-                    : Colors.grey,
-                borderRadius: BorderRadius.circular(12),
+              const SizedBox(height: 8),
+              
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                decoration: BoxDecoration(
+                  color: achievement.isUnlocked
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '+${achievement.points} pts',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-              child: Text(
-                '+${achievement.points} pts',
-                style: const TextStyle(
+            ],
+          ),
+          if (achievement.isUnlocked)
+            Positioned(
+              top: 8,
+              right: 8,
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.check,
                   color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
+                  size: 16,
                 ),
               ),
             ),
-          ],
-        ),]
+        ],
       ),
     );
   }

@@ -58,7 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             const SizedBox(height: 60),
-            WBuildLogo.buildLogo(),
+            WBuildLogo.buildLogo(context: context),
             const SizedBox(height: 30),
             _buildWelcomeText(),
             const SizedBox(height: 30),

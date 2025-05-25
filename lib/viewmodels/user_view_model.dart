@@ -27,6 +27,9 @@ class UserViewModel extends ChangeNotifier {
   /// Error message if any operation fails
   String? _error;
 
+  /// Cached image provider
+  ImageProvider? _cachedImageProvider;
+
   UserViewModel() : _userModel = UserModel(uid: FirebaseAuth.instance.currentUser?.uid ?? '') {
     _initializeUser();
   }
@@ -74,6 +77,36 @@ class UserViewModel extends ChangeNotifier {
     return null;
   }
 
+  /// Returns the appropriate ImageProvider based on the current state
+  /// Priority order:
+  /// 1. Currently selected image (if any)
+  /// 2. Base64 encoded image from Firestore (if any)
+  /// 3. Default blank profile picture
+  ImageProvider getProfileImage() {
+    // Return cached image if available and no new image is selected
+    if (_cachedImageProvider != null && _selectedImage == null) {
+      return _cachedImageProvider!;
+    }
+
+    var photo = currentUser.photoURL;
+    
+    if (_selectedImage != null) {
+      _cachedImageProvider = FileImage(_selectedImage!);
+      return _cachedImageProvider!;
+    } else if (photoURL != null) {
+      try {
+        final bytes = base64Decode(photoURL!);
+        _cachedImageProvider = MemoryImage(bytes);
+        return _cachedImageProvider!;
+      } catch (e) {
+        _cachedImageProvider = const AssetImage('assets/images/blank_profile_picture.webp');
+        return _cachedImageProvider!;
+      }
+    }
+    _cachedImageProvider = const AssetImage('assets/images/blank_profile_picture.webp');
+    return _cachedImageProvider!;
+  }
+
   /// Updates the user's profile picture in Firestore
   /// Converts the selected image to base64 format
   /// Manages loading state and error handling
@@ -112,6 +145,9 @@ class UserViewModel extends ChangeNotifier {
       _userModel = _userModel.copyWith(photoURL: base64Image);
       await _userService.saveUserData(_userModel);
       
+      // Clear cached image when updating profile picture
+      _cachedImageProvider = null;
+      
       _isLoading = false;
       notifyListeners();
     } catch (e) {
@@ -119,27 +155,6 @@ class UserViewModel extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
-  }
-
-  /// Returns the appropriate ImageProvider based on the current state
-  /// Priority order:
-  /// 1. Currently selected image (if any)
-  /// 2. Base64 encoded image from Firestore (if any)
-  /// 3. Default blank profile picture
-  ImageProvider getProfileImage() {
-    var photo =currentUser.photoURL;
-    
-    if (_selectedImage != null) {
-      return FileImage(_selectedImage!);
-    } else if (photoURL != null) {
-      try {
-        final bytes = base64Decode(photoURL!);
-        return MemoryImage(bytes);
-      } catch (e) {
-        return const AssetImage('assets/images/blank_profile_picture.webp');
-      }
-    }
-    return const AssetImage('assets/images/blank_profile_picture.webp');
   }
 
   Future<void> updateUserInfo() async {

@@ -1,10 +1,16 @@
 flutter_native_splash:
   android: true
   ios: true
+  
+  color: "#48b1d1"
+  image: "assets/images/splash_bg.png"
 
-  color: "4A6FA5"
-  image: "assets/images/remind_logo.jpg"
+  color_dark: "#063970"
+  image_dark: "assets/images/splash_bg.png"
 
   android_12:
-    color: "4A6FA5"
-    image: "assets/images/remind_logo.jpg"
+    color: "#48b1d1"
+    image: "assets/images/splash_bg.png"
+
+
+  

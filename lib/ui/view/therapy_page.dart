@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate_on_scroll/flutter_animate_on_scroll.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:calm_mind/models/chat_message.dart';
 import 'package:calm_mind/ui/widgets/drawer_key.dart';
@@ -23,25 +24,27 @@ class TherapyPage extends StatelessWidget {
   }
 }
 
-class _TherapyMainPage extends StatelessWidget {
+class _TherapyMainPage extends StatefulWidget {
+  @override
+  State<_TherapyMainPage> createState() => _TherapyMainPageState();
+}
+
+class _TherapyMainPageState extends State<_TherapyMainPage> {
+  bool _isAnimating = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       appBar: AppBar(
-        
         centerTitle: true,
         title: Text('Terapia',
           style: Theme.of(context).textTheme.titleLarge,
           textAlign: TextAlign.start,
         ),
         backgroundColor: Colors.transparent,
-        
         actions: [
           IconButton(
             onPressed: () {
-              
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => _ChatHistoryPage()),
@@ -49,7 +52,6 @@ class _TherapyMainPage extends StatelessWidget {
             },
             icon: const Icon(Icons.history),
           ),
-
           IconButton(
             icon: Icon(Icons.menu),
             onPressed: () => openGlobalEndDrawer(context),
@@ -57,10 +59,59 @@ class _TherapyMainPage extends StatelessWidget {
         ],
       ),
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            const Expanded(child: _MessageList()),
-            const _MessageInput(),
+            // Main content
+            Column(
+              children: [
+                const Expanded(child: _MessageList()),
+                const _MessageInput(),
+              ],
+            ),
+            // Animation overlay
+            Consumer<ChatViewModel>(
+              builder: (context, viewModel, child) {
+                // Start animation only when AI starts responding (content is not empty)
+                if (viewModel.isLoading && viewModel.messages.isNotEmpty && 
+                    !viewModel.messages.last.isUser && viewModel.messages.last.content.isNotEmpty) {
+                  _isAnimating = true;
+                } else {
+                  _isAnimating = false;
+                }
+
+                return AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: _isAnimating
+                    ? Positioned(
+                        key: const ValueKey('loading'),
+                        left: 16,
+                        bottom: 80, // Space above the input
+                        child: SizedBox(
+                          width: 300,
+                          
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).brightness == Brightness.light ? Colors.grey.withValues(alpha: 0.2): Colors.white.withValues(alpha: 0.3),
+                              borderRadius: BorderRadius.circular(16)
+
+                            ),
+                            child: Lottie.asset(
+                              'assets/animations/talk.json',
+                              frameRate: FrameRate(30),
+                              fit: BoxFit.contain,
+                              repeat: true,
+                              animate: true,
+                              options: LottieOptions(
+                                enableMergePaths: true,
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -249,7 +300,8 @@ class _MessageList extends StatelessWidget {
           itemCount: viewModel.messages.length,
           itemBuilder: (context, index) {
             final message = viewModel.messages[viewModel.messages.length - 1 - index];
-            return _MessageBubble(message: message);
+            return FadeInUp(
+              config: BaseAnimationConfig(child: _MessageBubble(message: message)));
           },
         );
       },
@@ -329,6 +381,8 @@ class _MessageBubble extends StatelessWidget {
                 ),
               ),
             ],
+
+
           ),
         )
       ),
