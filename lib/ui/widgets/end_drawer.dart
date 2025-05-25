@@ -43,7 +43,7 @@ class WEndDrawer extends StatelessWidget {
           ),
           ListTile(
             title: const Text('Logros'),
-            leading: Icon(Icons.place),
+            leading: Icon(Icons.masks_outlined),
             onTap: (){
               Navigator.push(
                 context,
