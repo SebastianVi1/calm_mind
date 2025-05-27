@@ -29,24 +29,15 @@ dependencies:
   uuid: ^4.2.2
 
   image: any
+  url_launcher: ^6.3.1
+  permission_handler: ^12.0.0+1
+  contacts_service: ^0.6.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
 
-flutter_native_splash:
-  color: "#FFFFFF"
-  image: assets/images/calm_mind_logo_light.png
-  android_12:
-    image: assets/images/calm_mind_logo_light.png
-    icon_background_color: "#FFFFFF"
-    image_dark: assets/images/calm_mind_logo_dark.png
-    icon_background_color_dark: "#FFFFFF"
-  android: true
-  ios: true
-  web: false
-  image_size: 1152
-  android_12_image_size: 432
+
 
 flutter:
   uses-material-design: true

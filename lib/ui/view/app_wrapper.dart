@@ -8,6 +8,7 @@ import 'package:calm_mind/ui/view/on_boarding_screen.dart';
 import 'package:calm_mind/ui/view/welcome_screen.dart';
 import 'package:calm_mind/viewmodels/auth_view_model.dart';
 
+
 /// Main navigation wrapper for the application
 /// Handles routing based on authentication and onboarding status
 class AppWrapper extends StatefulWidget {
@@ -142,7 +143,10 @@ class _AppWrapperState extends State<AppWrapper> {
         );
         return shouldPop ?? false;
       },
-      child: const MainScreen(),
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        body: const MainScreen(),
+      ),
     );
   }
 } 
