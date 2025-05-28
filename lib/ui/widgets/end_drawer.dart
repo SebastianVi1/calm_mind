@@ -1,4 +1,5 @@
 import 'package:calm_mind/ui/view/achievements_screen.dart';
+import 'package:calm_mind/viewmodels/user_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
@@ -41,8 +42,19 @@ class WEndDrawer extends StatelessWidget {
                 leading: Icon(Icons.person),
               ),
               ListTile(
+                enabled: !(context.read<UserViewModel>().isAnonymous ?? false),
                 title: const Text('Logros'),
                 leading: Icon(Icons.masks_outlined),
+                subtitle: context.read<UserViewModel>().isAnonymous ?? false ? Row(
+                  children: [
+                    Icon(Icons.lock,size: 15),
+                    SizedBox(width: 3,),
+                    Text(
+                      'Inicia sesion',
+                      style: Theme.of(context).textTheme.labelSmall,
+                    ),
+                  ],
+                ) : null,
                 onTap: (){
                   Navigator.push(
                     context,
@@ -81,7 +93,7 @@ class WEndDrawer extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
+                  color: Colors.black.withValues(alpha: .2),
                   spreadRadius: 1,
                   blurRadius: 3,
                   offset: const Offset(0, 2),

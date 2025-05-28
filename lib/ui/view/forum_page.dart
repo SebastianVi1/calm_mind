@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:lottie/lottie.dart';
@@ -47,7 +49,14 @@ class ForumPage extends StatelessWidget {
             splashColor: Theme.of(context).colorScheme.primary.withAlpha(120),
             highlightColor: Theme.of(context).colorScheme.primary.withAlpha(25),
             onTap: () {
-              
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Proximamente...'),
+                  duration: Duration(seconds: 3),
+                  backgroundColor: Colors.blue[400],
+                  
+                ),
+              );
             },
             child: Container(
               alignment: Alignment.center,

@@ -5,6 +5,7 @@ import 'package:calm_mind/ui/constants/app_constants.dart';
 import 'package:calm_mind/ui/view/main_screen.dart';
 import 'package:calm_mind/viewmodels/question_view_model.dart';
 import 'package:provider/provider.dart';
+import 'package:calm_mind/services/user_service.dart';
 
 /// Widget that displays a question with multiple choice options.
 /// It handles the selection of answers and navigation between questions.
@@ -157,113 +158,41 @@ class _WQuestionWidgetState extends State<WQuestionWidget> {
       left: 0,
       right: 0,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppConstants.contentHorizontalPadding),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Previous button
             if (!viewModel.isFirstQuestion)
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: ElevatedButton(
-                    onPressed: () => viewModel.previousQuestion(),
-                    style: ButtonStyle(
-                      
-                      padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 32, vertical: 16)),
-                      
-                      
-                      elevation: WidgetStateProperty.all(0),
-                      minimumSize: WidgetStateProperty.all(const Size(120, 48)),
-                      textStyle: WidgetStateProperty.all(
-                        const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    child: const Text('Anterior'),
-                  ),
-                ),
-              ),
-            // Next button
-            if (viewModel.hasAnsweredCurrentQuestion && !viewModel.isLastQuestion)
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: ElevatedButton(
-                    onPressed: () => viewModel.nextQuestion(),
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(const Color(0xFF1A1A1A)),
-                      foregroundColor: WidgetStateProperty.all(Colors.white),
-                      padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 32, vertical: 16)),
-                      shape: WidgetStateProperty.all(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      elevation: WidgetStateProperty.all(0),
-                      minimumSize: WidgetStateProperty.all(const Size(120, 48)),
-                      textStyle: WidgetStateProperty.all(
-                        const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    child: const Text('Siguiente'),
-                  ),
-                ),
-              ),
-            // Finish button (only on last question)
-            if (viewModel.isLastQuestion && viewModel.hasAnsweredCurrentQuestion)
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      try {
-                        await viewModel.saveAnswers();
-                        if (context.mounted) {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const MainScreen(),
-                            ),
-                          );
-                        }
-                      } catch (e) {
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(e.toString()),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
+              ElevatedButton(
+                onPressed: viewModel.previousQuestion,
+                child: const Text('Anterior'),
+              )
+            else
+              const SizedBox(width: 80),
+            if (viewModel.hasAnsweredCurrentQuestion)
+              ElevatedButton(
+                onPressed: () async {
+                  if (viewModel.isLastQuestion) {
+                    try {
+                      await viewModel.saveAnswers();
+                      if (mounted) {
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(builder: (context) => const MainScreen()),
+                          (route) => false,
+                        );
                       }
-                    },
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(const Color(0xFF1A1A1A)),
-                      foregroundColor: WidgetStateProperty.all(Colors.white),
-                      padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 32, vertical: 16)),
-                      shape: WidgetStateProperty.all(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      elevation: WidgetStateProperty.all(0),
-                      minimumSize: WidgetStateProperty.all(const Size(120, 48)),
-                      textStyle: WidgetStateProperty.all(
-                        const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    child: const Text('Finalizar'),
-                  ),
-                ),
+                    } catch (e) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error: $e')),
+                        );
+                      }
+                    }
+                  } else {
+                    viewModel.nextQuestion();
+                  }
+                },
+                child: Text(viewModel.isLastQuestion ? 'Finalizar' : 'Siguiente'),
               ),
           ],
         ),

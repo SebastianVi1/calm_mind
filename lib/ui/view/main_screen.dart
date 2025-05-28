@@ -1,3 +1,4 @@
+import 'package:calm_mind/ui/widgets/drawer_key.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
@@ -6,9 +7,10 @@ import 'package:calm_mind/ui/view/forum_page.dart';
 import 'package:calm_mind/ui/view/therapy_page.dart';
 import 'package:calm_mind/ui/view/home_page.dart';
 import 'package:calm_mind/ui/view/tips_page.dart';
-import 'package:calm_mind/ui/widgets/drawer_key.dart';
+
 import 'package:calm_mind/ui/widgets/end_drawer.dart';
 import 'package:calm_mind/viewmodels/navigation_view_model.dart';
+
 
 class MainScreen extends StatelessWidget {
   const MainScreen({
@@ -30,7 +32,7 @@ class MainScreen extends StatelessWidget {
         ];
 
         return Scaffold(
-          key: globalScaffoldKey,
+          key: context.read<DrawerProvider>().scaffoldKey,
           // Muestra la página actual
           body: AnimatedSwitcher(
             duration: const Duration(milliseconds: 200),

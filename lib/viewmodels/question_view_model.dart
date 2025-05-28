@@ -12,19 +12,54 @@ class QuestionViewModel extends ChangeNotifier {
   /// Each question has text, description, and multiple choice options
   final List<QuestionModel> questions = [
     QuestionModel(
-      question: '¿Como te sientes ultimamente',
-      options: ['Muy mal', 'Mal', 'Regular', 'Feliz', 'Muy feliz'],
-      description: 'Aveces lo unico que necesitas es un poco de ayuda',
+      question: '¿Te sientes triste o vacío la mayor parte del tiempo?',
+      options: ['Sí', 'No'],
+      description: 'Es importante reconocer nuestros sentimientos para poder manejarlos mejor',
     ),
     QuestionModel(
-      question: '¿Cuál es tu edad?',
-      options: ['18-25', '26-35', '36-45', '46+'],
-      description: 'Es necesario saber tu edad para poder ayudarte',
+      question: '¿Sientes una preocupación excesiva por situaciones cotidianas?',
+      options: ['Sí', 'No'],
+      description: 'La ansiedad puede manifestarse de diferentes maneras en nuestra vida diaria',
     ),
     QuestionModel(
-      question: 'Crees que eres una persona de confianza?',
-      options: ['Si', 'No'],
-      description: 'La seguridad en nosotros mismos es muy importante',
+      question: '¿Has perdido interés en actividades que antes disfrutabas?',
+      options: ['Sí', 'No'],
+      description: 'Los cambios en nuestros intereses pueden indicar cambios en nuestro estado de ánimo',
+    ),
+    QuestionModel(
+      question: '¿Experimentas dificultad para relajarte, incluso en momentos de descanso?',
+      options: ['Sí', 'No'],
+      description: 'La capacidad de relajarnos es fundamental para nuestra salud mental',
+    ),
+    QuestionModel(
+      question: '¿Tienes problemas para dormir debido a pensamientos constantes?',
+      options: ['Sí', 'No'],
+      description: 'El sueño es esencial para nuestro bienestar físico y mental',
+    ),
+    QuestionModel(
+      question: '¿Te sientes fatigado o sin energía constantemente?',
+      options: ['Sí', 'No'],
+      description: 'La energía física y mental están estrechamente relacionadas',
+    ),
+    QuestionModel(
+      question: '¿Evitas situaciones sociales por miedo o incomodidad extrema?',
+      options: ['Sí', 'No'],
+      description: 'Las relaciones sociales son importantes para nuestro desarrollo personal',
+    ),
+    QuestionModel(
+      question: '¿Experimentas cambios en tu apetito o peso sin razón aparente?',
+      options: ['Sí', 'No'],
+      description: 'Los cambios en nuestros hábitos alimenticios pueden reflejar nuestro estado emocional',
+    ),
+    QuestionModel(
+      question: '¿Te cuesta encontrar motivación para realizar tareas diarias?',
+      options: ['Sí', 'No'],
+      description: 'La motivación es clave para mantener una rutina saludable',
+    ),
+    QuestionModel(
+      question: '¿Has tenido pensamientos sobre la muerte o el suicidio?',
+      options: ['Sí', 'No'],
+      description: 'Es importante hablar sobre estos pensamientos y buscar ayuda profesional',
     ),
   ];
 

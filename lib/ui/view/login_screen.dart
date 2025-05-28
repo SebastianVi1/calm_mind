@@ -9,6 +9,7 @@ import 'package:calm_mind/ui/widgets/build_logo.dart';
 import 'package:calm_mind/ui/widgets/text_field.dart';
 import 'package:calm_mind/viewmodels/login_view_model.dart';
 import 'package:lottie/lottie.dart';
+import 'package:calm_mind/viewmodels/auth_view_model.dart';
 
 /// Screen that handles user authentication
 /// Provides a form for email and password input with validation
@@ -117,10 +118,10 @@ class _LoginScreenState extends State<LoginScreen> {
             icon: Icons.email_outlined,
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Por favor ingresa tu correo electrónico';
+                return 'Please enter your email';
               }
               if (!value.contains('@')) {
-                return 'Ingresa un correo electrónico válido';
+                return 'Please enter a valid email';
               }
               return null;
             },
@@ -134,10 +135,10 @@ class _LoginScreenState extends State<LoginScreen> {
             obscureText: true,
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Por favor ingresa tu contraseña';
+                return 'Please enter your password';
               }
               if (value.length < 6) {
-                return 'La contraseña debe tener al menos 6 caracteres';
+                return 'Password must be at least 6 characters';
               }
               return null;
             },
@@ -159,7 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: viewModel.isLoading
                 ? Lottie.asset('assets/animations/loading.json', width: 24, height: 24)
                 : Text(
-                    'Iniciar sesión',
+                    'Sign in',
                     style: Theme.of(context).textTheme.labelLarge,
                   ),
           ),
@@ -175,12 +176,12 @@ class _LoginScreenState extends State<LoginScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          '¿No tienes una cuenta?',
+          'Don\'t have an account?',
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         TextButton(
           style: ButtonStyle(padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 5))),
-          child: Text('Registrate'),
+          child: Text('Sign up'),
           onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterScreen())),
         ),
       ],
@@ -198,21 +199,23 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (success && mounted) {
-        // Dar tiempo para que los datos de Firebase se sincronicen completamente
+        // Wait for authentication state to fully synchronize
         await Future.delayed(const Duration(milliseconds: 500));
         
-        // Verificar una vez más el estado de autenticación antes de navegar
-        if (viewModel.state.status == AuthStatus.authenticated && mounted) {
-          // Navigate to AppWrapper which will handle the appropriate screen based on auth state
-          Navigator.pushReplacement(
+        // Verify authentication state before navigation
+        final authViewModel = context.read<AuthViewModel>();
+        if (authViewModel.state.status == AuthStatus.authenticated && mounted) {
+          // Navigate and clear navigation stack
+          Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => const AppWrapper()),
+            (route) => false, // Remove all routes
           );
         } else if (mounted) {
-          // Si el estado no es el esperado, mostrar un mensaje
+          // If state is not as expected, show a message
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error al sincronizar el estado de sesión. Intenta nuevamente.'),
+            const SnackBar(
+              content: Text('Error synchronizing session state. Please try again.'),
               backgroundColor: Colors.red,
             ),
           );
@@ -220,7 +223,7 @@ class _LoginScreenState extends State<LoginScreen> {
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(viewModel.error ?? 'Error al iniciar sesión'),
+            content: Text(viewModel.error ?? 'Error signing in'),
             backgroundColor: Colors.red,
           ),
         );

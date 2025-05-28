@@ -14,26 +14,30 @@ class OnBoardingScreen extends StatelessWidget {
       create: (_) => QuestionViewModel(),
       child: Consumer<QuestionViewModel>(
         builder: (context, viewModel, child) {
-          return Scaffold(
-            body: Stack(
-              children: [
-                // Main question widget with background
-                WQuestionWidget(
-                  question: viewModel.currentQuestion,
-                  selectedAnswer: viewModel.currentAnswer,
-                  onAnswerChanged: viewModel.selectAnswer,
-                ),
-                // Back button for first question
-                if (viewModel.isFirstQuestion)
-                  Positioned(
-                    top: 20,
-                    left: 20,
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back_rounded),
-                      onPressed: () => Navigator.pop(context),
-                    ),
+          return WillPopScope(
+            onWillPop: () async => false,
+            child: Scaffold(
+              key: UniqueKey(),
+              body: Stack(
+                children: [
+                  // Main question widget with background
+                  WQuestionWidget(
+                    question: viewModel.currentQuestion,
+                    selectedAnswer: viewModel.currentAnswer,
+                    onAnswerChanged: viewModel.selectAnswer,
                   ),
-              ],
+                  // Back button for first question
+                  if (viewModel.isFirstQuestion)
+                    Positioned(
+                      top: 20,
+                      left: 20,
+                      child: IconButton(
+                        icon: const Icon(Icons.arrow_back_rounded),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ),
+                ],
+              ),
             ),
           );
         },

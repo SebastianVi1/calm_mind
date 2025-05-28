@@ -77,8 +77,9 @@ class UserModel {
     return UserModel(
       uid: user.uid,
       email: user.email,
-      displayName: user.displayName,
+      displayName: user.displayName ?? (user.isAnonymous ? 'Usuario Anónimo' : null),
       photoURL: user.photoURL,
+      hasCompletedQuestions: false, // Default to false for new users
     );
   }
 
@@ -109,7 +110,7 @@ class UserModel {
     return {
       'uid': uid,
       'email': email,
-      'displayName': displayName,
+      'displayName': displayName ?? (uid.contains('anonymous') ? 'Usuario Anónimo' : null),
       'photoURL': photoURL,
       'questionAnswers': questionAnswers,
       'hasCompletedQuestions': hasCompletedQuestions,

@@ -306,12 +306,19 @@ class MoodViewModel extends ChangeNotifier{
     double porcentage = 0;
     int total = 0;
     var map = logicPieChart(this);
+    
     if (map.isEmpty) {
       return 0;
     }
+    
     for (int value in map.values) {
-      total = total + value;
+      total += value;
     }
+    
+    if (total == 0) {
+      return 0;
+    }
+    
     int current = map[emotion] ?? 0;
     porcentage = ((current * 100) / total);
     return porcentage;

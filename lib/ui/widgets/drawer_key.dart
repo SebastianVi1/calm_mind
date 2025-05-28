@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-// Key for unique scaffold key in all pages
-final GlobalKey<ScaffoldState> globalScaffoldKey = GlobalKey<ScaffoldState>();
+class DrawerProvider extends ChangeNotifier {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  
+  GlobalKey<ScaffoldState> get scaffoldKey => _scaffoldKey;
+  
+  void openEndDrawer() {
+    if (_scaffoldKey.currentState?.isEndDrawerOpen == false) {
+      _scaffoldKey.currentState?.openEndDrawer();
+    }
+  }
+}
 
 // Function for global drawer
 void openGlobalEndDrawer(BuildContext context) {
-  if (globalScaffoldKey.currentState?.isEndDrawerOpen == false) {
-    globalScaffoldKey.currentState?.openEndDrawer();
-  }
+  context.read<DrawerProvider>().openEndDrawer();
 }

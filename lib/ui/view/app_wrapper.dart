@@ -115,15 +115,17 @@ class _AppWrapperState extends State<AppWrapper> {
 
     // User is authenticated but hasn't completed questions, show onboarding
     if (!_hasCompletedQuestions) {
-      return WillPopScope(
-        onWillPop: () async => false,
+      return PopScope(
+        onPopInvokedWithResult:(didPop, result) => false,
         child: const OnBoardingScreen(),
       );
     }
 
     // User is authenticated and has completed questions, show home screen
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
         final shouldPop = await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
@@ -141,7 +143,11 @@ class _AppWrapperState extends State<AppWrapper> {
             ],
           ),
         );
-        return shouldPop ?? false;
+        if (shouldPop ?? false) {
+          if (context.mounted) {
+            Navigator.of(context).pop();
+          }
+        }
       },
       child: Scaffold(
         resizeToAvoidBottomInset: false,

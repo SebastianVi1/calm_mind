@@ -293,33 +293,52 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
           const SizedBox(height: 20),
           AspectRatio(
             aspectRatio: 1.4,
-            child: PieChart(
-              PieChartData(
-
-                pieTouchData: PieTouchData(
-
-                  enabled: true,
-                  touchCallback: (FlTouchEvent event, pieTouchResponse ) {
-                    setState(() {
-                      if (!event.isInterestedForInteractions ||
-                      pieTouchResponse == null ||
-                      pieTouchResponse.touchedSection == null){
-                        viewModel.setTouchedIndex(-1);
-                        return;
+            child: viewModel.getAllMoodHistory().isEmpty 
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        height: 150,
+                        width: 150,
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          borderRadius: BorderRadius.circular(20)
+                        ),
+                        child: Icon(Icons.emoji_emotions,size: 100,),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No hay suficientes datos disponibles',
+                        style: Theme.of(context).textTheme.titleMedium,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                )
+              : PieChart(
+                  PieChartData(
+                    pieTouchData: PieTouchData(
+                      enabled: true,
+                      touchCallback: (FlTouchEvent event, pieTouchResponse ) {
+                        setState(() {
+                          if (!event.isInterestedForInteractions ||
+                          pieTouchResponse == null ||
+                          pieTouchResponse.touchedSection == null){
+                            viewModel.setTouchedIndex(-1);
+                            return;
+                          }
+                          viewModel.setTouchedIndex(pieTouchResponse.touchedSection!.touchedSectionIndex);
+                        });
                       }
-                      viewModel.setTouchedIndex(pieTouchResponse.touchedSection!.touchedSectionIndex);
-                    });
-                  }
+                    ),
+                    sectionsSpace: 0,
+                    centerSpaceRadius: 0,
+                    sections: showingSections(context),
+                  ),
+                  duration: Duration(milliseconds: 150),
+                  curve: Curves.linear,
                 ),
-               
-                sectionsSpace: 0,
-                centerSpaceRadius: 0,
-                sections: showingSections(context),
-              ),
-              duration: Duration(milliseconds: 150),
-              curve: Curves.easeInQuad,
-
-            ),
           ),
           SizedBox(height: 10,)
         ],
@@ -329,13 +348,15 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
 
 
   List<PieChartSectionData> showingSections(BuildContext context) {
-
     var viewModel = Provider.of<MoodViewModel>(context);
     var map = viewModel.logicPieChart(viewModel);
-    final Map<String, int> valuesMap = context.read<MoodViewModel>().logicPieChart(viewModel);
+    
+    if (map.isEmpty) {
+      return [];
+    }
+
     return List.generate(4, (i) {
-      
-      final isTouched = i ==  viewModel.tochedIndex;
+      final isTouched = i == viewModel.tochedIndex;
       final fontSize = isTouched ? 20.0 : 16.0;
       final radius = isTouched ? 150.0 : 130.0;
       final widgetSize = isTouched ? 65.0 : 50.0;
@@ -345,9 +366,8 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
         case 0:
           return PieChartSectionData(
             color: Colors.blue,
-            value: valuesMap['happy']!.toDouble(),
+            value: map['happy']?.toDouble() ?? 0.0,
             title: '${viewModel.porcentage('happy').toStringAsFixed(2)} %',
-
             radius: radius,
             titleStyle: TextStyle(
               fontSize: fontSize,
@@ -366,7 +386,7 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
         case 1:
           return PieChartSectionData(
             color: Colors.yellow,
-            value: valuesMap['neutral']!.toDouble(),
+            value: map['neutral']?.toDouble() ?? 0.0,
             title: '${viewModel.porcentage('neutral').toStringAsFixed(2)} %',
             radius: radius,
             titleStyle: TextStyle(
@@ -386,7 +406,7 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
         case 2:
           return PieChartSectionData(
             color: Colors.red,
-            value: valuesMap['angry']!.toDouble(),
+            value: map['angry']?.toDouble() ?? 0.0,
             title: '${viewModel.porcentage('angry').toStringAsFixed(2)} %',
             radius: radius,
             titleStyle: TextStyle(
@@ -401,13 +421,12 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
               size: widgetSize,
               borderColor: Colors.black,
             ),
-            
             badgePositionPercentageOffset: .98,
           );
         case 3:
           return PieChartSectionData(
             color: Colors.green,
-            value: valuesMap['sad']!.toDouble(),
+            value: map['sad']?.toDouble() ?? 0.0,
             title: "${viewModel.porcentage('sad').toStringAsFixed(2)} %",
             radius: radius,
             titleStyle: TextStyle(
@@ -425,8 +444,7 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
             badgePositionPercentageOffset: .98,
           );
         default:
-          throw Exception('Oh no');
-      
+          throw Exception('Invalid section index');
       }
     });
   }

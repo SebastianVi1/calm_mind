@@ -138,4 +138,34 @@ class UserService {
       return false;
     }
   }
+
+  /// Updates the question completion status for the current user
+  /// @param completed - Whether the questions have been completed
+  Future<void> updateQuestionStatus(bool completed) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) throw Exception('No user is currently authenticated');
+
+      await _firestore.collection('users').doc(user.uid).update({
+        'hasCompletedQuestions': completed,
+      });
+    } catch (e) {
+      throw Exception('Error updating question status: $e');
+    }
+  }
+
+  /// Resets the question status and answers for the current user
+  Future<void> resetQuestionnaire() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) throw Exception('No user is currently authenticated');
+
+      await _firestore.collection('users').doc(user.uid).update({
+        'hasCompletedQuestions': false,
+        'questionAnswers': [],
+      });
+    } catch (e) {
+      throw Exception('Error resetting questionnaire: $e');
+    }
+  }
 } 

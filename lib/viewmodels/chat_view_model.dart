@@ -38,8 +38,6 @@ class ChatViewModel extends ChangeNotifier {
   // Animation frames for typing indicator
   final List<String> _typingAnimationFrames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
 
- 
-
   // Current session ID
   String _currentSessionId = '';
 
@@ -53,10 +51,18 @@ class ChatViewModel extends ChangeNotifier {
   Map<String, List<ChatMessage>> get sessions => _sessions;
 
   ChatViewModel(this._deepSeekService) {
-    // Start a new session when the app starts
-    startNewSession();
-    // Load chat history for the history page
-    loadChatHistory();
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
+    try {
+      // Start a new session when the app starts
+      await startNewSession();
+      // Load chat history for the history page
+      await loadChatHistory();
+    } catch (e) {
+      print('Error initializing ChatViewModel: $e');
+    }
   }
 
   /// Loads chat history from Firestore

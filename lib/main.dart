@@ -1,3 +1,4 @@
+import 'package:calm_mind/ui/widgets/drawer_key.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -25,6 +26,7 @@ import 'package:calm_mind/viewmodels/tips_view_model.dart';
 import 'package:calm_mind/viewmodels/theme_view_model.dart';
 import 'package:calm_mind/viewmodels/achievement_view_model.dart';
 import 'package:calm_mind/viewmodels/emergency_view_model.dart';
+
 
 Future<void> main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -84,6 +86,9 @@ class _MainAppState extends State<MainApp> {
         ),
         ChangeNotifierProvider<ThemeViewModel>(
           create: (_) => ThemeViewModel(),
+        ),
+        ChangeNotifierProvider<DrawerProvider>(
+          create: (_) => DrawerProvider(),
         ),
         Provider<IAuthService>(
           create: (_) => FirebaseAuthService(),

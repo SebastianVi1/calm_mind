@@ -79,37 +79,33 @@ class _TherapyMainPageState extends State<_TherapyMainPage> {
                   _isAnimating = false;
                 }
 
-                return AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  child: _isAnimating
-                    ? Positioned(
-                        key: const ValueKey('loading'),
-                        left: 16,
-                        bottom: 80, // Space above the input
-                        child: SizedBox(
-                          width: 300,
-                          
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).brightness == Brightness.light ? Colors.grey.withValues(alpha: 0.2): Colors.white.withValues(alpha: 0.3),
-                              borderRadius: BorderRadius.circular(16)
-
-                            ),
-                            child: Lottie.asset(
-                              'assets/animations/talk.json',
-                              frameRate: FrameRate(30),
-                              fit: BoxFit.contain,
-                              repeat: true,
-                              animate: true,
-                              options: LottieOptions(
-                                enableMergePaths: true,
-                              ),
-                            ),
+                return _isAnimating
+                  ? Positioned(
+                      key: const ValueKey('loading'),
+                      top: 16,
+                      left: 16,
+                      child: Container(
+                        width: 300,
+                        height: 200,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).brightness == Brightness.light 
+                            ? Colors.grey.withOpacity(0.2)
+                            : Colors.white.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(16)
+                        ),
+                        child: Lottie.asset(
+                          'assets/animations/talk.json',
+                          frameRate: FrameRate(30),
+                          fit: BoxFit.contain,
+                          repeat: true,
+                          animate: true,
+                          options: LottieOptions(
+                            enableMergePaths: true,
                           ),
                         ),
-                      )
-                    : const SizedBox.shrink(),
-                );
+                      ),
+                    )
+                  : const SizedBox.shrink();
               },
             ),
           ],
@@ -318,6 +314,7 @@ class _MessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final isUser = message.isUser;
     final theme = Theme.of(context);
+    final userViewModel = Provider.of<UserViewModel>(context, listen: false);
 
     return FadeInUp(
       config: BaseAnimationConfig(
@@ -328,32 +325,32 @@ class _MessageBubble extends StatelessWidget {
             textDirection: isUser ? TextDirection.rtl : TextDirection.ltr,
             children: [
               if (isUser)
-              Container(
-                
-                width: MediaQuery.of(context).size.width *.15,
-                height: 40,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    image: Provider.of<UserViewModel>(context, listen: false).getProfileImage(),
-                    fit: BoxFit.cover
-                  )
-                  
+                Container(
+                  width: MediaQuery.of(context).size.width * .15,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: DecorationImage(
+                      image: userViewModel.getProfileImage(),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
-                child: null,
-              ),
-              if(!isUser)
-              Container(
-                width: MediaQuery.of(context).size.width *.09,
-                height: 50,
-                margin: EdgeInsets.symmetric(horizontal: 1, vertical: 4),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle
+              if (!isUser)
+                Container(
+                  width: MediaQuery.of(context).size.width * .09,
+                  height: 50,
+                  margin: const EdgeInsets.symmetric(horizontal: 1, vertical: 4),
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                  ),
+                  child: HugeIcon(
+                    icon: HugeIcons.strokeRoundedBot,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.blue
+                        : Colors.black,
+                  ),
                 ),
-                child: HugeIcon(icon: HugeIcons.strokeRoundedBot, color: Theme.of(context).brightness == Brightness.dark ? Colors.blue : Colors.black),
-
-              ),
-
               Container(
                 constraints: BoxConstraints(
                   maxWidth: MediaQuery.of(context).size.width * 0.75,
@@ -367,7 +364,7 @@ class _MessageBubble extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black,
+                      color: Colors.black.withOpacity(0.1),
                       blurRadius: 2,
                       offset: const Offset(0, 1),
                     ),
@@ -381,10 +378,8 @@ class _MessageBubble extends StatelessWidget {
                 ),
               ),
             ],
-
-
           ),
-        )
+        ),
       ),
     );
   }

@@ -30,8 +30,11 @@ class UserViewModel extends ChangeNotifier {
   /// Cached image provider
   ImageProvider? _cachedImageProvider;
 
+  bool? isAnonymous;
+
+
   UserViewModel() : _userModel = UserModel(uid: FirebaseAuth.instance.currentUser?.uid ?? '') {
-    _initializeUser();
+    isAnonymous = FirebaseAuth.instance.currentUser?.isAnonymous ?? false;
   }
 
   Future<void> _initializeUser() async {
