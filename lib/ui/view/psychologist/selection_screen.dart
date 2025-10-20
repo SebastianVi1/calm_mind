@@ -1,3 +1,4 @@
+import 'package:calm_mind/ui/view/psychologist/add_appointment_screen.dart';
 import 'package:flutter/material.dart';
 
 class SelectionScreen extends StatelessWidget {
@@ -44,7 +45,12 @@ class SelectionScreen extends StatelessWidget {
                   'Consultas',
                   Icons.calendar_month_outlined,
                   Colors.purple.shade400,
-                  () {},
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AddAppointmentScreen(),
+                    ),
+                  ),
                 ),
               ],
             ),
