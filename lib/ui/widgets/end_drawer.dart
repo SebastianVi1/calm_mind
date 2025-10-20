@@ -1,4 +1,5 @@
 import 'package:calm_mind/ui/view/achievements_screen.dart';
+import 'package:calm_mind/ui/view/psychologist/selection_screen.dart';
 import 'package:calm_mind/viewmodels/user_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
@@ -26,17 +27,22 @@ class WEndDrawer extends StatelessWidget {
                 child: Center(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child: Lottie.asset('assets/animations/meditation.json',width: 200,)
-                  )
+                    child: Lottie.asset(
+                      'assets/animations/meditation.json',
+                      width: 200,
+                    ),
+                  ),
                 ),
               ),
-              
+
               ListTile(
-                title: const Text('Perfil',textAlign: TextAlign.start,),
+                title: const Text('Perfil', textAlign: TextAlign.start),
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const ProfilePage()),
+                    MaterialPageRoute(
+                      builder: (context) => const ProfilePage(),
+                    ),
                   );
                 },
                 leading: Icon(Icons.person),
@@ -45,26 +51,30 @@ class WEndDrawer extends StatelessWidget {
                 enabled: !(context.read<UserViewModel>().isAnonymous ?? false),
                 title: const Text('Logros'),
                 leading: Icon(Icons.masks_outlined),
-                subtitle: context.read<UserViewModel>().isAnonymous ?? false ? Row(
-                  children: [
-                    Icon(Icons.lock,size: 15),
-                    SizedBox(width: 3,),
-                    Text(
-                      'Inicia sesion',
-                      style: Theme.of(context).textTheme.labelSmall,
-                    ),
-                  ],
-                ) : null,
-                onTap: (){
+                subtitle:
+                    context.read<UserViewModel>().isAnonymous ?? false
+                        ? Row(
+                          children: [
+                            Icon(Icons.lock, size: 15),
+                            SizedBox(width: 3),
+                            Text(
+                              'Inicia sesion',
+                              style: Theme.of(context).textTheme.labelSmall,
+                            ),
+                          ],
+                        )
+                        : null,
+                onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                    builder: (context) => AchievementsScreen(),
-                  ));
+                      builder: (context) => AchievementsScreen(),
+                    ),
+                  );
                 },
               ),
               ListTile(
-                title: const Text('Modo oscuro', textAlign: TextAlign.start,),
+                title: const Text('Modo oscuro', textAlign: TextAlign.start),
                 leading: Icon(Icons.dark_mode),
                 trailing: Consumer<ThemeViewModel>(
                   builder: (context, themeViewModel, child) {
@@ -78,8 +88,24 @@ class WEndDrawer extends StatelessWidget {
                 ),
               ),
               ListTile(
-                title: const Text('Terminos y condiciones',textAlign: TextAlign.start,),
+                title: const Text(
+                  'Terminos y condiciones',
+                  textAlign: TextAlign.start,
+                ),
                 leading: Icon(Icons.file_copy),
+              ),
+              ListTile(
+                title: const Text(
+                  'Modulo Profesional',
+                  textAlign: TextAlign.start,
+                ),
+                leading: Icon(Icons.assignment_outlined),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SelectionScreen()),
+                  );
+                },
               ),
             ],
           ),
@@ -107,11 +133,16 @@ class WEndDrawer extends StatelessWidget {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const EmergencyScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => const EmergencyScreen(),
+                    ),
                   );
                 },
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

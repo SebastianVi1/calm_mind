@@ -26,12 +26,10 @@ class Themes {
   static const Color darkOnSurface = Color(0xFFE0E0E0);
   static const Color darkOnError = Color(0xFF000000);
 
-  
   static final lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
     colorScheme: ColorScheme.light(
-      
       primary: lightPrimary,
       secondary: lightSecondary,
       surface: lightSurface,
@@ -45,23 +43,18 @@ class Themes {
     elevatedButtonTheme: TElevatedbuttonTheme.elevatedButtonLightTheme,
     inputDecorationTheme: TTextFieldTheme.lightInputDecorationTheme,
     scaffoldBackgroundColor: lightBackground,
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: lightSurface,
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
-    
+
     appBarTheme: AppBarTheme(
       color: Colors.transparent,
-      actionsIconTheme: IconThemeData(
-        color: lightOnSecondary
-      ),
+      actionsIconTheme: IconThemeData(color: lightOnSecondary),
       centerTitle: true,
-      iconTheme: IconThemeData(color: lightOnSecondary,),
+      iconTheme: IconThemeData(color: lightOnSecondary),
       toolbarHeight: 40,
-      
     ),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: lightSurface,
@@ -79,15 +72,11 @@ class Themes {
       backgroundColor: lightSurface,
       contentTextStyle: TTextTheme.lightTextTheme.bodyMedium,
       behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
-    dialogTheme: DialogTheme(
+    dialogTheme: DialogThemeData(
       backgroundColor: lightSurface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       titleTextStyle: TTextTheme.lightTextTheme.titleLarge,
       contentTextStyle: TTextTheme.lightTextTheme.bodyMedium,
     ),
@@ -105,9 +94,7 @@ class Themes {
       selectedColor: lightPrimary,
       labelStyle: TTextTheme.lightTextTheme.bodyMedium,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     ),
   );
 
@@ -128,12 +115,10 @@ class Themes {
     elevatedButtonTheme: TElevatedbuttonTheme.elevatedButtonDarkTheme,
     inputDecorationTheme: TTextFieldTheme.darkInputDecorationTheme,
     scaffoldBackgroundColor: darkBackground,
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: darkSurface,
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
     appBarTheme: AppBarTheme(
       backgroundColor: Colors.transparent,
@@ -141,11 +126,7 @@ class Themes {
       elevation: 0,
       centerTitle: true,
       iconTheme: IconThemeData(color: darkOnSurface),
-      actionsIconTheme: IconThemeData(
-        color: darkOnSurface,
-      ),
-      
-      
+      actionsIconTheme: IconThemeData(color: darkOnSurface),
     ),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: darkSurface,
@@ -163,15 +144,11 @@ class Themes {
       backgroundColor: darkSurface,
       contentTextStyle: TTextTheme.darkTextTheme.bodyMedium,
       behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
-    dialogTheme: DialogTheme(
+    dialogTheme: DialogThemeData(
       backgroundColor: darkSurface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       titleTextStyle: TTextTheme.darkTextTheme.titleLarge,
       contentTextStyle: TTextTheme.darkTextTheme.bodyMedium,
     ),
@@ -189,9 +166,7 @@ class Themes {
       selectedColor: darkPrimary,
       labelStyle: TTextTheme.darkTextTheme.bodyMedium,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     ),
   );
 }
