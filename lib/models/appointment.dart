@@ -2,6 +2,7 @@ import 'package:uuid/uuid.dart';
 
 class Appointment {
   final String id;
+  final String patientId; // Patient unique identifier
   final String patientName;
   final String patientPhone;
   final DateTime dateTime;
@@ -10,6 +11,7 @@ class Appointment {
 
   Appointment({
     String? id,
+    required this.patientId,
     required this.patientName,
     required this.patientPhone,
     required this.dateTime,
@@ -19,6 +21,7 @@ class Appointment {
 
   Map<String, dynamic> toJson() => {
     'id': id,
+    'patientId': patientId,
     'patientName': patientName,
     'patientPhone': patientPhone,
     'dateTime': dateTime.toIso8601String(),
@@ -28,6 +31,7 @@ class Appointment {
 
   factory Appointment.fromJson(Map<String, dynamic> json) => Appointment(
     id: json['id'] as String,
+    patientId: json['patientId'] as String,
     patientName: json['patientName'] as String,
     patientPhone: json['patientPhone'] as String,
     dateTime: DateTime.parse(json['dateTime'] as String),

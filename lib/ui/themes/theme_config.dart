@@ -50,7 +50,7 @@ class Themes {
     ),
 
     appBarTheme: AppBarTheme(
-      color: Colors.transparent,
+      backgroundColor: Colors.transparent,
       actionsIconTheme: IconThemeData(color: lightOnSecondary),
       centerTitle: true,
       iconTheme: IconThemeData(color: lightOnSecondary),

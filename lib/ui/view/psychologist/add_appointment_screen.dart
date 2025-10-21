@@ -12,6 +12,7 @@ class AddAppointmentScreen extends StatefulWidget {
 
 class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _patientIdController = TextEditingController();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _notesController = TextEditingController();
@@ -29,6 +30,21 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              TextFormField(
+                controller: _patientIdController,
+                decoration: const InputDecoration(
+                  labelText: 'Patient ID',
+                  icon: Icon(Icons.fingerprint),
+                  helperText:
+                      'Identificador unico para buscar el paciente en la base de datos',
+                ),
+                validator:
+                    (value) =>
+                        value?.isEmpty ?? true
+                            ? 'Patient ID is required'
+                            : null,
+              ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(
@@ -131,6 +147,7 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final appointment = Appointment(
+      patientId: _patientIdController.text,
       patientName: _nameController.text,
       patientPhone: _phoneController.text,
       dateTime: DateTime(
@@ -149,6 +166,7 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
 
   @override
   void dispose() {
+    _patientIdController.dispose();
     _nameController.dispose();
     _phoneController.dispose();
     _notesController.dispose();

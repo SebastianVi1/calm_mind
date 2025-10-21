@@ -26,7 +26,7 @@ import 'package:calm_mind/viewmodels/tips_view_model.dart';
 import 'package:calm_mind/viewmodels/theme_view_model.dart';
 import 'package:calm_mind/viewmodels/achievement_view_model.dart';
 import 'package:calm_mind/viewmodels/emergency_view_model.dart';
-
+import 'package:calm_mind/viewmodels/appointment_view_model.dart';
 
 Future<void> main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -37,26 +37,26 @@ Future<void> main() async {
   bool hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
   bool useSystemTheme = prefs.getBool('useSystemTheme') ?? true;
   bool isDarkMode = prefs.getBool('isDarkMode') ?? false;
-  
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  runApp(
+    MainApp(
+      hasSeenOnboarding: hasSeenOnboarding,
+      useSystemTheme: useSystemTheme,
+      isDarkMode: isDarkMode,
+    ),
   );
-  
-  runApp(MainApp(
-    hasSeenOnboarding: hasSeenOnboarding,
-    useSystemTheme: useSystemTheme,
-    isDarkMode: isDarkMode,
-  ));
 }
 
 class MainApp extends StatefulWidget {
   const MainApp({
-    super.key, 
+    super.key,
     required this.hasSeenOnboarding,
     required this.useSystemTheme,
     required this.isDarkMode,
   });
-  
+
   final bool hasSeenOnboarding;
   final bool useSystemTheme;
   final bool isDarkMode;
@@ -81,94 +81,68 @@ class _MainAppState extends State<MainApp> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<UserViewModel>(
-          create: (_) => UserViewModel(),
-        ),
-        ChangeNotifierProvider<ThemeViewModel>(
-          create: (_) => ThemeViewModel(),
-        ),
-        ChangeNotifierProvider<DrawerProvider>(
-          create: (_) => DrawerProvider(),
-        ),
-        Provider<IAuthService>(
-          create: (_) => FirebaseAuthService(),
-        ),
-        Provider<UserService>(
-          create: (_) => UserService(),
-        ),
-        Provider<DeepSeekService>(
-          create: (_) => DeepSeekService(),
-        ),
-        Provider(
-          create: (_) => RelaxingMusicService(),
+        ChangeNotifierProvider<UserViewModel>(create: (_) => UserViewModel()),
+        ChangeNotifierProvider<ThemeViewModel>(create: (_) => ThemeViewModel()),
+        ChangeNotifierProvider<DrawerProvider>(create: (_) => DrawerProvider()),
+        Provider<IAuthService>(create: (_) => FirebaseAuthService()),
+        Provider<UserService>(create: (_) => UserService()),
+        Provider<DeepSeekService>(create: (_) => DeepSeekService()),
+        Provider(create: (_) => RelaxingMusicService()),
+        ChangeNotifierProvider(create: (context) => OnBoardingViewmodel()),
+        ChangeNotifierProvider(
+          create: (context) => AuthViewModel(context.read<IAuthService>()),
         ),
         ChangeNotifierProvider(
-          create: (context) => OnBoardingViewmodel()
+          create: (context) => LoginViewModel(context.read<IAuthService>()),
         ),
+        ChangeNotifierProvider(create: (context) => NavigationViewModel()),
         ChangeNotifierProvider(
-          create: (context) => AuthViewModel(
-            context.read<IAuthService>(),
-          ),
+          create: (context) => ChatViewModel(context.read<DeepSeekService>()),
         ),
+        ChangeNotifierProvider(create: (context) => TipsViewModel()),
+        ChangeNotifierProvider(create: (context) => MoodViewModel()),
+        ChangeNotifierProvider(create: (context) => MeditationViewModel()),
         ChangeNotifierProvider(
-          create: (context) => LoginViewModel(
-            context.read<IAuthService>(),
-          ),
+          create:
+              (context) =>
+                  RelaxingMusicViewModel(context.read<RelaxingMusicService>()),
         ),
-        ChangeNotifierProvider(
-          create: (context) => NavigationViewModel(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => ChatViewModel(
-            context.read<DeepSeekService>(),
-          ),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => TipsViewModel()
-        ),
-        ChangeNotifierProvider(
-          create: (context) => MoodViewModel(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => MeditationViewModel(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => RelaxingMusicViewModel(
-            context.read<RelaxingMusicService>(),
-          )
-        ),
-        ChangeNotifierProvider(
-          create: (context) => AchievementViewModel(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => EmergencyViewModel(),
-        ),
+        ChangeNotifierProvider(create: (context) => AchievementViewModel()),
+        ChangeNotifierProvider(create: (context) => EmergencyViewModel()),
+        ChangeNotifierProvider(create: (context) => AppointmentViewModel()),
       ],
       child: Consumer<ThemeViewModel>(
         builder: (context, themeViewModel, child) {
           return AnimatedTheme(
             duration: const Duration(milliseconds: 800),
             curve: Curves.easeInOut,
-            data: themeViewModel.isDarkModeActive ? Themes.darkTheme : Themes.lightTheme,
+            data:
+                themeViewModel.isDarkModeActive
+                    ? Themes.darkTheme
+                    : Themes.lightTheme,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 800),
               curve: Curves.easeInOut,
-              color: themeViewModel.isDarkModeActive 
-                ? Themes.darkTheme.scaffoldBackgroundColor 
-                : Themes.lightTheme.scaffoldBackgroundColor,
+              color:
+                  themeViewModel.isDarkModeActive
+                      ? Themes.darkTheme.scaffoldBackgroundColor
+                      : Themes.lightTheme.scaffoldBackgroundColor,
               child: MaterialApp(
                 debugShowCheckedModeBanner: false,
                 theme: Themes.lightTheme,
                 darkTheme: Themes.darkTheme,
-                themeMode: themeViewModel.useSystemTheme 
-                  ? ThemeMode.system 
-                  : (themeViewModel.isDarkMode ? ThemeMode.dark : ThemeMode.light),
+                themeMode:
+                    themeViewModel.useSystemTheme
+                        ? ThemeMode.system
+                        : (themeViewModel.isDarkMode
+                            ? ThemeMode.dark
+                            : ThemeMode.light),
                 title: 'CalmMind',
                 home: const AppWrapper(),
               ),
             ),
           );
-        }
+        },
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:calm_mind/ui/view/psychologist/add_appointment_screen.dart';
+import 'package:calm_mind/ui/view/psychologist/appointments_screen.dart';
 import 'package:flutter/material.dart';
 
 class SelectionScreen extends StatelessWidget {
@@ -48,7 +49,7 @@ class SelectionScreen extends StatelessWidget {
                   () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const AddAppointmentScreen(),
+                      builder: (context) => const AppointmentsScreen(),
                     ),
                   ),
                 ),
