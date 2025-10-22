@@ -1,6 +1,8 @@
 import 'package:calm_mind/ui/view/achievements_screen.dart';
 import 'package:calm_mind/ui/view/psychologist/selection_screen.dart';
+import 'package:calm_mind/ui/view/patient_report_screen.dart';
 import 'package:calm_mind/viewmodels/user_view_model.dart';
+import 'package:calm_mind/viewmodels/patient_report_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
@@ -46,6 +48,21 @@ class WEndDrawer extends StatelessWidget {
                   );
                 },
                 leading: Icon(Icons.person),
+              ),
+              ListTile(
+                title: const Text('Mis Reportes', textAlign: TextAlign.start),
+                leading: Icon(Icons.assessment),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChangeNotifierProvider(
+                        create: (_) => PatientReportViewModel()..loadUserReports(),
+                        child: const PatientReportsListScreen(),
+                      ),
+                    ),
+                  );
+                },
               ),
               ListTile(
                 enabled: !(context.read<UserViewModel>().isAnonymous ?? false),

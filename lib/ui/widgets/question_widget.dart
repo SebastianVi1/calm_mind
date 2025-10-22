@@ -1,8 +1,10 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:calm_mind/models/question_model.dart';
+import 'package:calm_mind/models/patient_report_model.dart';
 import 'package:calm_mind/ui/constants/app_constants.dart';
 import 'package:calm_mind/ui/view/main_screen.dart';
+import 'package:calm_mind/ui/view/report_generation_screen.dart';
 import 'package:calm_mind/viewmodels/question_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:calm_mind/services/user_service.dart';
@@ -174,17 +176,25 @@ class _WQuestionWidgetState extends State<WQuestionWidget> {
                 onPressed: () async {
                   if (viewModel.isLastQuestion) {
                     try {
-                      await viewModel.saveAnswers();
+                      // Generar reporte con IA
+                      final reportFuture = viewModel.saveAnswersAndGenerateReport();
+                      
                       if (mounted) {
-                        Navigator.of(context).pushAndRemoveUntil(
-                          MaterialPageRoute(builder: (context) => const MainScreen()),
-                          (route) => false,
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => ReportGenerationScreen(
+                              reportFuture: reportFuture,
+                            ),
+                          ),
                         );
                       }
                     } catch (e) {
                       if (mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Error: $e')),
+                          SnackBar(
+                            content: Text('Error: $e'),
+                            backgroundColor: Colors.red,
+                          ),
                         );
                       }
                     }
