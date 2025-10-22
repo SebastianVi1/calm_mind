@@ -49,21 +49,7 @@ class WEndDrawer extends StatelessWidget {
                 },
                 leading: Icon(Icons.person),
               ),
-              ListTile(
-                title: const Text('Mis Reportes', textAlign: TextAlign.start),
-                leading: Icon(Icons.assessment),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ChangeNotifierProvider(
-                        create: (_) => PatientReportViewModel()..loadUserReports(),
-                        child: const PatientReportsListScreen(),
-                      ),
-                    ),
-                  );
-                },
-              ),
+
               ListTile(
                 enabled: !(context.read<UserViewModel>().isAnonymous ?? false),
                 title: const Text('Logros'),
@@ -104,13 +90,7 @@ class WEndDrawer extends StatelessWidget {
                   },
                 ),
               ),
-              ListTile(
-                title: const Text(
-                  'Terminos y condiciones',
-                  textAlign: TextAlign.start,
-                ),
-                leading: Icon(Icons.file_copy),
-              ),
+              
               ListTile(
                 title: const Text(
                   'Modulo Profesional',
@@ -121,6 +101,22 @@ class WEndDrawer extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => SelectionScreen()),
+                  );
+                },
+              ),
+
+              ListTile(
+                title: const Text('Mis Reportes', textAlign: TextAlign.start),
+                leading: Icon(Icons.assessment),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChangeNotifierProvider(
+                        create: (_) => PatientReportViewModel()..loadUserReports(),
+                        child: const PatientReportsListScreen(),
+                      ),
+                    ),
                   );
                 },
               ),

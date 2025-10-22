@@ -34,7 +34,8 @@ class PatientReportViewModel extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   Map<String, dynamic>? get statistics => _statistics;
   bool get hasReports => _reports.isNotEmpty;
-  PatientReportModel? get latestReport => _reports.isNotEmpty ? _reports.first : null;
+  PatientReportModel? get latestReport =>
+      _reports.isNotEmpty ? _reports.first : null;
 
   /// Genera un nuevo reporte basado en las respuestas del cuestionario
   /// [questionnaireAnswers] - Respuestas del cuestionario
@@ -64,7 +65,10 @@ class PatientReportViewModel extends ChangeNotifier {
       await _reportRepository.savePatientReport(newReport);
 
       // Actualizar la lista local
-      _reports.insert(0, newReport); // Insertar al inicio para mantener orden cronológico
+      _reports.insert(
+        0,
+        newReport,
+      ); // Insertar al inicio para mantener orden cronológico
       _selectedReport = newReport;
 
       notifyListeners();
@@ -86,12 +90,12 @@ class PatientReportViewModel extends ChangeNotifier {
       print('Loading user reports...');
       final userReports = await _reportRepository.getUserReports();
       print('Found ${userReports.length} reports');
-      
+
       // Sort by creation date (most recent first)
       userReports.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-      
+
       _reports = userReports;
-      
+
       // If no report is selected, select the most recent one
       if (_selectedReport == null && _reports.isNotEmpty) {
         _selectedReport = _reports.first;
@@ -317,6 +321,22 @@ class PatientReportViewModel extends ChangeNotifier {
         return 'Se identifican algunas áreas de preocupación que requieren atención. Se recomienda implementar estrategias de apoyo y considerar consulta profesional.';
       case RiskLevel.high:
         return 'Se detectan múltiples indicadores de riesgo que requieren atención inmediata. Se recomienda derivación urgente a profesional de salud mental.';
+    }
+  }
+
+  /// Loads user reports by user ID (for professional use)
+  Future<void> loadUserReportsByUserId(String userId) async {
+    try {
+      _setLoading(true);
+      final reports = await _reportRepository.getUserReportsByUserId(userId);
+      _reports = reports..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      _selectedReport = _reports.isNotEmpty ? _reports.first : null;
+    } catch (e) {
+      _setError('Error loading reports');
+      _reports = [];
+    } finally {
+      _setLoading(false);
+      notifyListeners();
     }
   }
 }

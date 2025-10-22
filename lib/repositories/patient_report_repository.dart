@@ -9,7 +9,8 @@ class PatientReportRepository {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   /// Colección de reportes de pacientes
-  CollectionReference get _reportsCollection => _firestore.collection('patient_reports');
+  CollectionReference get _reportsCollection =>
+      _firestore.collection('patient_reports');
 
   /// Documento del usuario actual
   DocumentReference get _userDoc {
@@ -26,15 +27,11 @@ class PatientReportRepository {
       final userId = _auth.currentUser?.uid;
       if (userId == null) throw Exception('Usuario no autenticado');
 
-      print('Saving report for user: $userId');
-      print('Report ID: ${report.id}');
-
       // Get the user document
       final userDoc = await _userDoc.get();
-      
+
       if (!userDoc.exists) {
         // Create new document for the user
-        print('Creating new document for user');
         await _userDoc.set({
           'userId': userId,
           'createdAt': FieldValue.serverTimestamp(),
@@ -43,23 +40,20 @@ class PatientReportRepository {
         });
       } else {
         // Update existing document
-        print('Updating existing document');
         final data = userDoc.data() as Map<String, dynamic>;
         final reports = List<Map<String, dynamic>>.from(data['reports'] ?? []);
-        
+
         // Add the new report
         reports.add(report.toMap());
-        
+
         await _userDoc.update({
           'reports': reports,
           'lastUpdated': FieldValue.serverTimestamp(),
         });
       }
 
-      print('Report saved successfully');
       return report.id;
     } catch (e) {
-      print('Error saving report: $e');
       throw Exception('Error al guardar el reporte: $e');
     }
   }
@@ -71,22 +65,19 @@ class PatientReportRepository {
       final userId = _auth.currentUser?.uid;
       if (userId == null) throw Exception('Usuario no autenticado');
 
-      print('Getting reports for user: $userId');
       final userDoc = await _userDoc.get();
-      
+
       if (!userDoc.exists) {
-        print('No document found for user');
         return [];
       }
 
       final data = userDoc.data() as Map<String, dynamic>;
       final reports = List<Map<String, dynamic>>.from(data['reports'] ?? []);
-      
-      print('Found ${reports.length} reports in document');
 
-      return reports.map((reportData) => PatientReportModel.fromMap(reportData)).toList();
+      return reports
+          .map((reportData) => PatientReportModel.fromMap(reportData))
+          .toList();
     } catch (e) {
-      print('Error getting reports: $e');
       throw Exception('Error al obtener los reportes: $e');
     }
   }
@@ -182,7 +173,7 @@ class PatientReportRepository {
   Future<Map<String, dynamic>> getReportStatistics() async {
     try {
       final reports = await getUserReports();
-      
+
       if (reports.isEmpty) {
         return {
           'totalReports': 0,
@@ -194,8 +185,10 @@ class PatientReportRepository {
 
       // Calcular estadísticas
       final totalReports = reports.length;
-      final averageWellnessScore = reports.map((r) => r.wellnessScore).reduce((a, b) => a + b) / totalReports;
-      
+      final averageWellnessScore =
+          reports.map((r) => r.wellnessScore).reduce((a, b) => a + b) /
+          totalReports;
+
       final riskLevelDistribution = <String, int>{
         'low': reports.where((r) => r.riskLevel == RiskLevel.low).length,
         'medium': reports.where((r) => r.riskLevel == RiskLevel.medium).length,
@@ -230,7 +223,9 @@ class PatientReportRepository {
         final data = snapshot.data() as Map<String, dynamic>;
         final reports = List<Map<String, dynamic>>.from(data['reports'] ?? []);
 
-        return reports.map((reportData) => PatientReportModel.fromMap(reportData)).toList();
+        return reports
+            .map((reportData) => PatientReportModel.fromMap(reportData))
+            .toList();
       });
     } catch (e) {
       throw Exception('Error al obtener stream de reportes: $e');
@@ -258,13 +253,34 @@ class PatientReportRepository {
   }) async {
     try {
       final reports = await getUserReports();
-      
+
       return reports.where((report) {
-        return report.createdAt.isAfter(startDate.subtract(const Duration(days: 1))) &&
-               report.createdAt.isBefore(endDate.add(const Duration(days: 1)));
+        return report.createdAt.isAfter(
+              startDate.subtract(const Duration(days: 1)),
+            ) &&
+            report.createdAt.isBefore(endDate.add(const Duration(days: 1)));
       }).toList();
     } catch (e) {
       throw Exception('Error al obtener reportes por rango de fechas: $e');
+    }
+  }
+
+  /// Gets user reports by user ID (for professional use)
+  Future<List<PatientReportModel>> getUserReportsByUserId(String userId) async {
+    try {
+      final doc =
+          await _firestore.collection('patient_reports').doc(userId).get();
+      if (!doc.exists) return [];
+
+      final data = doc.data() as Map<String, dynamic>;
+      final reports = List<Map<String, dynamic>>.from(data['reports'] ?? []);
+
+      return reports
+          .map((r) => PatientReportModel.fromMap(r))
+          .whereType<PatientReportModel>()
+          .toList();
+    } catch (_) {
+      return [];
     }
   }
 }

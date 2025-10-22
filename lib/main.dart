@@ -27,6 +27,8 @@ import 'package:calm_mind/viewmodels/theme_view_model.dart';
 import 'package:calm_mind/viewmodels/achievement_view_model.dart';
 import 'package:calm_mind/viewmodels/emergency_view_model.dart';
 import 'package:calm_mind/viewmodels/appointment_view_model.dart';
+import 'package:calm_mind/viewmodels/patient_report_view_model.dart';
+import 'package:calm_mind/viewmodels/professional_patient_view_model.dart';
 
 Future<void> main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -110,6 +112,10 @@ class _MainAppState extends State<MainApp> {
         ChangeNotifierProvider(create: (context) => AchievementViewModel()),
         ChangeNotifierProvider(create: (context) => EmergencyViewModel()),
         ChangeNotifierProvider(create: (context) => AppointmentViewModel()),
+        ChangeNotifierProvider(create: (context) => PatientReportViewModel()),
+        ChangeNotifierProvider(
+          create: (context) => ProfessionalPatientViewModel(),
+        ),
       ],
       child: Consumer<ThemeViewModel>(
         builder: (context, themeViewModel, child) {
