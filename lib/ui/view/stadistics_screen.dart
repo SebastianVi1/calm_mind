@@ -7,7 +7,6 @@ import 'package:calm_mind/ui/view/emotions_screen.dart';
 import 'package:calm_mind/ui/widgets/mood_lottie_title.dart';
 import 'package:calm_mind/viewmodels/mood_view_model.dart';
 
-
 class StadisticsScreen extends StatefulWidget {
   const StadisticsScreen({super.key});
 
@@ -17,15 +16,14 @@ class StadisticsScreen extends StatefulWidget {
 
 class _MoodHistoryPageState extends State<StadisticsScreen> {
   int _currentChartPage = 0;
-  
+
   late PageController _chartsPageController;
 
   @override
   void initState() {
     super.initState();
     _chartsPageController = PageController();
-    
-    
+
     _chartsPageController.addListener(() {
       int page = _chartsPageController.page?.round() ?? 0;
       if (page != _currentChartPage) {
@@ -45,42 +43,58 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 40,
-      ),
+      appBar: AppBar(toolbarHeight: 40),
       body: Consumer<MoodViewModel>(
         builder: (context, viewModel, child) {
+          // Responsive chart height and scrollable layout to prevent bottom overflow
+          final screenHeight = MediaQuery.of(context).size.height;
+          final chartHeight =
+              (screenHeight * 0.45).clamp(260.0, 420.0).toDouble();
+
           return SafeArea(
-            child: Column(
-              children: [
-                _buildInfoContainer(context, viewModel),
-                _buildChartsScrollView(context, viewModel),
-                const SizedBox(height: 10,),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildInfoContainer(context, viewModel),
+                  _buildChartsScrollView(context, viewModel, chartHeight),
+                  const SizedBox(height: 10),
                   FilledButton(
-                  onPressed: (){Navigator.push(context, MaterialPageRoute(builder: (context) => EmotionsScreen()));},
-                  child: Text(
-                    'Ver historial de emaciones y notas'
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EmotionsScreen(),
+                        ),
+                      );
+                    },
+                    child: const Text('Ver historial de emociones y notas'),
                   ),
-                )
-              ]
-            )
+                ],
+              ),
+            ),
           );
-        }
-      )
+        },
+      ),
     );
   }
-  
-  Widget _buildChartsScrollView(BuildContext context, MoodViewModel viewModel) {
+
+  Widget _buildChartsScrollView(
+    BuildContext context,
+    MoodViewModel viewModel,
+    double chartHeight,
+  ) {
     return Column(
       children: [
         SizedBox(
-          height: 400,
+          height: chartHeight,
           child: PageView(
             controller: _chartsPageController,
             physics: const PageScrollPhysics(),
             children: [
               _buildPieChart(context, viewModel),
-              
+
               _buildLineChart(context, viewModel),
             ],
           ),
@@ -96,9 +110,12 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
                 height: 10,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: i != _currentChartPage 
-                      ? Theme.of(context).primaryColor
-                      : Theme.of(context).disabledColor.withValues(alpha: 0.3),
+                  color:
+                      i != _currentChartPage
+                          ? Theme.of(context).primaryColor
+                          : Theme.of(
+                            context,
+                          ).disabledColor.withValues(alpha: 0.3),
                 ),
               ),
           ],
@@ -107,12 +124,11 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
     );
   }
 
-
   Widget _buildInfoContainer(BuildContext context, MoodViewModel viewModel) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             'Tu progreso este mes',
@@ -140,8 +156,7 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
-          AspectRatio(
-            aspectRatio: 1.9,
+          Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: LineChart(
@@ -161,11 +176,7 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
                     LineChartBarData(
                       spots: viewModel.getMoodChartData(),
                       gradient: LinearGradient(
-                        colors: [
-                          Colors.orange,
-                          Colors.red,
-                          Colors.purple
-                        ],
+                        colors: [Colors.orange, Colors.red, Colors.purple],
                       ),
                       barWidth: 4,
                       isCurved: true,
@@ -184,7 +195,9 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
                         show: true,
                         gradient: LinearGradient(
                           colors: [
-                            Theme.of(context).colorScheme.secondary.withAlpha(80),
+                            Theme.of(
+                              context,
+                            ).colorScheme.secondary.withAlpha(80),
                             Theme.of(context).primaryColor,
                           ],
                           begin: Alignment.topCenter,
@@ -204,7 +217,10 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
                             child: Text(
                               value.toInt().toString(),
                               style: TextStyle(
-                                color: Theme.of(context).textTheme.bodySmall?.color,
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall?.color,
                                 fontSize: 12,
                               ),
                             ),
@@ -254,16 +270,22 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
                         return touchedBarSpots.map((barSpot) {
                           final flSpot = barSpot;
                           String mood = '';
-                          if (flSpot.y >= 4.0) {mood = 'Happy';}
-                          else if (flSpot.y >= 2.5) {mood = 'Neutral';}
-                          else if (flSpot.y >= 1.5) {mood = 'Angry';}
-                          else {mood = 'Sad';}
-                          
+                          if (flSpot.y >= 4.0) {
+                            mood = 'Happy';
+                          } else if (flSpot.y >= 2.5) {
+                            mood = 'Neutral';
+                          } else if (flSpot.y >= 1.5) {
+                            mood = 'Angry';
+                          } else {
+                            mood = 'Sad';
+                          }
+
                           return LineTooltipItem(
                             'Day ${flSpot.x.toInt()}\n$mood',
                             TextStyle(
-                              color: Theme.of(context).textTheme.bodyLarge?.color,
-                              fontWeight: FontWeight.bold, 
+                              color:
+                                  Theme.of(context).textTheme.bodyLarge?.color,
+                              fontWeight: FontWeight.bold,
                             ),
                           );
                         }).toList();
@@ -279,7 +301,7 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
     );
   }
 
-  Widget _buildPieChart(BuildContext context, MoodViewModel viewModel){
+  Widget _buildPieChart(BuildContext context, MoodViewModel viewModel) {
     return Padding(
       padding: EdgeInsets.all(0),
       child: Column(
@@ -291,66 +313,72 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 20),
-          AspectRatio(
-            aspectRatio: 1.4,
-            child: viewModel.getAllMoodHistory().isEmpty 
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        height: 150,
-                        width: 150,
-                        decoration: BoxDecoration(
-                          color: Colors.blue,
-                          borderRadius: BorderRadius.circular(20)
+          Expanded(
+            child:
+                viewModel.getAllMoodHistory().isEmpty
+                    ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            height: 150,
+                            width: 150,
+                            decoration: BoxDecoration(
+                              color: Colors.blue,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Icon(Icons.emoji_emotions, size: 100),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No hay suficientes datos disponibles',
+                            style: Theme.of(context).textTheme.titleMedium,
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    )
+                    : PieChart(
+                      PieChartData(
+                        pieTouchData: PieTouchData(
+                          enabled: true,
+                          touchCallback: (
+                            FlTouchEvent event,
+                            pieTouchResponse,
+                          ) {
+                            setState(() {
+                              if (!event.isInterestedForInteractions ||
+                                  pieTouchResponse == null ||
+                                  pieTouchResponse.touchedSection == null) {
+                                viewModel.setTouchedIndex(-1);
+                                return;
+                              }
+                              viewModel.setTouchedIndex(
+                                pieTouchResponse
+                                    .touchedSection!
+                                    .touchedSectionIndex,
+                              );
+                            });
+                          },
                         ),
-                        child: Icon(Icons.emoji_emotions,size: 100,),
+                        sectionsSpace: 0,
+                        centerSpaceRadius: 0,
+                        sections: showingSections(context),
                       ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'No hay suficientes datos disponibles',
-                        style: Theme.of(context).textTheme.titleMedium,
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                )
-              : PieChart(
-                  PieChartData(
-                    pieTouchData: PieTouchData(
-                      enabled: true,
-                      touchCallback: (FlTouchEvent event, pieTouchResponse ) {
-                        setState(() {
-                          if (!event.isInterestedForInteractions ||
-                          pieTouchResponse == null ||
-                          pieTouchResponse.touchedSection == null){
-                            viewModel.setTouchedIndex(-1);
-                            return;
-                          }
-                          viewModel.setTouchedIndex(pieTouchResponse.touchedSection!.touchedSectionIndex);
-                        });
-                      }
+                      duration: Duration(milliseconds: 150),
+                      curve: Curves.linear,
                     ),
-                    sectionsSpace: 0,
-                    centerSpaceRadius: 0,
-                    sections: showingSections(context),
-                  ),
-                  duration: Duration(milliseconds: 150),
-                  curve: Curves.linear,
-                ),
           ),
-          SizedBox(height: 10,)
+          SizedBox(height: 10),
         ],
       ),
     );
   }
 
-
   List<PieChartSectionData> showingSections(BuildContext context) {
     var viewModel = Provider.of<MoodViewModel>(context);
     var map = viewModel.logicPieChart(viewModel);
-    
+
     if (map.isEmpty) {
       return [];
     }
@@ -448,8 +476,6 @@ class _MoodHistoryPageState extends State<StadisticsScreen> {
       }
     });
   }
-
-  
 }
 
 class _Badge extends StatelessWidget {
@@ -473,10 +499,7 @@ class _Badge extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         shape: BoxShape.circle,
-        border: Border.all(
-          color: borderColor,
-          width: 2,
-        ),
+        border: Border.all(color: borderColor, width: 2),
         boxShadow: <BoxShadow>[
           BoxShadow(
             color: Colors.black.withValues(alpha: .5),
@@ -487,9 +510,8 @@ class _Badge extends StatelessWidget {
       ),
       padding: EdgeInsets.all(size * .15),
       child: Center(
-        child: Lottie.asset(asset,animate: isTouched ? true : false)
+        child: Lottie.asset(asset, animate: isTouched ? true : false),
       ),
     );
   }
 }
-

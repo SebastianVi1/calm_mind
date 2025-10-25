@@ -84,10 +84,15 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       // Agregamos el mismo EndDrawer usado en el resto de la aplicación
       endDrawer: WEndDrawer(),
-      body: SingleChildScrollView( // Wrap with SingleChildScrollView
-        child: ConstrainedBox( // Add constraints
+      body: SingleChildScrollView(
+        // Wrap with SingleChildScrollView
+        child: ConstrainedBox(
+          // Add constraints
           constraints: BoxConstraints(
-            minHeight: screenSize.height - kToolbarHeight - MediaQuery.of(context).padding.top,
+            minHeight:
+                screenSize.height -
+                kToolbarHeight -
+                MediaQuery.of(context).padding.top,
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
@@ -248,10 +253,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 8,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 margin: const EdgeInsets.only(top: 8),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surfaceVariant,
@@ -293,9 +295,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text(
-                                    'ID copiado al portapapeles',
-                                  ),
+                                  content: Text('ID copiado al portapapeles'),
                                   duration: Duration(seconds: 2),
                                 ),
                               );
@@ -330,9 +330,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 children: [
                   Text(
                     'Última sesión',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.titleMedium?.copyWith(
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.bold,
                     ),
@@ -371,9 +369,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             color: Colors.white,
                           ),
                           onPressed: () {
-                            context.read<NavigationViewModel>().changeIndex(
-                              1,
-                            );
+                            context.read<NavigationViewModel>().changeIndex(1);
                             final lastSessionId =
                                 chatViewModel.sessions.keys.last;
                             chatViewModel.continueSession(lastSessionId);
@@ -403,66 +399,6 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
-
-      Positioned(
-        top: 0,
-        right: 0,
-        child: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: Colors.blue,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: IconButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder:
-                    (context) => AlertDialog(
-                      title: const Text('Reiniciar cuestionario'),
-                      content: const Text(
-                        '¿Estás seguro de que quieres volver a hacer el cuestionario? Tus respuestas anteriores se perderán.',
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('Cancelar'),
-                        ),
-                        TextButton(
-                          onPressed: () async {
-                            try {
-                              final userService = UserService();
-                              await userService.resetQuestionnaire();
-                              if (context.mounted) {
-                                Navigator.of(context).pushAndRemoveUntil(
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) =>
-                                            const OnBoardingScreen(),
-                                  ),
-                                  (route) => false,
-                                );
-                              }
-                            } catch (e) {
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Error: $e')),
-                                );
-                              }
-                            }
-                          },
-                          child: const Text('Reiniciar'),
-                        ),
-                      ],
-                    ),
-              );
-            },
-            icon: const Icon(Icons.refresh, color: Colors.white),
-            tooltip: 'Reiniciar cuestionario',
-          ),
-        ),
-      ),
     );
   }
 
@@ -470,70 +406,121 @@ class _ProfilePageState extends State<ProfilePage> {
     BuildContext context,
     UserViewModel viewModel,
   ) {
-    // If the user is anonimous,
-    // if (viewModel.isAnonymous == null || viewModel.isAnonymous == true) {
-    //   return Container(
-    //     padding: const EdgeInsets.all(16),
-    //     decoration: BoxDecoration(
-    //       color: Theme.of(context).colorScheme.surface,
-    //       borderRadius: BorderRadius.circular(12),
-    //       border: Border.all(
-    //         color: Theme.of(context).colorScheme.outline.withValues(alpha: .5),
-    //       ),
-    //     ),
-    //     child: Column(
-    //       children: [
-    //         Icon(
-    //           Icons.lock_outline,
-    //           size: 32,
-    //           color: Theme.of(context).colorScheme.primary,
-    //         ),
-    //         const SizedBox(height: 8),
-    //         Text(
-    //           'Inicia sesión para ver tus logros',
-    //           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-    //             color: Theme.of(context).colorScheme.primary,
-    //             fontWeight: FontWeight.bold,
-    //           ),
-    //         ),
-    //         const SizedBox(height: 4),
-    //         Text(
-    //           'Los usuarios anónimos no pueden acceder a esta función',
-    //           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-    //             color: Theme.of(context).colorScheme.onSurfaceVariant,
-    //           ),
-    //           textAlign: TextAlign.center,
-    //         ),
-    //       ],
-    //     ),
-    //   );
-    // }
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
+        gradient: LinearGradient(
+          colors: [
+            Theme.of(context).colorScheme.primary.withOpacity(0.1),
+            Theme.of(context).colorScheme.secondary.withOpacity(0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
+          color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
         ),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Logros obtenidos',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Logros',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+              IconButton(
+                icon: Icon(
+                  Icons.emoji_events,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                onPressed:
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AchievementsScreen(),
+                      ),
+                    ),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
-          // Aquí irían los logros del usuario
-          _buildBadgeObtained(),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              return Consumer<AchievementViewModel>(
+                builder: (context, achievementVM, _) {
+                  final badges = achievementVM.getUnlockedBadges();
+
+                  if (badges.isEmpty) {
+                    return Center(
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.workspace_premium,
+                            size: 48,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withOpacity(0.5),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Completa actividades para desbloquear logros',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withOpacity(0.7),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    alignment: WrapAlignment.center,
+                    children:
+                        badges.map((badge) => _buildBadgeItem(badge)).toList(),
+                  );
+                },
+              );
+            },
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildBadgeItem(String badgeAsset) {
+    return Container(
+      width: 60,
+      height: 60,
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Image.asset(badgeAsset, fit: BoxFit.contain),
     );
   }
 }
