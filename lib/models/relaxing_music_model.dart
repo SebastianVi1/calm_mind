@@ -3,11 +3,13 @@ class RelaxingMusicModel {
   String author;
   String url;
   String duration;
+  String? localPath;
   RelaxingMusicModel({
     required this.name,
     required this.author,
     required this.url,
     required this.duration,
+    this.localPath,
   });
 
   factory RelaxingMusicModel.fromJson(Map<String, dynamic> json) {
@@ -16,8 +18,7 @@ class RelaxingMusicModel {
       author: json['author'] ?? 'Sin autor',
       url: json['url'],
       duration: json['duration'],
+      localPath: json['localPath'],
     );
   }
-
-
 }

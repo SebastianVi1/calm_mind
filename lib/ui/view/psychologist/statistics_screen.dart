@@ -323,7 +323,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           children: [
             Text(label, style: Theme.of(context).textTheme.bodyMedium),
             Text(
-              '$value ($percentage.toStringAsFixed(1))%',
+              '$value (${percentage.toStringAsFixed(1)}%)',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: color,

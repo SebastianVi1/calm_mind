@@ -3,6 +3,9 @@ import 'package:calm_mind/ui/view/psychologist/patients_list_screen.dart';
 import 'package:calm_mind/ui/view/psychologist/statistics_screen.dart';
 import 'package:calm_mind/ui/view/psychologist/add_patient_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:calm_mind/ui/view/patient_report_screen.dart';
+import 'package:calm_mind/viewmodels/patient_report_view_model.dart';
 
 class SelectionScreen extends StatelessWidget {
   const SelectionScreen({super.key});
@@ -86,9 +89,9 @@ class SelectionScreen extends StatelessWidget {
       children: [
         Text(
           'Gestión de Pacientes',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         Row(
@@ -137,9 +140,9 @@ class SelectionScreen extends StatelessWidget {
       children: [
         Text(
           'Análisis y Reportes',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         Row(
@@ -188,9 +191,9 @@ class SelectionScreen extends StatelessWidget {
       children: [
         Text(
           'Acciones Rápidas',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         _buildQuickActionButton(
@@ -199,25 +202,31 @@ class SelectionScreen extends StatelessWidget {
           Icons.assessment,
           Colors.indigo,
           () {
-            // TODO: Implement recent reports
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Reportes recientes próximamente')),
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => ChangeNotifierProvider(
+                      create: (_) => PatientReportViewModel(),
+                      child: const PatientReportsListScreen(),
+                    ),
+              ),
             );
           },
         ),
         const SizedBox(height: 12),
-        _buildQuickActionButton(
-          context,
-          'Configuración',
-          Icons.settings,
-          Colors.grey,
-          () {
-            // TODO: Implement settings
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Configuración próximamente')),
-            );
-          },
-        ),
+        // _buildQuickActionButton(
+        //   context,
+        //   'Configuración',
+        //   Icons.settings,
+        //   Colors.grey,
+        //   () {
+        //     // TODO: Implement settings
+        //     ScaffoldMessenger.of(context).showSnackBar(
+        //       const SnackBar(content: Text('Configuración próximamente')),
+        //     );
+        //   },
+        // ),
       ],
     );
   }
@@ -233,9 +242,7 @@ class SelectionScreen extends StatelessWidget {
   ) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
@@ -256,16 +263,16 @@ class SelectionScreen extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 title,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
               Text(
                 subtitle,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[600],
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
               ),
             ],
           ),
@@ -284,9 +291,7 @@ class SelectionScreen extends StatelessWidget {
   ) {
     return Card(
       elevation: 1,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(8),
@@ -298,9 +303,9 @@ class SelectionScreen extends StatelessWidget {
               const SizedBox(width: 12),
               Text(
                 title,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w500),
               ),
               const Spacer(),
               Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400]),

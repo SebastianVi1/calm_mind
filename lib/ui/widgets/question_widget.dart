@@ -1,23 +1,19 @@
-import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:calm_mind/models/question_model.dart';
-import 'package:calm_mind/models/patient_report_model.dart';
 import 'package:calm_mind/ui/constants/app_constants.dart';
-import 'package:calm_mind/ui/view/main_screen.dart';
 import 'package:calm_mind/ui/view/report_generation_screen.dart';
 import 'package:calm_mind/viewmodels/question_view_model.dart';
 import 'package:provider/provider.dart';
-import 'package:calm_mind/services/user_service.dart';
 
 /// Widget that displays a question with multiple choice options.
 /// It handles the selection of answers and navigation between questions.
 class WQuestionWidget extends StatefulWidget {
   /// The question model containing the question text, description and options
   final QuestionModel question;
-  
+
   /// The currently selected answer for this question
   final String selectedAnswer;
-  
+
   /// Callback function called when an answer is selected
   final Function(String) onAnswerChanged;
 
@@ -37,7 +33,7 @@ class _WQuestionWidgetState extends State<WQuestionWidget> {
   Widget build(BuildContext context) {
     final deviceHeight = MediaQuery.sizeOf(context).height;
     final viewModel = Provider.of<QuestionViewModel>(context);
-    
+
     return AnimatedContainer(
       curve: Curves.decelerate,
       duration: const Duration(milliseconds: 300),
@@ -54,7 +50,9 @@ class _WQuestionWidgetState extends State<WQuestionWidget> {
   /// Builds the main content container with proper padding and safe area
   Widget _buildContent(double deviceHeight) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: AppConstants.contentHorizontalPadding),
+      padding: EdgeInsets.symmetric(
+        horizontal: AppConstants.contentHorizontalPadding,
+      ),
       child: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -75,31 +73,23 @@ class _WQuestionWidgetState extends State<WQuestionWidget> {
   Widget _buildQuestionText() {
     return AnimatedDefaultTextStyle(
       duration: const Duration(milliseconds: 300),
-      style: Theme.of(context).textTheme.displaySmall?.copyWith(
-        color: Theme.of(context).colorScheme.onSurface,
-        fontWeight: FontWeight.bold,
-      ) ?? const TextStyle(),
-      child: Text(
-        widget.question.question,
-        textAlign: TextAlign.center,
-      ),
+      style:
+          Theme.of(context).textTheme.displaySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface,
+            fontWeight: FontWeight.bold,
+          ) ??
+          const TextStyle(),
+      child: Text(widget.question.question, textAlign: TextAlign.center),
     );
   }
 
-  /// Builds the animated description text using AnimatedTextKit
   Widget _buildDescriptionText() {
-    return AnimatedTextKit(
-      isRepeatingAnimation: false,
-      animatedTexts: [
-        TypewriterAnimatedText(
-          widget.question.description,
-          speed: AppConstants.textAnimationDuration,
-          textAlign: TextAlign.center,
-          textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
-          ),
-        )
-      ],
+    return Text(
+      widget.question.description,
+      textAlign: TextAlign.center,
+      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+      ),
     );
   }
 
@@ -107,49 +97,58 @@ class _WQuestionWidgetState extends State<WQuestionWidget> {
   Widget _buildOptions() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: widget.question.options.asMap().entries.map((entry) {
-        final option = entry.value;
-        final isSelected = widget.selectedAnswer == option;
+      children:
+          widget.question.options.asMap().entries.map((entry) {
+            final option = entry.value;
+            final isSelected = widget.selectedAnswer == option;
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => widget.onAnswerChanged(option),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isSelected 
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.surface,
-                foregroundColor: isSelected
-                  ? Theme.of(context).colorScheme.onPrimary
-                  : Theme.of(context).colorScheme.onSurface,
-                elevation: isSelected ? 4 : 2,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(
-                    color: isSelected
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                    width: isSelected ? 2 : 1,
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => widget.onAnswerChanged(option),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        isSelected
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.surface,
+                    foregroundColor:
+                        isSelected
+                            ? Theme.of(context).colorScheme.onPrimary
+                            : Theme.of(context).colorScheme.onSurface,
+                    elevation: isSelected ? 4 : 2,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 16,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        color:
+                            isSelected
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(
+                                  context,
+                                ).colorScheme.primary.withOpacity(0.3),
+                        width: isSelected ? 2 : 1,
+                      ),
+                    ),
+                  ),
+                  child: AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 300),
+                    style:
+                        Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          fontWeight:
+                              isSelected ? FontWeight.bold : FontWeight.normal,
+                        ) ??
+                        const TextStyle(),
+                    child: Text(option, textAlign: TextAlign.center),
                   ),
                 ),
               ),
-              child: AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 300),
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                ) ?? const TextStyle(),
-                child: Text(
-                  option,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-          ),
-        );
-      }).toList(),
+            );
+          }).toList(),
     );
   }
 
@@ -177,14 +176,16 @@ class _WQuestionWidgetState extends State<WQuestionWidget> {
                   if (viewModel.isLastQuestion) {
                     try {
                       // Generar reporte con IA
-                      final reportFuture = viewModel.saveAnswersAndGenerateReport();
-                      
+                      final reportFuture =
+                          viewModel.saveAnswersAndGenerateReport();
+
                       if (mounted) {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => ReportGenerationScreen(
-                              reportFuture: reportFuture,
-                            ),
+                            builder:
+                                (context) => ReportGenerationScreen(
+                                  reportFuture: reportFuture,
+                                ),
                           ),
                         );
                       }
@@ -202,7 +203,9 @@ class _WQuestionWidgetState extends State<WQuestionWidget> {
                     viewModel.nextQuestion();
                   }
                 },
-                child: Text(viewModel.isLastQuestion ? 'Finalizar' : 'Siguiente'),
+                child: Text(
+                  viewModel.isLastQuestion ? 'Finalizar' : 'Siguiente',
+                ),
               ),
           ],
         ),

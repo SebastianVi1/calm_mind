@@ -30,20 +30,6 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              TextFormField(
-                controller: _patientIdController,
-                decoration: const InputDecoration(
-                  labelText: 'Patient ID',
-                  icon: Icon(Icons.fingerprint),
-                  helperText:
-                      'Identificador unico para buscar el paciente en la base de datos',
-                ),
-                validator:
-                    (value) =>
-                        value?.isEmpty ?? true
-                            ? 'Patient ID is required'
-                            : null,
-              ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _nameController,
