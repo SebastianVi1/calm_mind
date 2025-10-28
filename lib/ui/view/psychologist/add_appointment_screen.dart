@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../models/appointment.dart';
+import '../../../models/professional_patient_model.dart';
 import '../../../viewmodels/appointment_view_model.dart';
+import '../../../viewmodels/professional_patient_view_model.dart';
 
 class AddAppointmentScreen extends StatefulWidget {
   const AddAppointmentScreen({super.key});
@@ -18,6 +20,7 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
   final _notesController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = TimeOfDay.now();
+  ProfessionalPatientModel? _selectedPatient;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +44,13 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
                     (value) =>
                         value?.isEmpty ?? true ? 'Campo requerido' : null,
               ),
+              // Patient selector and current selection
+              _buildPatientSelector(context),
+              const SizedBox(height: 12),
+              if (_selectedPatient != null) ...[
+                _buildPatientHero(_selectedPatient!),
+                const SizedBox(height: 16),
+              ],
               const SizedBox(height: 16),
               TextFormField(
                 controller: _phoneController,
@@ -117,6 +127,179 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
     if (picked != null) {
       setState(() => _selectedDate = picked);
     }
+  }
+
+  Widget _buildPatientSelector(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: OutlinedButton.icon(
+            icon: const Icon(Icons.person_search),
+            label: Text(
+              _selectedPatient == null
+                  ? 'Seleccionar paciente registrado'
+                  : 'Cambiar paciente',
+            ),
+            onPressed: _openPatientPicker,
+          ),
+        ),
+        if (_selectedPatient != null) ...[
+          const SizedBox(width: 8),
+          IconButton(
+            tooltip: 'Quitar selección',
+            icon: const Icon(Icons.clear),
+            onPressed: () {
+              setState(() {
+                _selectedPatient = null;
+                _patientIdController.clear();
+                // Mantener nombre/teléfono escritos manualmente
+              });
+            },
+          ),
+        ],
+      ],
+    );
+  }
+
+  Future<void> _openPatientPicker() async {
+    final vm = context.read<ProfessionalPatientViewModel>();
+    if (!vm.isLoading && vm.patients.isEmpty) {
+      await vm.loadPatients();
+    }
+
+    if (!mounted) return;
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: SizedBox(
+            height: MediaQuery.of(ctx).size.height * 0.7,
+            child: Consumer<ProfessionalPatientViewModel>(
+              builder: (context, viewModel, _) {
+                if (viewModel.isLoading && viewModel.patients.isEmpty) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (viewModel.patients.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        'No hay pacientes registrados aún.',
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                    ),
+                  );
+                }
+                return ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: viewModel.patients.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 8),
+                  itemBuilder: (context, index) {
+                    final p = viewModel.patients[index];
+                    return ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        child: Text(
+                          p.name.isNotEmpty ? p.name[0].toUpperCase() : '?',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      title: Text(p.name),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (p.email != null && p.email!.isNotEmpty)
+                            Text(p.email!),
+                          if (p.phone != null && p.phone!.isNotEmpty)
+                            Text(p.phone!),
+                        ],
+                      ),
+                      onTap: () {
+                        Navigator.pop(context);
+                        _applySelectedPatient(p);
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _applySelectedPatient(ProfessionalPatientModel p) {
+    setState(() {
+      _selectedPatient = p;
+      _patientIdController.text = p.id;
+      _nameController.text = p.name;
+      if (p.phone != null) _phoneController.text = p.phone!;
+    });
+  }
+
+  Widget _buildPatientHero(ProfessionalPatientModel patient) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            Hero(
+              tag: 'patient-${patient.id}',
+              child: CircleAvatar(
+                radius: 28,
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                child: Text(
+                  patient.name.isNotEmpty ? patient.name[0].toUpperCase() : '?',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    patient.name,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  if (patient.phone != null && patient.phone!.isNotEmpty)
+                    Text(
+                      patient.phone!,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                    ),
+                  if (patient.email != null && patient.email!.isNotEmpty)
+                    Text(
+                      patient.email!,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _selectTime(BuildContext context) async {

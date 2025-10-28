@@ -8,7 +8,8 @@ import 'patient_detail_screen.dart';
 /// Screen that shows the list of professional patients
 /// Allows viewing, searching, and managing patients
 class PatientsListScreen extends StatefulWidget {
-  const PatientsListScreen({super.key});
+  final PatientStatus? statusFilter; // null = all
+  const PatientsListScreen({super.key, this.statusFilter});
 
   @override
   State<PatientsListScreen> createState() => _PatientsListScreenState();
@@ -41,7 +42,7 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mis Pacientes'),
+        title: Text(_titleForFilter(widget.statusFilter)),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
         elevation: 0,
@@ -120,6 +121,19 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
     );
   }
 
+  String _titleForFilter(PatientStatus? filter) {
+    switch (filter) {
+      case PatientStatus.active:
+        return 'Pacientes Activos';
+      case PatientStatus.inactive:
+        return 'Pacientes Inactivos';
+      case PatientStatus.discharged:
+        return 'Pacientes Dados de Alta';
+      default:
+        return 'Mis Pacientes';
+    }
+  }
+
   /// Builds the search bar
   Widget _buildSearchBar(
     BuildContext context,
@@ -171,7 +185,11 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
     BuildContext context,
     ProfessionalPatientViewModel viewModel,
   ) {
-    final patients = viewModel.filteredPatients;
+    final base = viewModel.filteredPatients;
+    final patients =
+        widget.statusFilter == null
+            ? base
+            : base.where((p) => p.status == widget.statusFilter).toList();
 
     if (patients.isEmpty && viewModel.searchQuery.isNotEmpty) {
       return Expanded(

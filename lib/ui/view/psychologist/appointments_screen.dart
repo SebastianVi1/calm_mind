@@ -80,6 +80,45 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                         ).format(appointment.dateTime),
                       ),
                       Text(appointment.patientPhone),
+                      const SizedBox(height: 6),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Chip(
+                          visualDensity: VisualDensity.compact,
+                          avatar: Icon(
+                            appointment.isDone
+                                ? Icons.check_circle
+                                : Icons.schedule,
+                            size: 16,
+                            color:
+                                appointment.isDone
+                                    ? Colors.green
+                                    : Colors.orange,
+                          ),
+                          label: Text(
+                            appointment.isDone ? 'Completada' : 'Pendiente',
+                            style: TextStyle(
+                              color:
+                                  appointment.isDone
+                                      ? Colors.green[900]
+                                      : Colors.orange[900],
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          backgroundColor:
+                              appointment.isDone
+                                  ? Colors.green[50]
+                                  : Colors.orange[50],
+                          side: BorderSide(
+                            color:
+                                appointment.isDone
+                                    ? Colors.green
+                                    : Colors.orange,
+                          ),
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
+                        ),
+                      ),
                     ],
                   ),
                   trailing: PopupMenuButton(
