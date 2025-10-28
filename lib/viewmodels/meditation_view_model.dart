@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:calm_mind/models/meditation_audio_model.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
 
 
 /// ViewModel for the meditation screen that handles the audio and video resources.
@@ -21,8 +24,6 @@ class MeditationViewModel extends ChangeNotifier {
 
   // Track initialization state
   bool _isInitialized = false;
-  // Track disposal state
-  bool _isDisposed = false;
   
   // Constructor initializes the audio player and sets up listeners
   MeditationViewModel() {
@@ -73,11 +74,10 @@ class MeditationViewModel extends ChangeNotifier {
       _errorMessage = null;
       notifyListeners();
 
-      // Initialize both video and audio in parallel
-      await Future.wait([
-        
-        loadAudio(),
-      ]);
+      // Initialize: set up first audio source and prefetch all tracks for offline
+      await loadAudio();
+      // Start background prefetch for the whole list so they are ready offline
+      _prefetchMeditationCaches();
       
       // All resources loaded successfully
       _loadingAudio = false;
@@ -147,7 +147,32 @@ class MeditationViewModel extends ChangeNotifier {
         }
       }
       
-      await _audioPlayer.setUrl(_selectedMeditation!.url);
+      // Stop current playback before switching
+      if (_audioPlayer.playing) {
+        await _audioPlayer.stop();
+      }
+
+      final url = _selectedMeditation!.url;
+      final file = await _getCachedFileForUrl(url);
+
+      if (await file.exists()) {
+        // Play from cache
+        await _audioPlayer.setFilePath(file.path);
+      } else {
+        // Try to download and cache, then play
+        try {
+          await _downloadToFile(url, file);
+          if (await file.exists()) {
+            await _audioPlayer.setFilePath(file.path);
+          } else {
+            await _audioPlayer.setUrl(url);
+          }
+        } catch (_) {
+          // Fallback to streaming if download fails
+          await _audioPlayer.setUrl(url);
+        }
+      }
+
       await _audioPlayer.setVolume(1.0);
       
 
@@ -221,9 +246,56 @@ class MeditationViewModel extends ChangeNotifier {
     }
   @override
   void dispose() {
-    _isDisposed = true;
     _audioPlayer.stop();
     _audioPlayer.dispose();
     super.dispose();
+  }
+
+  // ---------- Simple file cache helpers ----------
+  Future<Directory> _getCacheDir() async {
+    final base = await getApplicationSupportDirectory();
+    final dir = Directory('${base.path}${Platform.pathSeparator}meditations_cache');
+    if (!await dir.exists()) {
+      await dir.create(recursive: true);
+    }
+    return dir;
+  }
+
+  String _fileNameForUrl(String url) {
+    // Very simple stable filename based on URL hash
+    // Avoid special characters and keep a consistent extension
+    final safe = url.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_');
+    final truncated = safe.length > 80 ? safe.substring(0, 80) : safe;
+    return 'med_$truncated.mp3';
+  }
+
+  Future<File> _getCachedFileForUrl(String url) async {
+    final dir = await _getCacheDir();
+    final name = _fileNameForUrl(url);
+    return File('${dir.path}${Platform.pathSeparator}$name');
+  }
+
+  Future<void> _downloadToFile(String url, File file) async {
+    final resp = await http.get(Uri.parse(url));
+    if (resp.statusCode == 200) {
+      await file.writeAsBytes(resp.bodyBytes, flush: true);
+    } else {
+      throw Exception('Download failed: ${resp.statusCode}');
+    }
+  }
+
+  // Prefetch all meditation audios on entering the list/screen
+  void _prefetchMeditationCaches() async {
+    // Download sequentially to avoid spikes; ignore errors
+    for (final m in urls) {
+      try {
+        final f = await _getCachedFileForUrl(m.url);
+        if (!await f.exists()) {
+          await _downloadToFile(m.url, f);
+        }
+      } catch (_) {
+        // Ignore prefetch errors; playback will fallback to URL
+      }
+    }
   }
 }
