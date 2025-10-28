@@ -315,6 +315,22 @@ class _ProfilePageState extends State<ProfilePage> {
           const SizedBox(height: 24),
           _buildAchievementsSection(context, viewModel),
           const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              icon: const Icon(Icons.assignment_outlined),
+              label: const Text('Volver a hacer el cuestionario'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const OnBoardingScreen(),
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 24),
           Consumer<ChatViewModel>(
             builder: (context, chatViewModel, child) {
               if (chatViewModel.sessions.isEmpty) {
