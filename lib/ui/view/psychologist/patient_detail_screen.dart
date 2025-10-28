@@ -5,6 +5,7 @@ import '../../../viewmodels/patient_report_view_model.dart';
 import '../../../models/professional_patient_model.dart';
 import '../../../models/patient_report_model.dart';
 import '../../view/patient_report_screen.dart';
+import 'add_appointment_screen.dart';
 
 /// Screen that shows detailed information about a patient
 /// Includes patient info, reports, and management options
@@ -20,11 +21,13 @@ class PatientDetailScreen extends StatefulWidget {
 class _PatientDetailScreenState extends State<PatientDetailScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  late ProfessionalPatientModel _patient;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _patient = widget.patient;
 
     // Cargar reportes al iniciar
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -34,12 +37,12 @@ class _PatientDetailScreenState extends State<PatientDetailScreen>
 
   Future<void> _loadPatientData() async {
     try {
-      print('Loading patient data for: ${widget.patient.userId}');
+      print('Loading patient data for: ${_patient.userId}');
       final reportViewModel = Provider.of<PatientReportViewModel>(
         context,
         listen: false,
       );
-      await reportViewModel.loadUserReportsByUserId(widget.patient.userId);
+      await reportViewModel.loadUserReportsByUserId(_patient.userId);
       print('Reports loaded: ${reportViewModel.reports.length}');
       if (mounted) setState(() {});
     } catch (e) {
@@ -53,20 +56,13 @@ class _PatientDetailScreenState extends State<PatientDetailScreen>
     super.dispose();
   }
 
-  /// Loads patient reports
-  Future<void> _loadPatientReports() async {
-    final reportViewModel = Provider.of<PatientReportViewModel>(
-      context,
-      listen: false,
-    );
-    await reportViewModel.loadUserReportsByUserId(widget.patient.userId);
-  }
+  /// Loads patient reports (kept via _loadPatientData)
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.patient.name),
+        title: Text(_patient.name),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
         elevation: 0,
@@ -224,7 +220,7 @@ class _PatientDetailScreenState extends State<PatientDetailScreen>
                   radius: 32,
                   backgroundColor: Theme.of(context).colorScheme.primary,
                   child: Text(
-                    widget.patient.name[0].toUpperCase(),
+                    _patient.name[0].toUpperCase(),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 24,
@@ -238,14 +234,14 @@ class _PatientDetailScreenState extends State<PatientDetailScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.patient.name,
+                        _patient.name,
                         style: Theme.of(context).textTheme.headlineSmall
                             ?.copyWith(fontWeight: FontWeight.bold),
                       ),
-                      if (widget.patient.email != null) ...[
+                      if (_patient.email != null) ...[
                         const SizedBox(height: 4),
                         Text(
-                          widget.patient.email!,
+                          _patient.email!,
                           style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(color: Colors.grey[600]),
                         ),
@@ -256,13 +252,13 @@ class _PatientDetailScreenState extends State<PatientDetailScreen>
                 _buildStatusChip(),
               ],
             ),
-            if (widget.patient.phone != null) ...[
+            if (_patient.phone != null) ...[
               const SizedBox(height: 16),
               Row(
                 children: [
                   Icon(Icons.phone, color: Colors.grey[600]),
                   const SizedBox(width: 8),
-                  Text(widget.patient.phone!),
+                  Text(_patient.phone!),
                 ],
               ),
             ],
@@ -298,21 +294,19 @@ class _PatientDetailScreenState extends State<PatientDetailScreen>
               ],
             ),
             const SizedBox(height: 12),
-            if (widget.patient.age != null ||
-                widget.patient.gender != null) ...[
+            if (_patient.age != null || _patient.gender != null) ...[
               Row(
                 children: [
-                  if (widget.patient.age != null) ...[
+                  if (_patient.age != null) ...[
                     Icon(Icons.cake, size: 16, color: Colors.grey[600]),
                     const SizedBox(width: 4),
-                    Text('${widget.patient.age} años'),
-                    if (widget.patient.gender != null)
-                      const SizedBox(width: 16),
+                    Text('${_patient.age} años'),
+                    if (_patient.gender != null) const SizedBox(width: 16),
                   ],
-                  if (widget.patient.gender != null) ...[
+                  if (_patient.gender != null) ...[
                     Icon(Icons.person, size: 16, color: Colors.grey[600]),
                     const SizedBox(width: 4),
-                    Text(widget.patient.gender!),
+                    Text(_patient.gender!),
                   ],
                 ],
               ),
@@ -322,17 +316,17 @@ class _PatientDetailScreenState extends State<PatientDetailScreen>
               children: [
                 Icon(Icons.calendar_today, size: 16, color: Colors.grey[600]),
                 const SizedBox(width: 4),
-                Text('Agregado: ${_formatDate(widget.patient.addedDate)}'),
+                Text('Agregado: ${_formatDate(_patient.addedDate)}'),
               ],
             ),
-            if (widget.patient.lastConsultation != null) ...[
+            if (_patient.lastConsultation != null) ...[
               const SizedBox(height: 4),
               Row(
                 children: [
                   Icon(Icons.event, size: 16, color: Colors.grey[600]),
                   const SizedBox(width: 4),
                   Text(
-                    'Última consulta: ${_formatDate(widget.patient.lastConsultation!)}',
+                    'Última consulta: ${_formatDate(_patient.lastConsultation!)}',
                   ),
                 ],
               ),
@@ -367,7 +361,7 @@ class _PatientDetailScreenState extends State<PatientDetailScreen>
             ),
             const SizedBox(height: 12),
             Text(
-              widget.patient.professionalNotes ?? 'No hay notas profesionales',
+              _patient.professionalNotes ?? 'No hay notas profesionales',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ],
@@ -403,19 +397,16 @@ class _PatientDetailScreenState extends State<PatientDetailScreen>
             ),
             const SizedBox(height: 12),
             Text(
-              widget.patient.medicalHistory ??
-                  'No hay historial médico registrado',
+              _patient.medicalHistory ?? 'No hay historial médico registrado',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
-            if (widget.patient.emergencyContact != null) ...[
+            if (_patient.emergencyContact != null) ...[
               const SizedBox(height: 12),
               Row(
                 children: [
                   Icon(Icons.emergency, size: 16, color: Colors.red[600]),
                   const SizedBox(width: 4),
-                  Text(
-                    'Contacto de emergencia: ${widget.patient.emergencyContact}',
-                  ),
+                  Text('Contacto de emergencia: ${_patient.emergencyContact}'),
                 ],
               ),
             ],
@@ -539,15 +530,15 @@ class _PatientDetailScreenState extends State<PatientDetailScreen>
               icon: Icons.person_add,
               title: 'Paciente agregado',
               subtitle: 'Agregado a tu lista de pacientes',
-              date: widget.patient.addedDate,
+              date: _patient.addedDate,
               color: Colors.blue,
             ),
-            if (widget.patient.lastConsultation != null) ...[
+            if (_patient.lastConsultation != null) ...[
               _buildTimelineItem(
                 icon: Icons.event,
                 title: 'Última consulta',
                 subtitle: 'Consulta registrada',
-                date: widget.patient.lastConsultation!,
+                date: _patient.lastConsultation!,
                 color: Colors.green,
               ),
             ],
@@ -628,29 +619,27 @@ class _PatientDetailScreenState extends State<PatientDetailScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: viewModel.getStatusColor(widget.patient.status).withOpacity(0.1),
+        color: viewModel.getStatusColor(_patient.status).withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: viewModel
-              .getStatusColor(widget.patient.status)
-              .withOpacity(0.3),
+          color: viewModel.getStatusColor(_patient.status).withOpacity(0.3),
         ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            viewModel.getStatusIcon(widget.patient.status),
+            viewModel.getStatusIcon(_patient.status),
             size: 14,
-            color: viewModel.getStatusColor(widget.patient.status),
+            color: viewModel.getStatusColor(_patient.status),
           ),
           const SizedBox(width: 4),
           Text(
-            widget.patient.status.displayName,
+            _patient.status.displayName,
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.bold,
-              color: viewModel.getStatusColor(widget.patient.status),
+              color: viewModel.getStatusColor(_patient.status),
             ),
           ),
         ],
@@ -689,18 +678,192 @@ class _PatientDetailScreenState extends State<PatientDetailScreen>
   void _handleMenuAction(String action) {
     switch (action) {
       case 'edit':
-        // TODO: Implement edit patient
+        _openEditPatientDialog();
         break;
       case 'status':
-        // TODO: Implement change status
+        _openChangeStatusSheet();
         break;
       case 'consultation':
-        // TODO: Implement register consultation
+        _registerConsultation();
         break;
       case 'remove':
         _confirmRemovePatient();
         break;
     }
+  }
+
+  Future<void> _registerConsultation() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddAppointmentScreen(initialPatient: _patient),
+      ),
+    );
+
+    if (result == true && mounted) {
+      // Update last consultation to now (assumption: consultation scheduled now)
+      final vm = context.read<ProfessionalPatientViewModel>();
+      await vm.updateLastConsultation(_patient.id, DateTime.now());
+      setState(() {
+        _patient = _patient.copyWith(lastConsultation: DateTime.now());
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Consulta registrada exitosamente')),
+      );
+    }
+  }
+
+  void _openChangeStatusSheet() {
+    final vm = context.read<ProfessionalPatientViewModel>();
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 8),
+              ListTile(
+                title: const Text('Cambiar estado del paciente'),
+                subtitle: Text('Actual: ${_patient.status.displayName}'),
+              ),
+              const Divider(height: 1),
+              ...PatientStatus.values.map((status) {
+                final color = vm.getStatusColor(status);
+                final icon = vm.getStatusIcon(status);
+                final selected = status == _patient.status;
+                return ListTile(
+                  leading: Icon(icon, color: color),
+                  title: Text(status.displayName),
+                  trailing: selected ? Icon(Icons.check, color: color) : null,
+                  onTap: () async {
+                    Navigator.pop(ctx);
+                    if (status == _patient.status) return;
+                    final updated = _patient.copyWith(status: status);
+                    final ok = await vm.updatePatient(updated);
+                    if (ok && mounted) {
+                      setState(() => _patient = updated);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Estado actualizado a ${status.displayName}',
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                );
+              }).toList(),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _openEditPatientDialog() {
+    final nameCtrl = TextEditingController(text: _patient.name);
+    final emailCtrl = TextEditingController(text: _patient.email ?? '');
+    final phoneCtrl = TextEditingController(text: _patient.phone ?? '');
+    final notesCtrl = TextEditingController(
+      text: _patient.professionalNotes ?? '',
+    );
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: const Text('Editar información'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'Nombre',
+                    prefixIcon: Icon(Icons.person),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: emailCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    prefixIcon: Icon(Icons.email),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: phoneCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'Teléfono',
+                    prefixIcon: Icon(Icons.phone),
+                  ),
+                  keyboardType: TextInputType.phone,
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: notesCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'Notas profesionales',
+                    prefixIcon: Icon(Icons.note),
+                  ),
+                  maxLines: 3,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final updated = _patient.copyWith(
+                  name:
+                      nameCtrl.text.trim().isEmpty
+                          ? _patient.name
+                          : nameCtrl.text.trim(),
+                  email:
+                      emailCtrl.text.trim().isEmpty
+                          ? null
+                          : emailCtrl.text.trim(),
+                  phone:
+                      phoneCtrl.text.trim().isEmpty
+                          ? null
+                          : phoneCtrl.text.trim(),
+                  professionalNotes:
+                      notesCtrl.text.trim().isEmpty
+                          ? null
+                          : notesCtrl.text.trim(),
+                );
+                final ok = await context
+                    .read<ProfessionalPatientViewModel>()
+                    .updatePatient(updated);
+                if (!mounted) return;
+                if (ok) {
+                  setState(() => _patient = updated);
+                  Navigator.pop(ctx);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Paciente actualizado'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              },
+              child: const Text('Guardar cambios'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   /// Confirms patient removal
@@ -711,7 +874,7 @@ class _PatientDetailScreenState extends State<PatientDetailScreen>
           (context) => AlertDialog(
             title: const Text('Eliminar Paciente'),
             content: Text(
-              '¿Estás seguro de que deseas eliminar a ${widget.patient.name} de tu lista de pacientes?',
+              '¿Estás seguro de que deseas eliminar a ${_patient.name} de tu lista de pacientes?',
             ),
             actions: [
               TextButton(
@@ -729,7 +892,7 @@ class _PatientDetailScreenState extends State<PatientDetailScreen>
 
     if (confirmed == true && mounted) {
       final viewModel = context.read<ProfessionalPatientViewModel>();
-      final success = await viewModel.removePatient(widget.patient.id);
+      final success = await viewModel.removePatient(_patient.id);
 
       if (success && mounted) {
         Navigator.pop(context);

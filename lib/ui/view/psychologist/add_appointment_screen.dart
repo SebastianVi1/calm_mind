@@ -6,7 +6,9 @@ import '../../../viewmodels/appointment_view_model.dart';
 import '../../../viewmodels/professional_patient_view_model.dart';
 
 class AddAppointmentScreen extends StatefulWidget {
-  const AddAppointmentScreen({super.key});
+  final ProfessionalPatientModel? initialPatient;
+
+  const AddAppointmentScreen({super.key, this.initialPatient});
 
   @override
   State<AddAppointmentScreen> createState() => _AddAppointmentScreenState();
@@ -21,6 +23,15 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = TimeOfDay.now();
   ProfessionalPatientModel? _selectedPatient;
+
+  @override
+  void initState() {
+    super.initState();
+    // Prefill when an initial patient is provided
+    if (widget.initialPatient != null) {
+      _applySelectedPatient(widget.initialPatient!);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -330,7 +341,7 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
     );
 
     await context.read<AppointmentViewModel>().addAppointment(appointment);
-    if (mounted) Navigator.pop(context);
+    if (mounted) Navigator.pop(context, true);
   }
 
   @override

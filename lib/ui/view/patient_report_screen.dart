@@ -9,10 +9,7 @@ import '../widgets/report_widgets.dart';
 class PatientReportScreen extends StatelessWidget {
   final PatientReportModel report;
 
-  const PatientReportScreen({
-    super.key,
-    required this.report,
-  });
+  const PatientReportScreen({super.key, required this.report});
 
   @override
   Widget build(BuildContext context) {
@@ -36,28 +33,28 @@ class PatientReportScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-            _buildHeader(context),
-            const SizedBox(height: 24),
-            _buildRiskAndScoreSection(context),
-            const SizedBox(height: 24),
-            _buildExecutiveSummary(context),
-            const SizedBox(height: 24),
-            _buildSymptomAnalysis(context),
-            const SizedBox(height: 24),
-            _buildRecommendations(context),
-            const SizedBox(height: 24),
-            _buildSuggestedResources(context),
-            const SizedBox(height: 24),
-            _buildNextSteps(context),
-            const SizedBox(height: 24),
-            _buildAdditionalNotes(context),
-            const SizedBox(height: 24),
-            _buildReportMetadata(context),
-            const SizedBox(height: 32),
-          ],
+              _buildHeader(context),
+              const SizedBox(height: 24),
+              _buildRiskAndScoreSection(context),
+              const SizedBox(height: 24),
+              _buildExecutiveSummary(context),
+              const SizedBox(height: 24),
+              _buildSymptomAnalysis(context),
+              const SizedBox(height: 24),
+              _buildRecommendations(context),
+              const SizedBox(height: 24),
+              _buildSuggestedResources(context),
+              const SizedBox(height: 24),
+              _buildNextSteps(context),
+              const SizedBox(height: 24),
+              _buildAdditionalNotes(context),
+              const SizedBox(height: 24),
+              _buildReportMetadata(context),
+              const SizedBox(height: 32),
+            ],
+          ),
         ),
       ),
-    ),
     );
   }
 
@@ -175,29 +172,30 @@ class PatientReportScreen extends StatelessWidget {
       icon: Icons.lightbulb,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: report.recommendations.map((recommendation) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.check_circle_outline,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 20,
+        children:
+            report.recommendations.map((recommendation) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.check_circle_outline,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        recommendation,
+                        style: Theme.of(context).textTheme.bodyLarge,
+                        textAlign: TextAlign.justify,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    recommendation,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                    textAlign: TextAlign.justify,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
+              );
+            }).toList(),
       ),
     );
   }
@@ -209,29 +207,30 @@ class PatientReportScreen extends StatelessWidget {
       icon: Icons.book,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: report.suggestedResources.map((resource) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.star_outline,
-                  color: Theme.of(context).colorScheme.secondary,
-                  size: 20,
+        children:
+            report.suggestedResources.map((resource) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.star_outline,
+                      color: Theme.of(context).colorScheme.secondary,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        resource,
+                        style: Theme.of(context).textTheme.bodyLarge,
+                        textAlign: TextAlign.justify,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    resource,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                    textAlign: TextAlign.justify,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
+              );
+            }).toList(),
       ),
     );
   }
@@ -277,15 +276,21 @@ class PatientReportScreen extends StatelessWidget {
         children: [
           Text(
             'Información del Reporte',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           _buildMetadataRow('ID del Reporte', report.id),
           _buildMetadataRow('Fecha de Creación', _formatDate(report.createdAt)),
-          _buildMetadataRow('Última Actualización', _formatDate(report.lastUpdated)),
-          _buildMetadataRow('Respuestas del Cuestionario', '${report.questionnaireAnswers.length} preguntas'),
+          _buildMetadataRow(
+            'Última Actualización',
+            _formatDate(report.lastUpdated),
+          ),
+          _buildMetadataRow(
+            'Respuestas del Cuestionario',
+            '${report.questionnaireAnswers.length} preguntas',
+          ),
         ],
       ),
     );
@@ -306,10 +311,7 @@ class PatientReportScreen extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(color: Colors.grey),
-            ),
+            child: Text(value, style: const TextStyle(color: Colors.grey)),
           ),
         ],
       ),
@@ -325,19 +327,20 @@ class PatientReportScreen extends StatelessWidget {
   void _shareReport(BuildContext context) {
     // Implement share functionality
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Funcionalidad de compartir próximamente'),
-      ),
+      const SnackBar(content: Text('Funcionalidad de compartir próximamente')),
     );
   }
 }
 
 /// Screen that shows a list of all user reports
 class PatientReportsListScreen extends StatefulWidget {
-  const PatientReportsListScreen({super.key});
+  final String?
+  userId; // when provided, load reports for this user (professional view)
+  const PatientReportsListScreen({super.key, this.userId});
 
   @override
-  State<PatientReportsListScreen> createState() => _PatientReportsListScreenState();
+  State<PatientReportsListScreen> createState() =>
+      _PatientReportsListScreenState();
 }
 
 class _PatientReportsListScreenState extends State<PatientReportsListScreen> {
@@ -346,7 +349,12 @@ class _PatientReportsListScreenState extends State<PatientReportsListScreen> {
     super.initState();
     // Load reports when screen is opened
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<PatientReportViewModel>().loadUserReports();
+      final vm = context.read<PatientReportViewModel>();
+      if (widget.userId != null && widget.userId!.isNotEmpty) {
+        vm.loadUserReportsByUserId(widget.userId!);
+      } else {
+        vm.loadUserReports();
+      }
     });
   }
 
@@ -354,7 +362,9 @@ class _PatientReportsListScreenState extends State<PatientReportsListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mis Reportes'),
+        title: Text(
+          widget.userId == null ? 'Mis Reportes' : 'Reportes del Paciente',
+        ),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
         elevation: 0,
@@ -362,7 +372,12 @@ class _PatientReportsListScreenState extends State<PatientReportsListScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              context.read<PatientReportViewModel>().loadUserReports();
+              final vm = context.read<PatientReportViewModel>();
+              if (widget.userId != null && widget.userId!.isNotEmpty) {
+                vm.loadUserReportsByUserId(widget.userId!);
+              } else {
+                vm.loadUserReports();
+              }
             },
             tooltip: 'Actualizar reportes',
           ),
@@ -371,9 +386,7 @@ class _PatientReportsListScreenState extends State<PatientReportsListScreen> {
       body: Consumer<PatientReportViewModel>(
         builder: (context, viewModel, child) {
           if (viewModel.isLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (viewModel.errorMessage != null) {
@@ -444,7 +457,9 @@ class _PatientReportsListScreenState extends State<PatientReportsListScreen> {
                   margin: const EdgeInsets.only(bottom: 12),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: viewModel.getRiskLevelColor(report.riskLevel),
+                      backgroundColor: viewModel.getRiskLevelColor(
+                        report.riskLevel,
+                      ),
                       child: Icon(
                         viewModel.getRiskLevelIcon(report.riskLevel),
                         color: Colors.white,
@@ -457,7 +472,9 @@ class _PatientReportsListScreenState extends State<PatientReportsListScreen> {
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Nivel de Riesgo: ${report.riskLevel.displayName}'),
+                        Text(
+                          'Nivel de Riesgo: ${report.riskLevel.displayName}',
+                        ),
                         Text('Puntuación: ${report.wellnessScore}/100'),
                       ],
                     ),
@@ -466,7 +483,8 @@ class _PatientReportsListScreenState extends State<PatientReportsListScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => PatientReportScreen(report: report),
+                          builder:
+                              (context) => PatientReportScreen(report: report),
                         ),
                       );
                     },

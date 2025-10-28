@@ -12,6 +12,11 @@ class ProfessionalPatientRepository {
   CollectionReference get _patientsCollection =>
       _firestore.collection('professional_patients');
 
+  /// Collection for access links (deterministic id: professionalId_userId)
+  DocumentReference _linkDocRef(String userId) => _firestore
+      .collection('professional_patient_links')
+      .doc('${_professionalId}_$userId');
+
   /// Gets the current professional's ID
   String get _professionalId {
     final user = _auth.currentUser;
@@ -46,6 +51,17 @@ class ProfessionalPatientRepository {
       await _patientsCollection
           .doc(updatedPatient.id)
           .set(updatedPatient.toMap());
+
+      // Create access link document to enable secure reads to patient reports
+      try {
+        await _linkDocRef(updatedPatient.userId).set({
+          'professionalId': _professionalId,
+          'userId': updatedPatient.userId,
+          'createdAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (e) {
+        print('Warning: failed to create access link: $e');
+      }
 
       print('Patient added successfully');
       return updatedPatient.id;
@@ -146,8 +162,23 @@ class ProfessionalPatientRepository {
   Future<void> removePatient(String patientId) async {
     try {
       print('Removing patient: $patientId');
+      // Get the patient to retrieve userId for link deletion
+      final doc = await _patientsCollection.doc(patientId).get();
+      String? userId;
+      if (doc.exists) {
+        final data = doc.data() as Map<String, dynamic>;
+        userId = data['userId'] as String?;
+      }
 
       await _patientsCollection.doc(patientId).delete();
+
+      if (userId != null && userId.isNotEmpty) {
+        try {
+          await _linkDocRef(userId).delete();
+        } catch (e) {
+          print('Warning: failed to delete access link: $e');
+        }
+      }
 
       print('Patient removed successfully');
     } catch (e) {
