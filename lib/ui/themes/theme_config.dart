@@ -21,7 +21,7 @@ class Themes {
   static const Color darkBackground = Color(0xFF121212);
   static const Color darkSurface = Color(0xFF1E1E1E);
   static const Color darkError = Color(0xFFCF6679);
-  static const Color darkOnPrimary = Color(0xFF000000);
+  static const Color darkOnPrimary = Color(0xFFFFFFFF); // UI-05: white for readable contrast on dark buttons
   static const Color darkOnSecondary = Color(0xFFFFFFFF);
   static const Color darkOnSurface = Color(0xFFE0E0E0);
   static const Color darkOnError = Color(0xFF000000);
@@ -59,7 +59,7 @@ class Themes {
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: lightSurface,
       selectedItemColor: lightPrimary,
-      unselectedItemColor: lightOnSurface.withOpacity(0.6),
+    unselectedItemColor: lightOnSurface.withValues(alpha: 0.6),
       type: BottomNavigationBarType.fixed,
       elevation: 8,
     ),
@@ -81,13 +81,13 @@ class Themes {
       contentTextStyle: TTextTheme.lightTextTheme.bodyMedium,
     ),
     dividerTheme: DividerThemeData(
-      color: lightOnSurface.withOpacity(0.1),
+      color: lightOnSurface.withValues(alpha: 0.1),
       thickness: 1,
       space: 1,
     ),
     progressIndicatorTheme: ProgressIndicatorThemeData(
       color: lightPrimary,
-      circularTrackColor: lightPrimary.withOpacity(0.2),
+      circularTrackColor: lightPrimary.withValues(alpha: 0.2),
     ),
     chipTheme: ChipThemeData(
       backgroundColor: lightSurface,
@@ -131,7 +131,7 @@ class Themes {
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: darkSurface,
       selectedItemColor: darkPrimary,
-      unselectedItemColor: darkOnSurface.withOpacity(0.6),
+      unselectedItemColor: darkOnSurface.withValues(alpha: 0.6),
       type: BottomNavigationBarType.fixed,
       elevation: 8,
     ),
@@ -153,13 +153,13 @@ class Themes {
       contentTextStyle: TTextTheme.darkTextTheme.bodyMedium,
     ),
     dividerTheme: DividerThemeData(
-      color: darkOnSurface.withOpacity(0.1),
+      color: darkOnSurface.withValues(alpha: 0.1),
       thickness: 1,
       space: 1,
     ),
     progressIndicatorTheme: ProgressIndicatorThemeData(
       color: darkPrimary,
-      circularTrackColor: darkPrimary.withOpacity(0.2),
+      circularTrackColor: darkPrimary.withValues(alpha: 0.2),
     ),
     chipTheme: ChipThemeData(
       backgroundColor: darkSurface,

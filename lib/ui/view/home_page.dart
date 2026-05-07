@@ -57,7 +57,11 @@ class _HomePageMainState extends State<_HomePageMain> {
         _timeRemaining--;
         if (_timeRemaining <= 0) {
           _timer?.cancel();
-          randomNumber = rng.nextInt(context.read<TipsViewModel>().tips.length);
+          final tips = context.read<TipsViewModel>().tips;
+          // BUG-04: Guard against empty tips list to avoid RangeError
+          if (tips.isNotEmpty) {
+            randomNumber = rng.nextInt(tips.length);
+          }
           _timeRemaining = 10;
           _startTimer();
         }
@@ -257,9 +261,13 @@ Widget _buildMoodStates(MoodViewModel viewModel, BuildContext context) {
 Widget _buildTipCard(int randomNumber, int timeRemaining) {
   return Consumer<TipsViewModel>(
     builder: (context, viewModel, child) {
-      var moodList = viewModel.tips;
-      var tip = moodList[randomNumber];
-      var theme = Theme.of(context);
+      final moodList = viewModel.tips;
+      // BUG-04: Return empty widget if tips haven't loaded yet
+      if (moodList.isEmpty) return const SizedBox.shrink();
+      // Guard index against out-of-bounds after list changes
+      final safeIndex = randomNumber.clamp(0, moodList.length - 1);
+      final tip = moodList[safeIndex];
+      final theme = Theme.of(context);
 
       return SizedBox(
         child: Padding(

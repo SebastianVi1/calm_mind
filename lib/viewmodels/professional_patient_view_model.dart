@@ -1,4 +1,5 @@
 import 'package:calm_mind/models/patient_report_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../models/professional_patient_model.dart';
@@ -62,7 +63,7 @@ class ProfessionalPatientViewModel extends ChangeNotifier {
       _setLoading(true);
       _clearError();
 
-      print('Loading professional patients...');
+      if (kDebugMode) debugPrint('Loading professional patients...');
       final patientList = await _repository.getMyPatients();
 
       _patients = patientList;
@@ -72,10 +73,10 @@ class ProfessionalPatientViewModel extends ChangeNotifier {
         _selectedPatient = _patients.first;
       }
 
-      print('Loaded ${_patients.length} patients');
+      if (kDebugMode) debugPrint('Loaded ${_patients.length} patients');
       notifyListeners();
     } catch (e) {
-      print('Error loading patients: $e');
+      if (kDebugMode) debugPrint('Error loading patients: $e');
       _setError('Error al cargar pacientes: $e');
     } finally {
       _setLoading(false);
@@ -205,13 +206,13 @@ class ProfessionalPatientViewModel extends ChangeNotifier {
       _setLoading(true);
       _clearError();
 
-      print('Loading patient statistics...');
+      if (kDebugMode) debugPrint('Loading patient statistics...');
       _statistics = await _repository.getPatientStatistics();
 
-      print('Statistics loaded: $_statistics');
+      if (kDebugMode) debugPrint('Statistics loaded: $_statistics');
       notifyListeners();
     } catch (e) {
-      print('Error loading statistics: $e');
+      if (kDebugMode) debugPrint('Error loading statistics: $e');
       _setError('Error al cargar estadísticas: $e');
     } finally {
       _setLoading(false);
@@ -223,7 +224,7 @@ class ProfessionalPatientViewModel extends ChangeNotifier {
     try {
       return await _repository.getRecentPatients();
     } catch (e) {
-      print('Error getting recent patients: $e');
+      if (kDebugMode) debugPrint('Error getting recent patients: $e');
       return [];
     }
   }

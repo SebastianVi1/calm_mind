@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../models/appointment.dart';
@@ -21,8 +22,18 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
   final _phoneController = TextEditingController();
   final _notesController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
-  TimeOfDay _selectedTime = TimeOfDay.now();
+  TimeOfDay _selectedTime = _roundedTime();
   ProfessionalPatientModel? _selectedPatient;
+  bool _isSaving = false;
+
+  /// Returns the next rounded half-hour (e.g. 14:13 → 14:30, 14:47 → 15:00)
+  static TimeOfDay _roundedTime() {
+    final now = TimeOfDay.now();
+    if (now.minute < 30) {
+      return TimeOfDay(hour: now.hour, minute: 30);
+    }
+    return TimeOfDay(hour: (now.hour + 1) % 24, minute: 0);
+  }
 
   @override
   void initState() {
@@ -31,6 +42,13 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
     if (widget.initialPatient != null) {
       _applySelectedPatient(widget.initialPatient!);
     }
+    // TECH-03: Pre-load patients so the picker opens instantly
+    Future.microtask(() {
+      final vm = context.read<ProfessionalPatientViewModel>();
+      if (!vm.isLoading && vm.patients.isEmpty) {
+        vm.loadPatients();
+      }
+    });
   }
 
   @override
@@ -115,11 +133,20 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
               ),
               const SizedBox(height: 32),
               ElevatedButton(
-                onPressed: _saveAppointment,
+                onPressed: _isSaving ? null : _saveAppointment,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: const Text('Guardar Consulta'),
+                child: _isSaving
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text('Guardar Consulta'),
               ),
             ],
           ),
@@ -179,6 +206,7 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
     }
 
     if (!mounted) return;
+    // TECH-02: Stateful bottom sheet with live search filter
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -186,62 +214,11 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (ctx) {
-        return SafeArea(
-          child: SizedBox(
-            height: MediaQuery.of(ctx).size.height * 0.7,
-            child: Consumer<ProfessionalPatientViewModel>(
-              builder: (context, viewModel, _) {
-                if (viewModel.isLoading && viewModel.patients.isEmpty) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (viewModel.patients.isEmpty) {
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        'No hay pacientes registrados aún.',
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                    ),
-                  );
-                }
-                return ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: viewModel.patients.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 8),
-                  itemBuilder: (context, index) {
-                    final p = viewModel.patients[index];
-                    return ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        child: Text(
-                          p.name.isNotEmpty ? p.name[0].toUpperCase() : '?',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      title: Text(p.name),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (p.email != null && p.email!.isNotEmpty)
-                            Text(p.email!),
-                          if (p.phone != null && p.phone!.isNotEmpty)
-                            Text(p.phone!),
-                        ],
-                      ),
-                      onTap: () {
-                        Navigator.pop(context);
-                        _applySelectedPatient(p);
-                      },
-                    );
-                  },
-                );
-              },
-            ),
-          ),
+        return _PatientPickerSheet(
+          onSelected: (p) {
+            Navigator.pop(ctx);
+            _applySelectedPatient(p);
+          },
         );
       },
     );
@@ -323,25 +300,53 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
     }
   }
 
-  void _saveAppointment() async {
+  Future<void> _saveAppointment() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final appointment = Appointment(
-      patientId: _patientIdController.text,
-      patientName: _nameController.text,
-      patientPhone: _phoneController.text,
-      dateTime: DateTime(
-        _selectedDate.year,
-        _selectedDate.month,
-        _selectedDate.day,
-        _selectedTime.hour,
-        _selectedTime.minute,
-      ),
-      notes: _notesController.text,
+    // TECH-04: Validate that appointment is in the future
+    final appointmentDateTime = DateTime(
+      _selectedDate.year,
+      _selectedDate.month,
+      _selectedDate.day,
+      _selectedTime.hour,
+      _selectedTime.minute,
     );
+    if (appointmentDateTime.isBefore(DateTime.now())) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('La fecha y hora de la consulta debe ser en el futuro.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
 
-    await context.read<AppointmentViewModel>().addAppointment(appointment);
-    if (mounted) Navigator.pop(context, true);
+    setState(() => _isSaving = true);
+
+    try {
+      final appointment = Appointment(
+        patientId: _patientIdController.text,
+        patientName: _nameController.text,
+        patientPhone: _phoneController.text,
+        dateTime: appointmentDateTime,
+        notes: _notesController.text,
+      );
+
+      await context.read<AppointmentViewModel>().addAppointment(appointment);
+      if (mounted) Navigator.pop(context, true);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al guardar la consulta: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+      if (kDebugMode) debugPrint('Error saving appointment: $e');
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
   }
 
   @override
@@ -351,5 +356,152 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
     _phoneController.dispose();
     _notesController.dispose();
     super.dispose();
+  }
+}
+
+/// TECH-02: Patient picker bottom sheet with live search
+class _PatientPickerSheet extends StatefulWidget {
+  final void Function(ProfessionalPatientModel) onSelected;
+
+  const _PatientPickerSheet({required this.onSelected});
+
+  @override
+  State<_PatientPickerSheet> createState() => _PatientPickerSheetState();
+}
+
+class _PatientPickerSheetState extends State<_PatientPickerSheet> {
+  final _searchCtrl = TextEditingController();
+  String _query = '';
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.75,
+        child: Column(
+          children: [
+            // Handle bar
+            const SizedBox(height: 8),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: TextField(
+                controller: _searchCtrl,
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: 'Buscar paciente...',
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: _query.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            _searchCtrl.clear();
+                            setState(() => _query = '');
+                          },
+                        )
+                      : null,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  filled: true,
+                ),
+                onChanged: (v) => setState(() => _query = v.trim().toLowerCase()),
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Divider(height: 1),
+            Expanded(
+              child: Consumer<ProfessionalPatientViewModel>(
+                builder: (context, vm, _) {
+                  if (vm.isLoading && vm.patients.isEmpty) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (vm.patients.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'No hay pacientes registrados aún.',
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                    );
+                  }
+
+                  final filtered = _query.isEmpty
+                      ? vm.patients
+                      : vm.patients
+                          .where(
+                            (p) =>
+                                p.name.toLowerCase().contains(_query) ||
+                                (p.email?.toLowerCase().contains(_query) ?? false),
+                          )
+                          .toList();
+
+                  if (filtered.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.search_off, size: 48, color: Colors.grey[400]),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Sin resultados para "$_query"',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return ListView.separated(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    itemCount: filtered.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 4),
+                    itemBuilder: (context, index) {
+                      final p = filtered[index];
+                      return ListTile(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        leading: CircleAvatar(
+                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          child: Text(
+                            p.name.isNotEmpty ? p.name[0].toUpperCase() : '?',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        title: Text(p.name),
+                        subtitle: (p.email != null && p.email!.isNotEmpty)
+                            ? Text(p.email!)
+                            : (p.phone != null && p.phone!.isNotEmpty)
+                                ? Text(p.phone!)
+                                : null,
+                        onTap: () => widget.onSelected(p),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../viewmodels/professional_patient_view_model.dart';
@@ -37,16 +38,16 @@ class _PatientDetailScreenState extends State<PatientDetailScreen>
 
   Future<void> _loadPatientData() async {
     try {
-      print('Loading patient data for: ${_patient.userId}');
+      if (kDebugMode) debugPrint('Loading patient data for: \${_patient.userId}');
       final reportViewModel = Provider.of<PatientReportViewModel>(
         context,
         listen: false,
       );
       await reportViewModel.loadUserReportsByUserId(_patient.userId);
-      print('Reports loaded: ${reportViewModel.reports.length}');
+      if (kDebugMode) debugPrint('Reports loaded: \${reportViewModel.reports.length}');
       if (mounted) setState(() {});
     } catch (e) {
-      print('Error loading patient data: $e');
+      if (kDebugMode) debugPrint('Error loading patient data: $e');
     }
   }
 
@@ -111,7 +112,7 @@ class _PatientDetailScreenState extends State<PatientDetailScreen>
           labelColor: Theme.of(context).colorScheme.onPrimary,
           unselectedLabelColor: Theme.of(
             context,
-          ).colorScheme.onPrimary.withOpacity(0.7),
+          ).colorScheme.onPrimary.withValues(alpha: 0.7),
           tabs: const [
             Tab(icon: Icon(Icons.info), text: 'Información'),
             Tab(icon: Icon(Icons.assessment), text: 'Reportes'),
@@ -153,10 +154,6 @@ class _PatientDetailScreenState extends State<PatientDetailScreen>
   Widget _buildReportsTab() {
     return Consumer<PatientReportViewModel>(
       builder: (context, reportViewModel, child) {
-        print(
-          'Building reports tab. Reports count: ${reportViewModel.reports.length}',
-        );
-
         if (reportViewModel.isLoading) {
           return const Center(child: CircularProgressIndicator());
         }
