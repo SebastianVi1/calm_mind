@@ -30,6 +30,9 @@ import 'package:calm_mind/viewmodels/emergency_view_model.dart';
 import 'package:calm_mind/viewmodels/appointment_view_model.dart';
 import 'package:calm_mind/viewmodels/patient_report_view_model.dart';
 import 'package:calm_mind/viewmodels/professional_patient_view_model.dart';
+import 'package:calm_mind/viewmodels/journal_view_model.dart';
+import 'package:calm_mind/viewmodels/coping_strategies_viewmodel.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 Future<void> main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -42,6 +45,7 @@ Future<void> main() async {
   bool isDarkMode = prefs.getBool('isDarkMode') ?? false;
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await initializeDateFormatting('es', null);
 
   runApp(
     MainApp(
@@ -118,6 +122,8 @@ class _MainAppState extends State<MainApp> {
         ChangeNotifierProvider(
           create: (context) => ProfessionalPatientViewModel(),
         ),
+        ChangeNotifierProvider(create: (context) => JournalViewModel()),
+        ChangeNotifierProvider(create: (context) => CopingStrategiesViewModel()),
       ],
       child: Consumer<ThemeViewModel>(
         builder: (context, themeViewModel, child) {

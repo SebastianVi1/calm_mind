@@ -15,6 +15,9 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:calm_mind/services/ai_assessment_service.dart';
 import 'package:calm_mind/services/haptics_service.dart';
+import 'package:calm_mind/ui/view/journal_screen.dart';
+import 'package:calm_mind/ui/view/coping_strategies_screen.dart';
+import 'package:calm_mind/ui/widgets/emotion_weather_map.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -123,6 +126,14 @@ class _HomePageMainState extends State<_HomePageMain> {
                               delay: 150.ms,
                               useScrollForAnimation: true,
                               child: _buildMoodStates(viewModel, context),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          FadeInUp(
+                            config: BaseAnimationConfig(
+                              delay: 300.ms,
+                              useScrollForAnimation: true,
+                              child: _buildNewFeaturesSection(context),
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -425,4 +436,135 @@ Widget _buildBreathingSection(BuildContext context) {
       ),
     ),
   );
+}
+
+Widget _buildNewFeaturesSection(BuildContext context) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Nuevas Herramientas',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _FeatureCard(
+                icon: Icons.bookmark_add,
+                title: 'Diario',
+                subtitle: 'Escribe y analiza tus emociones',
+                color: Colors.purple,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const JournalScreen()),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _FeatureCard(
+                icon: Icons.cloud,
+                title: 'Clima Emocional',
+                subtitle: 'Visualiza tu mes',
+                color: Colors.blue,
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => Dialog(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 400),
+                        child: const EmotionWeatherMap(),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          child: _FeatureCard(
+            icon: Icons.psychology,
+            title: 'Kit de Estrategias',
+            subtitle: 'Herramientas personalizadas para ti',
+            color: Colors.green,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CopingStrategiesScreen()),
+              );
+            },
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+class _FeatureCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _FeatureCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: color, size: 24),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
