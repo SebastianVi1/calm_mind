@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:calm_mind/ui/constants/animation_constants.dart';
 
 class WAnimatedTipCard extends StatefulWidget {
   final String title;
@@ -118,7 +120,7 @@ class _TipCard extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: colorScheme.primary.withOpacity(0.1),
+                      color: colorScheme.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -151,7 +153,7 @@ class _TipCard extends StatelessWidget {
               Text(
                 content,
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurface.withOpacity(0.8),
+                  color: colorScheme.onSurface.withValues(alpha: 0.8),
                   height: 1.5,
                 ),
               ),
@@ -198,8 +200,9 @@ class _FavoriteButtonState extends State<FavoriteButton> with SingleTickerProvid
   }
 
   void handleTap() {
-    if (!_controller.isAnimating) { // Evitar animaciones superpuestas
+    if (!_controller.isAnimating) {
       _controller.forward().then((_) => _controller.reverse());
+      HapticFeedback.lightImpact();
       widget.onTap();
     }
   }
@@ -218,9 +221,9 @@ class _FavoriteButtonState extends State<FavoriteButton> with SingleTickerProvid
             scale: _scaleAnimation.value,
             child: Icon(
               widget.isFavorite ? Icons.favorite : Icons.favorite_border,
-              color: widget.isFavorite 
-                ? colorScheme.error 
-                : colorScheme.onSurface.withOpacity(0.5),
+                  color: widget.isFavorite 
+                    ? colorScheme.error 
+                    : colorScheme.onSurface.withValues(alpha: 0.5),
               size: 28,
             ),
           );

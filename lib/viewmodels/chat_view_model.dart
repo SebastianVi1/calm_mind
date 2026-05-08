@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:calm_mind/models/chat_message.dart';
 import 'package:calm_mind/models/user_model.dart';
 import 'package:uuid/uuid.dart';
-import '../services/deepseek_service.dart';
+import '../services/ai/i_ai_service.dart';
 import '../repositories/chat_messages_repository.dart';
 import 'dart:async';
 
@@ -10,7 +10,7 @@ import 'dart:async';
 /// Handles message sending, receiving, and UI state
 class ChatViewModel extends ChangeNotifier {
   // Service for AI communication
-  final DeepSeekService _deepSeekService;
+  final IAIService _aiService;
   // Repository for chat persistence
   final ChatMessagesRepository _chatRepository = ChatMessagesRepository();
   
@@ -50,7 +50,7 @@ class ChatViewModel extends ChangeNotifier {
   final Map<String, List<ChatMessage>> _sessions = {};
   Map<String, List<ChatMessage>> get sessions => _sessions;
 
-  ChatViewModel(this._deepSeekService) {
+  ChatViewModel(this._aiService) {
     _initialize();
   }
 
@@ -229,7 +229,7 @@ class ChatViewModel extends ChangeNotifier {
 
     try {
       // Stream AI response and update UI in real-time
-      await for (final chunk in _deepSeekService.sendMessageStream(
+      await for (final chunk in _aiService.sendMessageStream(
         message,
       )) {
         _currentResponse += chunk;
@@ -254,8 +254,10 @@ class ChatViewModel extends ChangeNotifier {
       _isLoading = false;
       _currentResponse = '';
       notifyListeners();
-    } catch (e) {
+    } catch (e, stackTrace) {
       // Handle errors and show error message
+      print('ChatViewModel Error: $e');
+      print('Stack trace: $stackTrace');
       _stopTypingAnimation();
       _isLoading = false;
       _currentResponse = '';

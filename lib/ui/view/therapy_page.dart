@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate_on_scroll/flutter_animate_on_scroll.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:lottie/lottie.dart';
@@ -8,6 +9,7 @@ import 'package:calm_mind/ui/widgets/drawer_key.dart';
 import 'package:calm_mind/ui/widgets/end_drawer.dart';
 import 'package:calm_mind/viewmodels/chat_view_model.dart';
 import 'package:calm_mind/viewmodels/user_view_model.dart';
+import 'package:calm_mind/ui/constants/animation_constants.dart';
 
 class TherapyPage extends StatelessWidget {
   const TherapyPage({super.key});
@@ -59,54 +61,57 @@ class _TherapyMainPageState extends State<_TherapyMainPage> {
         ],
       ),
       body: SafeArea(
-        child: Stack(
+        child: Column(
           children: [
-            // Main content
-            Column(
-              children: [
-                const Expanded(child: _MessageList()),
-                const _MessageInput(),
-              ],
-            ),
-            // Animation overlay
-            Consumer<ChatViewModel>(
-              builder: (context, viewModel, child) {
-                // Start animation only when AI starts responding (content is not empty)
-                if (viewModel.isLoading && viewModel.messages.isNotEmpty && 
-                    !viewModel.messages.last.isUser && viewModel.messages.last.content.isNotEmpty) {
-                  _isAnimating = true;
-                } else {
-                  _isAnimating = false;
-                }
+            Expanded(
+              child: Stack(
+                children: [
+                  Column(
+                    children: [
+                      const Expanded(child: _MessageList()),
+                      const _MessageInput(),
+                    ],
+                  ),
+                  Consumer<ChatViewModel>(
+                    builder: (context, viewModel, child) {
+                      if (viewModel.isLoading && viewModel.messages.isNotEmpty &&
+                          !viewModel.messages.last.isUser && viewModel.messages.last.content.isNotEmpty) {
+                        _isAnimating = true;
+                      } else {
+                        _isAnimating = false;
+                      }
 
-                return _isAnimating
-                  ? Positioned(
-                      key: const ValueKey('loading'),
-                      top: 16,
-                      left: 16,
-                      child: Container(
-                        width: 300,
-                        height: 200,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).brightness == Brightness.light 
-                            ? Colors.grey.withOpacity(0.2)
-                            : Colors.white.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(16)
-                        ),
-                        child: Lottie.asset(
-                          'assets/animations/talk.json',
-                          frameRate: FrameRate(30),
-                          fit: BoxFit.contain,
-                          repeat: true,
-                          animate: true,
-                          options: LottieOptions(
-                            enableMergePaths: true,
-                          ),
-                        ),
-                      ),
-                    )
-                  : const SizedBox.shrink();
-              },
+                      return _isAnimating
+                        ? Positioned(
+                            key: const ValueKey('loading'),
+                            top: 16,
+                            left: 16,
+                            child: Container(
+                              width: 300,
+                              height: 200,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).brightness == Brightness.light
+                                  ? Colors.grey.withOpacity(0.2)
+                                  : Colors.white.withOpacity(0.3),
+                                borderRadius: BorderRadius.circular(16)
+                              ),
+                              child: Lottie.asset(
+                                'assets/animations/talk.json',
+                                frameRate: FrameRate(30),
+                                fit: BoxFit.contain,
+                                repeat: true,
+                                animate: true,
+                                options: LottieOptions(
+                                  enableMergePaths: true,
+                                ),
+                              ),
+                            ),
+                          )
+                        : const SizedBox.shrink();
+                    },
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -364,7 +369,7 @@ class _MessageBubble extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 2,
                       offset: const Offset(0, 1),
                     ),
@@ -464,6 +469,7 @@ class _MessageInputState extends State<_MessageInput> {
   void _sendMessage(ChatViewModel viewModel) {
     final message = _controller.text.trim();
     if (message.isNotEmpty) {
+      HapticFeedback.mediumImpact();
       viewModel.sendMessage(message);
       _controller.clear();
       _focusNode.requestFocus();

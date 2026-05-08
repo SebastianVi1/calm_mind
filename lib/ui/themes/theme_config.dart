@@ -5,25 +5,25 @@ import 'package:calm_mind/ui/themes/text_theme.dart';
 
 class Themes {
   // Colors for light theme
-  static const Color lightPrimary = Color(0xFF7C9EC2);
-  static const Color lightSecondary = Color(0xFFA8D5BA);
-  static const Color lightBackground = Color(0xFFF8F9FA);
+  static const Color lightPrimary = Color(0xFF8EACCD);
+  static const Color lightSecondary = Color(0xFFC3E8B3);
+  static const Color lightBackground = Color(0xFFFDFBF7);
   static const Color lightSurface = Color(0xFFFFFFFF);
-  static const Color lightError = Color(0xFFB00020);
+  static const Color lightError = Color(0xFFE57373);
   static const Color lightOnPrimary = Color(0xFFFFFFFF);
-  static const Color lightOnSecondary = Color(0xFF000000);
-  static const Color lightOnSurface = Color(0xFF2C3E50);
+  static const Color lightOnSecondary = Color(0xFF333333);
+  static const Color lightOnSurface = Color(0xFF4A4A4A);
   static const Color lightOnError = Color(0xFFFFFFFF);
 
   // Colors for dark theme
-  static const Color darkPrimary = Color(0xFF4A6FA5);
-  static const Color darkSecondary = Color(0xFF638B74);
-  static const Color darkBackground = Color(0xFF121212);
-  static const Color darkSurface = Color(0xFF1E1E1E);
+  static const Color darkPrimary = Color(0xFF5C7C9D);
+  static const Color darkSecondary = Color(0xFF7B9C7B);
+  static const Color darkBackground = Color(0xFF1A1C1E);
+  static const Color darkSurface = Color(0xFF2D2F31);
   static const Color darkError = Color(0xFFCF6679);
-  static const Color darkOnPrimary = Color(0xFFFFFFFF); // UI-05: white for readable contrast on dark buttons
+  static const Color darkOnPrimary = Color(0xFFFFFFFF);
   static const Color darkOnSecondary = Color(0xFFFFFFFF);
-  static const Color darkOnSurface = Color(0xFFE0E0E0);
+  static const Color darkOnSurface = Color(0xFFE2E2E2);
   static const Color darkOnError = Color(0xFF000000);
 
   static final lightTheme = ThemeData(

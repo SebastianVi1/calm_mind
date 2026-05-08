@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate_on_scroll/flutter_animate_on_scroll.dart';
 import 'package:provider/provider.dart';
 import 'package:calm_mind/models/meditation_audio_model.dart';
-import 'package:calm_mind/ui/view/meditation_scree.dart';
+import 'package:calm_mind/ui/view/meditation_screen.dart';
 import 'package:calm_mind/viewmodels/meditation_view_model.dart';
 
 class MeditationPicker extends StatelessWidget {
@@ -31,9 +31,9 @@ class MeditationPicker extends StatelessWidget {
                 
                 return Expanded(
                   child: ListView.builder(
-                    itemCount: viewModel.urls.length,
+                    itemCount: viewModel.meditations.length,
                     itemBuilder: (context, index) {
-                      var meditation = viewModel.urls[index];                      
+                      var meditation = viewModel.meditations[index];                      
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 5),
                         child: FadeInRight(

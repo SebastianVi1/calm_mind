@@ -1,3 +1,4 @@
+import 'package:calm_mind/services/ai/i_ai_service.dart';
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
@@ -7,7 +8,7 @@ import 'package:calm_mind/viewmodels/question_view_model.dart';
 
 /// Service that handles communication with the DeepSeek AI API
 /// Provides virtual therapy functionality through AI chat with personalized mental health assessment
-class DeepSeekService {
+class DeepSeekService implements IAIService {
   static const String _baseUrl = 'https://api.deepseek.com';
   final String _apiKey;
   UserModel? _currentUser;
@@ -202,6 +203,7 @@ ${_buildQuestionAnswers()}
   /// Sends a message to the DeepSeek API and returns the response
   /// [message] - The user's message to send
   /// Returns the AI's response as a string
+  @override
   Future<String> sendMessage(String message) async {
     try {
       _addToHistory('user', message);
@@ -216,7 +218,7 @@ ${_buildQuestionAnswers()}
           'model': 'deepseek-chat',
           'messages': _messages,
           'temperature': 0.7,
-          'max_tokens': 500,
+          'max_tokens': 1000,
         }),
       );
 
@@ -236,6 +238,7 @@ ${_buildQuestionAnswers()}
   /// Sends a message to the AI and gets a response
   /// [message] - The user's message to send
   /// Returns a Stream of the AI's response as it is being generated
+  @override
   Stream<String> sendMessageStream(String message) async* {
     try {
       _addToHistory('user', message);
@@ -257,7 +260,9 @@ ${_buildQuestionAnswers()}
       final response = await http.Client().send(request);
       
       if (response.statusCode != 200) {
-        throw Exception('API Error: ${response.statusCode}');
+        final errorBody = await response.stream.bytesToString();
+        print('DeepSeek API Error: ${response.statusCode} - $errorBody');
+        throw Exception('API Error: ${response.statusCode} - $errorBody');
       }
 
       String buffer = '';
@@ -294,6 +299,7 @@ ${_buildQuestionAnswers()}
   }
 
   /// Clears the conversation history
+  @override
   void clearHistory() {
     _conversationHistory.clear();
   }

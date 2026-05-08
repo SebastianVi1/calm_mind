@@ -87,8 +87,44 @@ class _RelaxingMusicPickerState extends State<RelaxingMusicPicker> {
                   style: Theme.of(context).textTheme.titleLarge,
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 10,),
-                Expanded(
+                 const SizedBox(height: 10,),
+                 if (viewModel.recommendedMusic.isNotEmpty)
+                   Column(
+                     crossAxisAlignment: CrossAxisAlignment.start,
+                     children: [
+                       Padding(
+                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                         child: Text(
+                           'Recomendado para tu estado de ánimo ✨',
+                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                 fontWeight: FontWeight.bold,
+                                 color: Theme.of(context).colorScheme.primary,
+                               ),
+                         ),
+                       ),
+                       SizedBox(
+                         height: 120,
+                         child: ListView.builder(
+                           scrollDirection: Axis.horizontal,
+                           itemCount: viewModel.recommendedMusic.length,
+                           itemBuilder: (context, index) {
+                             final song = viewModel.recommendedMusic[index];
+                             return Container(
+                               width: 200,
+                               margin: const EdgeInsets.symmetric(horizontal: 8),
+                               child: _PulsatingMusicTile(
+                                 song: song,
+                                 onTap: () => _navigateToAudioScreen(song),
+                                 heroTag: "music-${song.name}",
+                               ),
+                             );
+                           },
+                         ),
+                       ),
+                       const SizedBox(height: 24),
+                     ],
+                   ),
+                 Expanded(
                   child: ListView.builder(
                     itemCount: viewModel.musicList.length,
                     itemBuilder: (context, index) {

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:calm_mind/services/relaxing_music_service.dart';
 import 'package:calm_mind/models/relaxing_music_model.dart';
+import 'package:calm_mind/viewmodels/mood_view_model.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 
@@ -11,6 +12,7 @@ enum RelaxingMusicState { initial, loading, loaded, error }
 
 class RelaxingMusicViewModel extends ChangeNotifier {
   final RelaxingMusicService _relaxingMusicService;
+  final MoodViewModel _moodViewModel;
   RelaxingMusicState _state = RelaxingMusicState.initial;
   RelaxingMusicState get state => _state;
 
@@ -36,7 +38,7 @@ class RelaxingMusicViewModel extends ChangeNotifier {
   // Track disposal state
   bool _isDisposed = false;
 
-  RelaxingMusicViewModel(this._relaxingMusicService) {
+  RelaxingMusicViewModel(this._relaxingMusicService, this._moodViewModel) {
     _player = AudioPlayer();
     _initializeAudioListeners();
     getMusic();
@@ -248,7 +250,29 @@ class RelaxingMusicViewModel extends ChangeNotifier {
     }
   }
 
-  //Fetch all relaxing music
+  // Logic to get music recommendations based on current mood
+  List<RelaxingMusicModel> get recommendedMusic {
+    final currentMood = _moodViewModel.selectedMood?.label.toLowerCase() ?? 'neutral';
+    
+    String targetCategory;
+    switch (currentMood) {
+      case 'feliz':
+        targetCategory = 'Uplifting';
+        break;
+      case 'triste':
+        targetCategory = 'Comforting';
+        break;
+      case 'enojado':
+        targetCategory = 'Calming';
+        break;
+      default:
+        targetCategory = 'Peaceful';
+    }
+    
+    return _musicList.where((song) => song.category == targetCategory).toList();
+  }
+
+  // Fetch all relaxing music
   Future<void> getMusic() async {
     _state = RelaxingMusicState.loading;
     _errorMessage = '';

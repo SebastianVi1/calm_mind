@@ -8,6 +8,7 @@ import 'package:calm_mind/services/auth/i_auth_service.dart';
 import 'package:calm_mind/services/auth/firebase_auth_service.dart';
 import 'package:calm_mind/services/relaxing_music_service.dart';
 import 'package:calm_mind/services/user_service.dart';
+import 'package:calm_mind/services/ai/i_ai_service.dart';
 import 'package:calm_mind/services/deepseek_service.dart';
 import 'package:calm_mind/ui/themes/theme_config.dart';
 import 'package:calm_mind/ui/view/app_wrapper.dart';
@@ -88,7 +89,7 @@ class _MainAppState extends State<MainApp> {
         ChangeNotifierProvider<DrawerProvider>(create: (_) => DrawerProvider()),
         Provider<IAuthService>(create: (_) => FirebaseAuthService()),
         Provider<UserService>(create: (_) => UserService()),
-        Provider<DeepSeekService>(create: (_) => DeepSeekService()),
+        Provider<IAIService>(create: (_) => DeepSeekService()),
         Provider(create: (_) => RelaxingMusicService()),
         ChangeNotifierProvider(create: (context) => OnBoardingViewmodel()),
         ChangeNotifierProvider(
@@ -99,15 +100,16 @@ class _MainAppState extends State<MainApp> {
         ),
         ChangeNotifierProvider(create: (context) => NavigationViewModel()),
         ChangeNotifierProvider(
-          create: (context) => ChatViewModel(context.read<DeepSeekService>()),
+          create: (context) => ChatViewModel(context.read<IAIService>()),
         ),
         ChangeNotifierProvider(create: (context) => TipsViewModel()),
         ChangeNotifierProvider(create: (context) => MoodViewModel()),
-        ChangeNotifierProvider(create: (context) => MeditationViewModel()),
         ChangeNotifierProvider(
-          create:
-              (context) =>
-                  RelaxingMusicViewModel(context.read<RelaxingMusicService>()),
+          create: (context) => MeditationViewModel(context.read<UserViewModel>()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) =>
+              RelaxingMusicViewModel(context.read<RelaxingMusicService>(), context.read<MoodViewModel>()),
         ),
         ChangeNotifierProvider(create: (context) => AchievementViewModel()),
         ChangeNotifierProvider(create: (context) => EmergencyViewModel()),

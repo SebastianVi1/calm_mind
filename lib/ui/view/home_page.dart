@@ -1,17 +1,20 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate_on_scroll/flutter_animate_on_scroll.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:calm_mind/ui/view/stadistics_screen.dart';
 import 'package:calm_mind/ui/widgets/drawer_key.dart';
 import 'package:calm_mind/ui/widgets/mood_lottie_container.dart';
+import 'package:calm_mind/ui/widgets/breathing_button.dart';
 import 'package:calm_mind/viewmodels/mood_view_model.dart';
 import 'package:calm_mind/viewmodels/tips_view_model.dart';
 import 'package:calm_mind/viewmodels/user_view_model.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:calm_mind/services/ai_assessment_service.dart';
+import 'package:calm_mind/services/haptics_service.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -92,40 +95,51 @@ class _HomePageMainState extends State<_HomePageMain> {
           ),
 
           body: SafeArea(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: Column(
-                  children: [
-                    FadeInDown(
-                      config: BaseAnimationConfig(
-                        child: Text(
-                          '¿Cómo te sientes ahora?',
-                          style: Theme.of(context).textTheme.bodyLarge
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                          textAlign: TextAlign.center,
-                        ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          FadeInDown(
+                            config: BaseAnimationConfig(
+                              child: Text(
+                                '¿Cómo te sientes ahora?',
+                                style: Theme.of(context).textTheme.bodyLarge
+                                    ?.copyWith(fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          FadeInLeft(
+                            config: BaseAnimationConfig(
+                              delay: 150.ms,
+                              useScrollForAnimation: true,
+                              child: _buildMoodStates(viewModel, context),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          FadeInUp(
+                            config: BaseAnimationConfig(
+                              delay: 300.ms,
+                              useScrollForAnimation: true,
+                              child: _buildBreathingSection(context),
+                            ),
+                          ),
+                          const SizedBox(height: 40),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    FadeInLeft(
-                      config: BaseAnimationConfig(
-                        delay: 150.ms,
-                        useScrollForAnimation: true,
-                        child: _buildMoodStates(viewModel, context),
-                      ),
-                    ),
-
-                    FadeInLeft(
-                      config: BaseAnimationConfig(
-                        delay: 150.ms,
-                        useScrollForAnimation: true,
-                        child: _buildTipCard(randomNumber, _timeRemaining),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+                  ),
+                );
+              },
             ),
           ),
         );
@@ -196,12 +210,13 @@ Widget _buildMoodStates(MoodViewModel viewModel, BuildContext context) {
                     onPressed:
                         viewModel.selectedMood != null
                             ? () {
+                              HapticsService.success();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
                                     'Tu estado de ánimo ha sido guardado',
                                   ),
-                                  duration: Duration(seconds: 1),
+                                  duration: const Duration(seconds: 1),
                                   backgroundColor:
                                       viewModel.selectedMood?.color ??
                                       Colors.white,
@@ -284,7 +299,7 @@ Widget _buildTipCard(int randomNumber, int timeRemaining) {
                 child: child,
               );
             },
-            child: Container(
+child: Container(
               key: ValueKey<int>(randomNumber),
               padding: EdgeInsets.all(15),
               width: double.infinity,
@@ -327,5 +342,87 @@ Widget _buildTipCard(int randomNumber, int timeRemaining) {
         ),
       );
     },
+  );
+}
+
+Widget _buildBreathingSection(BuildContext context) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    child: Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Theme.of(context).primaryColor.withOpacity(0.1),
+            Theme.of(context).primaryColor.withOpacity(0.05),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: Theme.of(context).primaryColor.withOpacity(0.2),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).primaryColor.withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  Icons.air,
+                  color: Theme.of(context).primaryColor,
+                  size: 28,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '¿Necesitas calmarte?',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Prueba la técnica de respiración 4-7-8',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.grey,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Center(
+            child: BreathingButton(
+              size: 80,
+              onComplete: () {},
+            ),
+          ),
+        ],
+      ),
+    ),
   );
 }
