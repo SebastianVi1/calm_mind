@@ -1,6 +1,6 @@
+import 'package:calm_mind/viewmodels/achievement_view_model.dart';
 import 'package:calm_mind/models/achievement_model.dart';
 import 'package:calm_mind/ui/view/achievements_screen.dart';
-import 'package:calm_mind/viewmodels/achievement_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -8,11 +8,11 @@ import 'package:provider/provider.dart';
 import 'package:calm_mind/ui/view/therapy_page.dart';
 import 'package:calm_mind/ui/view/welcome_screen.dart';
 import 'package:calm_mind/ui/widgets/end_drawer.dart';
-import 'package:calm_mind/ui/widgets/mood_trend_chart.dart';
 import 'package:calm_mind/viewmodels/auth_view_model.dart';
 import 'package:calm_mind/viewmodels/chat_view_model.dart';
 import 'package:calm_mind/viewmodels/navigation_view_model.dart';
 import 'package:calm_mind/viewmodels/user_view_model.dart';
+import 'package:calm_mind/viewmodels/mood_view_model.dart';
 import 'package:calm_mind/ui/view/on_boarding_screen.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -78,8 +78,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 _buildLastSessionCard(context),
                 const SizedBox(height: 24),
                 _buildQuickActions(context),
-                const SizedBox(height: 16),
-                const MoodTrendChart(),
+                const SizedBox(height: 24),
                 const SizedBox(height: 24),
                 if (viewModel.error != null)
                   Padding(

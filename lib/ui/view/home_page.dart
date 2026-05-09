@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate_on_scroll/flutter_animate_on_scroll.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
-import 'package:calm_mind/ui/view/stadistics_screen.dart';
 import 'package:calm_mind/ui/widgets/drawer_key.dart';
 import 'package:calm_mind/ui/widgets/mood_lottie_container.dart';
 import 'package:calm_mind/ui/widgets/breathing_button.dart';
@@ -13,11 +12,9 @@ import 'package:calm_mind/viewmodels/tips_view_model.dart';
 import 'package:calm_mind/viewmodels/user_view_model.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:calm_mind/services/ai_assessment_service.dart';
 import 'package:calm_mind/services/haptics_service.dart';
-import 'package:calm_mind/ui/view/journal_screen.dart';
 import 'package:calm_mind/ui/view/coping_strategies_screen.dart';
-import 'package:calm_mind/ui/widgets/emotion_weather_map.dart';
+import 'package:calm_mind/ui/view/emotions_screen.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -251,11 +248,11 @@ Widget _buildMoodStates(MoodViewModel viewModel, BuildContext context) {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const StadisticsScreen(),
+                            builder: (context) => const EmotionsScreen(),
                           ),
                         );
                       } catch (e) {
-                        Navigator.pop(context); // Cerrar el indicador de carga
+                        Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text('Error al cargar el historial: $e'),
@@ -445,49 +442,10 @@ Widget _buildNewFeaturesSection(BuildContext context) {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Nuevas Herramientas',
+          'Herramientas',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _FeatureCard(
-                icon: Icons.bookmark_add,
-                title: 'Diario',
-                subtitle: 'Escribe y analiza tus emociones',
-                color: Colors.purple,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const JournalScreen()),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _FeatureCard(
-                icon: Icons.cloud,
-                title: 'Clima Emocional',
-                subtitle: 'Visualiza tu mes',
-                color: Colors.blue,
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => Dialog(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 400),
-                        child: const EmotionWeatherMap(),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
         ),
         const SizedBox(height: 12),
         SizedBox(
