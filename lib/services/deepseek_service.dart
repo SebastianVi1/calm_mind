@@ -303,4 +303,39 @@ ${_buildQuestionAnswers()}
   void clearHistory() {
     _conversationHistory.clear();
   }
+
+  @override
+  Future<String> generateContent({
+    required String systemPrompt,
+    required String userPrompt,
+    int maxTokens = 2000,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/chat/completions'),
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Authorization': 'Bearer $_apiKey',
+        },
+        body: jsonEncode({
+          'model': 'deepseek-chat',
+          'messages': [
+            {'role': 'system', 'content': systemPrompt},
+            {'role': 'user', 'content': userPrompt},
+          ],
+          'temperature': 0.7,
+          'max_tokens': maxTokens,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(response.bodyBytes));
+        return data['choices'][0]['message']['content'];
+      } else {
+        throw Exception('DeepSeek API Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error generating content: $e');
+    }
+  }
 } 

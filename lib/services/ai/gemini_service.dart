@@ -197,4 +197,26 @@ ${_buildQuestionAnswers()}
   void clearHistory() {
     _chat = _model.startChat();
   }
+
+  @override
+  Future<String> generateContent({
+    required String systemPrompt,
+    required String userPrompt,
+    int maxTokens = 2000,
+  }) async {
+    try {
+      final model = GenerativeModel(
+        model: 'gemini-2.0-flash',
+        apiKey: _apiKey,
+        systemInstruction: Content.system(systemPrompt),
+        generationConfig: GenerationConfig(
+          maxOutputTokens: maxTokens,
+        ),
+      );
+      final response = await model.generateContent([Content.text(userPrompt)]);
+      return response.text ?? '';
+    } catch (e) {
+      throw Exception('Error generating content with Gemini: $e');
+    }
+  }
 }

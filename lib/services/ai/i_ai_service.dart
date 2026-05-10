@@ -10,4 +10,14 @@ abstract class IAIService {
 
   /// Clears the conversation history
   void clearHistory();
+
+  /// One-off content generation without conversation history.
+  /// [systemPrompt] sets the AI's role and instructions.
+  /// [userPrompt] is the specific generation request.
+  /// Returns the raw text response.
+  Future<String> generateContent({
+    required String systemPrompt,
+    required String userPrompt,
+    int maxTokens = 2000,
+  });
 }

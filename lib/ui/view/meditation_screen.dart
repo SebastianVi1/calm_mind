@@ -108,17 +108,30 @@ class _MeditationScreenState extends State<MeditationScreen> {
                 SafeArea(
                 child: Column(
                 children: [
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: IconButton(
-                      icon: HugeIcon(
-                        icon: HugeIcons.strokeRoundedPictureInPictureExit, 
-                        color: Colors.black,
+                  Row(
+                    children: [
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: IconButton(
+                          icon: HugeIcon(
+                            icon: HugeIcons.strokeRoundedPictureInPictureExit, 
+                            color: Colors.black,
+                          ),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
                       ),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
+                      const Spacer(),
+                      if (viewModel.selectedMeditation?.isAiGenerated == true)
+                        IconButton(
+                          icon: const Icon(Icons.refresh, color: Colors.white70),
+                          tooltip: 'Regenerar meditación',
+                          onPressed: () {
+                            _showRegenerateDialog(context, viewModel);
+                          },
+                        ),
+                    ],
                   ),
                   
                   
@@ -295,10 +308,65 @@ class _MeditationScreenState extends State<MeditationScreen> {
                 
                 ],
               ),
-              )
+              ),
+              if (viewModel.isGenerating || viewModel.loadingAudio)
+                Container(
+                  color: Colors.black54,
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(
+                          width: 60,
+                          height: 60,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 3,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          viewModel.isGenerating
+                              ? 'Generando audio con IA...'
+                              : 'Cargando...',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
             ],
           );
         },
+      ),
+    );
+  }
+
+  void _showRegenerateDialog(
+      BuildContext context, MeditationViewModel viewModel) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Regenerar meditación'),
+        content: const Text(
+          '¿Regenerar esta meditación? Esto eliminará el audio guardado y generará nuevo contenido con IA.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              viewModel.regenerateAll();
+            },
+            child: const Text('Regenerar'),
+          ),
+        ],
       ),
     );
   }

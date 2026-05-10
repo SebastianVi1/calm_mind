@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:calm_mind/models/forum_post.dart';
 import 'package:calm_mind/ui/view/meditation_picker.dart';
 import 'package:calm_mind/ui/view/relaxing_music_picker.dart';
+import 'package:calm_mind/ui/view/sleep_picker.dart';
 import 'package:calm_mind/ui/widgets/drawer_key.dart';
 import 'package:calm_mind/ui/widgets/skeleton_loader.dart';
 import 'package:calm_mind/viewmodels/forum_view_model.dart';
@@ -23,6 +24,7 @@ class ForumPage extends StatelessWidget {
           _SliverForumHeader(isDark: isDark),
           SliverToBoxAdapter(child: _buildDailyCheckIn(context)),
           SliverToBoxAdapter(child: _buildQuickAccessRow(context)),
+          SliverToBoxAdapter(child: _buildSleepCard(context)),
           SliverToBoxAdapter(
             child: _buildSectionTitle(context, 'Desafíos Grupales'),
           ),
@@ -302,6 +304,81 @@ Widget _buildDailyCheckIn(BuildContext context) {
   );
 }
 
+Widget _buildSleepCard(BuildContext context) {
+  final theme = Theme.of(context);
+
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+    child: GestureDetector(
+      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SleepPicker())),
+      child: Container(
+        height: 110,
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF1A237E), Color(0xFF4A148C)],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF1A237E).withValues(alpha: 0.35),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Stack(
+            fit: StackFit.expand,
+            children: [
+            Positioned(
+              right: -10,
+              top: -20,
+              child: Opacity(opacity: 0.3, child: Text('🌙', style: TextStyle(fontSize: 80))),
+            ),
+            Positioned(
+              left: -10,
+              bottom: -15,
+              child: Opacity(opacity: 0.2, child: Text('💤', style: TextStyle(fontSize: 60))),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(18),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text('🌙  Dormir', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16), maxLines: 1, overflow: TextOverflow.ellipsis),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Sonidos, cuentos y ruido blanco',
+                          style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 13),
+                          maxLines: 1, overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Text('Abrir', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13)),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
 Widget _buildSectionTitle(BuildContext context, String title) {
   return Padding(
     padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
@@ -322,7 +399,7 @@ Widget _buildQuickAccessRow(BuildContext context) {
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     child: SizedBox(
-      height: 140,
+      height: 160,
       child: Row(
         children: [
           Expanded(
@@ -376,6 +453,7 @@ class _QuickAccessCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           gradient: LinearGradient(
@@ -403,10 +481,9 @@ class _QuickAccessCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
                     padding: const EdgeInsets.all(6),
@@ -416,14 +493,17 @@ class _QuickAccessCard extends StatelessWidget {
                     ),
                     child: Icon(icon, color: Colors.white, size: 18),
                   ),
+                  const Spacer(),
                   Text(
                     title,
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
-                      height: 1.3,
+                      height: 1.2,
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
