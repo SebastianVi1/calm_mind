@@ -47,6 +47,7 @@ class _TherapyMainPageState extends State<_TherapyMainPage> {
       appBar: AppBar(
         elevation: 0,
         centerTitle: true,
+        toolbarHeight: 56,
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

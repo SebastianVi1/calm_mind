@@ -128,6 +128,88 @@ class _PatientDetailScreenState extends State<PatientDetailScreen>
           _buildHistoryTab(),
         ],
       ),
+      floatingActionButton: FloatingActionButton.small(
+        onPressed: _openQuickNote,
+        tooltip: 'Nota rápida',
+        child: const Icon(Icons.edit_note),
+      ),
+    );
+  }
+
+  void _openQuickNote() {
+    final noteCtrl = TextEditingController(
+      text: _patient.professionalNotes ?? '',
+    );
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 20,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.edit_note, color: Theme.of(context).colorScheme.primary),
+                  const SizedBox(width: 8),
+                  Text('Nota Rápida', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: noteCtrl,
+                maxLines: 5,
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: 'Escribe una nota para ${_patient.name}...',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  filled: true,
+                  fillColor: Theme.of(context).colorScheme.surfaceVariant.withValues(alpha: 0.5),
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () async {
+                    final updated = _patient.copyWith(professionalNotes: noteCtrl.text.trim());
+                    final ok = await context.read<ProfessionalPatientViewModel>().updatePatient(updated);
+                    if (!mounted || !ctx.mounted) return;
+                    if (ok) {
+                      setState(() => _patient = updated);
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Nota guardada'),
+                          behavior: SnackBarBehavior.floating,
+                          duration: Duration(seconds: 1),
+                        ),
+                      );
+                    }
+                  },
+                  child: const Text('Guardar Nota'),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

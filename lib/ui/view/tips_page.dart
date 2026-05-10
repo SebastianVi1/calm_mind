@@ -54,13 +54,12 @@ class _TipsPageState extends State<TipsPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
       appBar: AppBar(
         elevation: 0,
         centerTitle: true,
+        toolbarHeight: 56,
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

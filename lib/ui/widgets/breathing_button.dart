@@ -230,11 +230,12 @@ class _BreathingModalState extends State<BreathingModal>
     final color = widget.color ?? Theme.of(context).primaryColor;
     final screenHeight = MediaQuery.of(context).size.height;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final modalHeight = (screenHeight * 0.7).clamp(0.0, 500.0);
 
     return Container(
-      height: screenHeight * 0.7,
+      height: modalHeight,
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1A1A2E) : Colors.white,
+        color: isDark ? Theme.of(context).scaffoldBackgroundColor : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
       ),
       child: Column(

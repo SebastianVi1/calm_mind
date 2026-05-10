@@ -31,6 +31,7 @@ import 'package:calm_mind/viewmodels/appointment_view_model.dart';
 import 'package:calm_mind/viewmodels/patient_report_view_model.dart';
 import 'package:calm_mind/viewmodels/professional_patient_view_model.dart';
 import 'package:calm_mind/viewmodels/coping_strategies_viewmodel.dart';
+import 'package:calm_mind/viewmodels/forum_view_model.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 Future<void> main() async {
@@ -122,6 +123,7 @@ class _MainAppState extends State<MainApp> {
           create: (context) => ProfessionalPatientViewModel(),
         ),
         ChangeNotifierProvider(create: (context) => CopingStrategiesViewModel()),
+        ChangeNotifierProvider(create: (context) => ForumViewModel()),
       ],
       child: Consumer<ThemeViewModel>(
         builder: (context, themeViewModel, child) {

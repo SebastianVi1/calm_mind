@@ -10,30 +10,72 @@ class MeditationPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 30,
+        title: Text('Meditación', style: theme.textTheme.titleMedium),
+        centerTitle: true,
+        toolbarHeight: 48,
       ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        child: Column(
-          children: [
-            Text(
-              'Selecciona la meditacion que deseasescuchar',
-              style: Theme.of(context).textTheme.titleLarge,
-              softWrap: true,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 10,),
-            Consumer<MeditationViewModel>(
-              
-              builder: (context, viewModel, child) {
-                
-                return Expanded(
+      body: SafeArea(
+        child: Consumer<MeditationViewModel>(
+          builder: (context, viewModel, child) {
+            if (viewModel.meditations.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.self_improvement, size: 48, color: theme.colorScheme.primary.withValues(alpha: 0.5)),
+                    const SizedBox(height: 12),
+                    Text('Cargando meditaciones...', style: theme.textTheme.bodyLarge),
+                  ],
+                ),
+              );
+            }
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Text(
+                    'Destacadas',
+                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                SizedBox(
+                  height: 140,
                   child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    itemCount: viewModel.meditations.take(5).length,
+                    itemBuilder: (context, index) {
+                      final meditation = viewModel.meditations[index];
+                      return Container(
+                        width: 180,
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        child: _FeaturedMeditationCard(
+                          meditation: meditation,
+                          onTap: () => _navigateToMeditation(context, meditation),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Text(
+                    'Todas',
+                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
                     itemCount: viewModel.meditations.length,
                     itemBuilder: (context, index) {
-                      var meditation = viewModel.meditations[index];                      
+                      var meditation = viewModel.meditations[index];
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 5),
                         child: FadeInRight(
@@ -47,29 +89,95 @@ class MeditationPicker extends StatelessWidget {
                             ),
                           ),
                         ),
-                      
                       );
                     },
                   ),
-                );
-              },
-              
-            ),
-          ],
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
   }
 
-   void _navigateToMeditation(BuildContext context, MeditationAudioModel meditation) {
-    // Set the selected meditation in the ViewModel
+  void _navigateToMeditation(BuildContext context, MeditationAudioModel meditation) {
     final viewModel = Provider.of<MeditationViewModel>(context, listen: false);
     viewModel.setSelectedMeditation(meditation);
-    
-    // Navigate to meditation screen
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const MeditationScreen()),
+    );
+  }
+}
+
+class _FeaturedMeditationCard extends StatelessWidget {
+  final MeditationAudioModel meditation;
+  final VoidCallback onTap;
+
+  const _FeaturedMeditationCard({required this.meditation, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: const LinearGradient(
+            colors: [Color(0xFFD8B5FF), Color(0xFF1EAE98)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF1EAE98).withValues(alpha: 0.3),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.25),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.spa, color: Colors.white, size: 18),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    meditation.title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    meditation.duration,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.8),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

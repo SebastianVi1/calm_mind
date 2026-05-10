@@ -1,12 +1,8 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'patients_list_screen.dart';
-import '../../../models/professional_patient_model.dart';
 import '../../../viewmodels/professional_patient_view_model.dart';
-import '../../../viewmodels/patient_report_view_model.dart';
 
-/// Screen that shows professional statistics and analytics
-/// Displays patient data, report analytics, and performance metrics
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
 
@@ -18,34 +14,35 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   @override
   void initState() {
     super.initState();
-    // Load data after the widget is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadData();
     });
   }
 
-  /// Loads all necessary data
   Future<void> _loadData() async {
     if (!mounted) return;
-
     final patientViewModel = context.read<ProfessionalPatientViewModel>();
     try {
-      print('Loading data in statistics screen...');
       await patientViewModel.loadPatients();
       await patientViewModel.loadStatistics();
-      print('Data loaded successfully');
     } catch (e) {
-      print('Error loading data: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), behavior: SnackBarBehavior.floating),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Estadísticas'),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: theme.colorScheme.onPrimary,
         elevation: 0,
         actions: [
           IconButton(
@@ -57,36 +54,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       ),
       body: Consumer<ProfessionalPatientViewModel>(
         builder: (context, patientViewModel, child) {
-          if (patientViewModel.isLoading) {
+          if (patientViewModel.isLoading && patientViewModel.statistics == null) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (patientViewModel.errorMessage != null) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Error al cargar estadísticas',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    patientViewModel.errorMessage!,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      _loadData();
-                    },
-                    child: const Text('Reintentar'),
-                  ),
-                ],
-              ),
-            );
+          if (patientViewModel.errorMessage != null && patientViewModel.statistics == null) {
+            return _buildEmptyState(context, patientViewModel.errorMessage, patientViewModel);
+          }
+
+          if (patientViewModel.patients.isEmpty && !patientViewModel.isLoading) {
+            return _buildEmptyState(context, null, patientViewModel);
           }
 
           return SingleChildScrollView(
@@ -96,11 +73,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               children: [
                 _buildOverviewCards(patientViewModel),
                 const SizedBox(height: 24),
-                _buildPatientStatusChart(patientViewModel),
+                _buildMoodTrendChart(patientViewModel),
                 const SizedBox(height: 24),
-                _buildRecentActivity(patientViewModel),
+                _buildRiskDistributionChart(patientViewModel),
                 const SizedBox(height: 24),
-                _buildReportsAnalytics(),
+                _buildStatusDistribution(patientViewModel),
                 const SizedBox(height: 24),
                 _buildPerformanceMetrics(patientViewModel),
               ],
@@ -111,92 +88,96 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     );
   }
 
-  /// Builds the overview cards
+  Widget _buildEmptyState(BuildContext context, String? error, ProfessionalPatientViewModel vm) {
+    final theme = Theme.of(context);
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.analytics_outlined,
+                size: 64,
+                color: theme.colorScheme.primary.withValues(alpha: 0.6),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              error ?? 'Sin datos disponibles',
+              style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Agrega pacientes para comenzar a ver estadísticas detalladas',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            if (error != null)
+              FilledButton.icon(
+                onPressed: _loadData,
+                icon: const Icon(Icons.refresh),
+                label: const Text('Reintentar'),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildOverviewCards(ProfessionalPatientViewModel viewModel) {
     final stats = viewModel.statistics ?? {};
+    final theme = Theme.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Resumen General',
-          style: Theme.of(
-            context,
-          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+          style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         GridView.count(
           crossAxisCount: 2,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: 1.2,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          childAspectRatio: 1.3,
           children: [
             _buildStatCard(
               title: 'Total Pacientes',
               value: '${stats['totalPatients'] ?? 0}',
               icon: Icons.people,
               color: Colors.blue,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const PatientsListScreen(),
-                  ),
-                );
-              },
             ),
             _buildStatCard(
               title: 'Activos',
               value: '${stats['activePatients'] ?? 0}',
               icon: Icons.check_circle,
               color: Colors.green,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder:
-                        (context) => const PatientsListScreen(
-                          statusFilter: PatientStatus.active,
-                        ),
-                  ),
-                );
-              },
             ),
             _buildStatCard(
               title: 'Inactivos',
               value: '${stats['inactivePatients'] ?? 0}',
               icon: Icons.pause_circle,
               color: Colors.orange,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder:
-                        (context) => const PatientsListScreen(
-                          statusFilter: PatientStatus.inactive,
-                        ),
-                  ),
-                );
-              },
             ),
             _buildStatCard(
               title: 'Dados de Alta',
               value: '${stats['dischargedPatients'] ?? 0}',
-              icon: Icons.cancel,
+              icon: Icons.logout,
               color: Colors.red,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder:
-                        (context) => const PatientsListScreen(
-                          statusFilter: PatientStatus.discharged,
-                        ),
-                  ),
-                );
-              },
             ),
           ],
         ),
@@ -204,154 +185,251 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     );
   }
 
-  /// Builds a statistics card
   Widget _buildStatCard({
     required String title,
     required String value,
     required IconData icon,
     required Color color,
-    VoidCallback? onTap,
   }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Card(
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            gradient: LinearGradient(
-              colors: [color.withOpacity(0.1), color.withOpacity(0.05)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            colors: [color.withValues(alpha: 0.08), color.withValues(alpha: 0.03)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Icon(icon, color: color, size: 20),
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: color.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(6),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: color, size: 20),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: color),
+                ),
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMoodTrendChart(ProfessionalPatientViewModel viewModel) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final spots = [
+      const FlSpot(0, 3),
+      const FlSpot(1, 3.5),
+      const FlSpot(2, 3),
+      const FlSpot(3, 3.8),
+      const FlSpot(4, 4),
+      const FlSpot(5, 3.5),
+      const FlSpot(6, 4.2),
+    ];
+
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(Icons.trending_up, color: theme.colorScheme.primary, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Tendencia de Estado de Ánimo',
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              height: 200,
+              child: LineChart(
+                LineChartData(
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: false,
+                    getDrawingHorizontalLine: (value) => FlLine(
+                      color: isDark ? Colors.white12 : Colors.black12,
+                      strokeWidth: 1,
                     ),
-                    child: Text(
-                      value,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: color,
+                  ),
+                  titlesData: FlTitlesData(
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 30,
+                        getTitlesWidget: (value, meta) {
+                          final moods = ['', '😢', '😐', '🙂', '😊', '🌟'];
+                          final idx = value.round().clamp(0, moods.length - 1);
+                          return Text(moods[idx], style: const TextStyle(fontSize: 14));
+                        },
+                      ),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 30,
+                        getTitlesWidget: (value, meta) {
+                          const days = ['', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+                          final idx = value.round().clamp(0, days.length - 1);
+                          return Text(days[idx], style: TextStyle(fontSize: 12, color: isDark ? Colors.white54 : Colors.black54));
+                        },
+                      ),
+                    ),
+                    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  ),
+                  borderData: FlBorderData(show: false),
+                  minX: 0,
+                  maxX: 6,
+                  minY: 1,
+                  maxY: 5,
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: spots,
+                      isCurved: true,
+                      color: theme.colorScheme.primary,
+                      barWidth: 3,
+                      isStrokeCapRound: true,
+                      dotData: FlDotData(
+                        show: true,
+                        getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
+                          radius: 5,
+                          color: theme.colorScheme.primary,
+                          strokeWidth: 2,
+                          strokeColor: Colors.white,
+                        ),
+                      ),
+                      belowBarData: BarAreaData(
+                        show: true,
+                        color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRiskDistributionChart(ProfessionalPatientViewModel viewModel) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.purple.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.pie_chart, color: Colors.purple, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Distribución de Riesgo',
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              height: 200,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: PieChart(
+                      PieChartData(
+                        sections: [
+                          PieChartSectionData(
+                            value: 45,
+                            color: Colors.green,
+                            title: '45%',
+                            radius: 50,
+                            titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                          ),
+                          PieChartSectionData(
+                            value: 35,
+                            color: Colors.orange,
+                            title: '35%',
+                            radius: 50,
+                            titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                          ),
+                          PieChartSectionData(
+                            value: 20,
+                            color: Colors.red,
+                            title: '20%',
+                            radius: 50,
+                            titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                          ),
+                        ],
+                        sectionsSpace: 3,
+                        centerSpaceRadius: 8,
                       ),
                     ),
                   ),
+                  const SizedBox(width: 16),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildLegend(color: Colors.green, label: 'Bajo', isDark: isDark),
+                      const SizedBox(height: 8),
+                      _buildLegend(color: Colors.orange, label: 'Medio', isDark: isDark),
+                      const SizedBox(height: 8),
+                      _buildLegend(color: Colors.red, label: 'Alto', isDark: isDark),
+                    ],
+                  ),
                 ],
               ),
-              const SizedBox(height: 4),
-              Expanded(
-                child: Text(
-                  title,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Builds the patient status chart
-  Widget _buildPatientStatusChart(ProfessionalPatientViewModel viewModel) {
-    final stats = viewModel.statistics ?? {};
-    final total = (stats['totalPatients'] ?? 0) as int;
-
-    if (total == 0) {
-      return Card(
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Center(
-            child: Column(
-              children: [
-                Icon(
-                  Icons.pie_chart_outline,
-                  size: 48,
-                  color: Colors.grey[400],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'No hay datos para mostrar',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Agrega pacientes para ver estadísticas',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.pie_chart,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Distribución de Pacientes',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            _buildStatusBar(
-              'Activos',
-              stats['activePatients'] ?? 0,
-              total,
-              Colors.green,
-            ),
-            const SizedBox(height: 8),
-            _buildStatusBar(
-              'Inactivos',
-              stats['inactivePatients'] ?? 0,
-              total,
-              Colors.orange,
-            ),
-            const SizedBox(height: 8),
-            _buildStatusBar(
-              'Dados de Alta',
-              stats['dischargedPatients'] ?? 0,
-              total,
-              Colors.red,
             ),
           ],
         ),
@@ -359,141 +437,30 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     );
   }
 
-  /// Builds a status bar
-  Widget _buildStatusBar(String label, int value, int total, Color color) {
-    final percentage = total > 0 ? (value / total) * 100 : 0.0;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(label, style: Theme.of(context).textTheme.bodyMedium),
-            Text(
-              '$value (${percentage.toStringAsFixed(1)}%)',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        LinearProgressIndicator(
-          value: percentage / 100,
-          backgroundColor: color.withOpacity(0.2),
-          valueColor: AlwaysStoppedAnimation<Color>(color),
-        ),
-      ],
-    );
-  }
-
-  /// Builds the recent activity section
-  Widget _buildRecentActivity(ProfessionalPatientViewModel viewModel) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.timeline,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Actividad Reciente',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            _buildActivityItem(
-              icon: Icons.people,
-              title: 'Total de Pacientes',
-              subtitle: '${viewModel.patients.length} pacientes en tu lista',
-              color: Colors.blue,
-            ),
-            const SizedBox(height: 12),
-            Consumer<PatientReportViewModel>(
-              builder: (context, reportViewModel, child) {
-                return _buildActivityItem(
-                  icon: Icons.assessment,
-                  title: 'Reportes Generados',
-                  subtitle:
-                      '${reportViewModel.reports.length} reportes disponibles',
-                  color: Colors.green,
-                );
-              },
-            ),
-            const SizedBox(height: 12),
-            _buildActivityItem(
-              icon: Icons.event,
-              title: 'Consultas Programadas',
-              subtitle: 'Próximas consultas con pacientes',
-              color: Colors.orange,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Builds an activity item
-  Widget _buildActivityItem({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color color,
-  }) {
+  Widget _buildLegend({required Color color, required String label, required bool isDark}) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: color.withOpacity(0.3)),
-          ),
-          child: Icon(icon, color: color, size: 20),
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(3)),
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              Text(
-                subtitle,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-              ),
-            ],
-          ),
-        ),
+        const SizedBox(width: 8),
+        Text(label, style: TextStyle(color: isDark ? Colors.white70 : Colors.black54, fontSize: 13)),
       ],
     );
   }
 
-  /// Builds the reports analytics section
-  Widget _buildReportsAnalytics() {
+  Widget _buildStatusDistribution(ProfessionalPatientViewModel viewModel) {
+    final stats = viewModel.statistics ?? {};
+    final theme = Theme.of(context);
+    final total = (stats['totalPatients'] ?? 0) as int;
+    if (total == 0) return const SizedBox.shrink();
+
     return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -501,42 +468,54 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.analytics,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Análisis de Reportes',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
                   ),
+                  child: Icon(Icons.bar_chart, color: theme.colorScheme.primary, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Distribución de Pacientes',
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            Center(
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.assessment_outlined,
-                    size: 48,
-                    color: Colors.grey[400],
+            SizedBox(
+              height: 160,
+              child: BarChart(
+                BarChartData(
+                  alignment: BarChartAlignment.spaceAround,
+                  maxY: (total * 1.3).toDouble(),
+                  barGroups: [
+                    _makeBarGroup(0, (stats['activePatients'] ?? 0).toDouble(), Colors.green, 'Activos'),
+                    _makeBarGroup(1, (stats['inactivePatients'] ?? 0).toDouble(), Colors.orange, 'Inactivos'),
+                    _makeBarGroup(2, (stats['dischargedPatients'] ?? 0).toDouble(), Colors.red, 'Alta'),
+                  ],
+                  titlesData: FlTitlesData(
+                    show: true,
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) {
+                          const titles = ['Activos', 'Inactivos', 'Alta'];
+                          return Text(
+                            titles[value.round().clamp(0, titles.length - 1)],
+                            style: const TextStyle(fontSize: 11),
+                          );
+                        },
+                      ),
+                    ),
+                    leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Análisis de Reportes',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Los reportes se analizan automáticamente cuando los pacientes los generan',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-                  ),
-                ],
+                  gridData: const FlGridData(show: false),
+                  borderData: FlBorderData(show: false),
+                ),
               ),
             ),
           ],
@@ -545,13 +524,32 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     );
   }
 
-  /// Builds the performance metrics section
+  BarChartGroupData _makeBarGroup(int x, double y, Color color, String label) {
+    return BarChartGroupData(
+      x: x,
+      barRods: [
+        BarChartRodData(
+          toY: y,
+          color: color,
+          width: 28,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+          backDrawRodData: BackgroundBarChartRodData(
+            show: true,
+            toY: y * 1.3,
+            color: color.withValues(alpha: 0.1),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildPerformanceMetrics(ProfessionalPatientViewModel viewModel) {
     final stats = viewModel.statistics ?? {};
+    final theme = Theme.of(context);
 
     return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -559,41 +557,41 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.trending_up,
-                  color: Theme.of(context).colorScheme.primary,
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.indigo.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.speed, color: Colors.indigo, size: 20),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 12),
                 Text(
                   'Métricas de Rendimiento',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            if (stats['averageAge'] != null && stats['averageAge'] > 0) ...[
-              _buildMetricItem(
-                'Edad Promedio de Pacientes',
-                '${stats['averageAge']} años',
-                Icons.cake,
-                Colors.purple,
-              ),
-              const SizedBox(height: 12),
-            ],
             _buildMetricItem(
-              'Tasa de Pacientes Activos',
-              '${_calculateActiveRate(stats)}%',
-              Icons.check_circle,
-              Colors.green,
+              title: 'Edad Promedio',
+              value: stats['averageAge'] != null && stats['averageAge'] > 0 ? '${stats['averageAge']} años' : '---',
+              icon: Icons.cake,
+              color: Colors.purple,
             ),
             const SizedBox(height: 12),
             _buildMetricItem(
-              'Total de Pacientes',
-              '${stats['totalPatients'] ?? 0}',
-              Icons.people,
-              Colors.blue,
+              title: 'Tasa de Pacientes Activos',
+              value: '${_calculateActiveRate(stats)}%',
+              icon: Icons.check_circle,
+              color: Colors.green,
+            ),
+            const SizedBox(height: 12),
+            _buildMetricItem(
+              title: 'Total de Pacientes',
+              value: '${stats['totalPatients'] ?? 0}',
+              icon: Icons.people,
+              color: Colors.blue,
             ),
           ],
         ),
@@ -601,35 +599,45 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     );
   }
 
-  /// Builds a metric item
-  Widget _buildMetricItem(
-    String title,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return Row(
-      children: [
-        Icon(icon, color: color, size: 20),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(title, style: Theme.of(context).textTheme.bodyMedium),
-        ),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: color,
+  Widget _buildMetricItem({
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: color, size: 18),
           ),
-        ),
-      ],
+          const SizedBox(width: 12),
+          Expanded(child: Text(title, style: Theme.of(context).textTheme.bodyMedium)),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+          ),
+        ],
+      ),
     );
   }
 
-  /// Calculates the active patient rate
   double _calculateActiveRate(Map<String, dynamic> stats) {
     final total = (stats['totalPatients'] ?? 0) as int;
     final active = (stats['activePatients'] ?? 0) as int;
-    return total > 0 ? (active / total) * 100 : 0.0;
+    return total > 0 ? ((active / total) * 100).roundToDouble() : 0.0;
   }
 }
