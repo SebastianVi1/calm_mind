@@ -48,15 +48,27 @@ class MeditationViewModel extends ChangeNotifier {
       _resetState();
     }
 
-    try {
-      _loadingAudio = true;
-      _errorMessage = null;
-      notifyListeners();
+    _loadingAudio = true;
+    _errorMessage = null;
+    notifyListeners();
 
-      _meditations = await _repository.getMeditations();
+    try {
+      // Local meditations always load (hardcoded, no network needed)
+      _meditations = MeditationAudioModel.localMeditations();
+
+      // Firestore is optional – failure should not block local meditations
+      try {
+        final remote = await _repository.getMeditations();
+        _meditations = [..._meditations, ...remote];
+      } catch (_) {
+        // Firestore unavailable – that's ok, proceed with locals
+      }
 
       if (_meditations.isEmpty) {
-        throw Exception("No meditation tracks available in Firestore");
+        _errorMessage = "No meditation tracks available";
+        _loadingAudio = false;
+        notifyListeners();
+        return;
       }
 
       await loadAudio();
@@ -136,25 +148,29 @@ class MeditationViewModel extends ChangeNotifier {
         await _audioPlayer.stop();
       }
 
-      final url = _selectedMeditation!.url;
-      if (url.isEmpty) {
-        throw Exception("No audio URL available");
-      }
-
-      final file = await _getCachedFileForUrl(url);
-
-      if (await file.exists()) {
-        await _audioPlayer.setFilePath(file.path);
+      if (_selectedMeditation!.isLocalAsset) {
+        await _audioPlayer.setAsset(_selectedMeditation!.assetPath);
       } else {
-        try {
-          await _downloadToFile(url, file);
-          if (await file.exists()) {
-            await _audioPlayer.setFilePath(file.path);
-          } else {
+        final url = _selectedMeditation!.url;
+        if (url.isEmpty) {
+          throw Exception("No audio URL available");
+        }
+
+        final file = await _getCachedFileForUrl(url);
+
+        if (await file.exists()) {
+          await _audioPlayer.setFilePath(file.path);
+        } else {
+          try {
+            await _downloadToFile(url, file);
+            if (await file.exists()) {
+              await _audioPlayer.setFilePath(file.path);
+            } else {
+              await _audioPlayer.setUrl(url);
+            }
+          } catch (_) {
             await _audioPlayer.setUrl(url);
           }
-        } catch (_) {
-          await _audioPlayer.setUrl(url);
         }
       }
 
@@ -244,9 +260,7 @@ class MeditationViewModel extends ChangeNotifier {
     if (_selectedMeditation == null || _meditations.isEmpty) return;
 
     final currentIndex = _meditations.indexWhere(
-      (meditation) =>
-          meditation.title == _selectedMeditation!.title &&
-          meditation.url == _selectedMeditation!.url,
+      (m) => _matchesMeditation(m, _selectedMeditation!),
     );
 
     if (currentIndex != -1) {
@@ -264,9 +278,7 @@ class MeditationViewModel extends ChangeNotifier {
     if (_selectedMeditation == null || _meditations.isEmpty) return;
 
     final currentIndex = _meditations.indexWhere(
-      (meditation) =>
-          meditation.title == _selectedMeditation!.title &&
-          meditation.url == _selectedMeditation!.url,
+      (m) => _matchesMeditation(m, _selectedMeditation!),
     );
 
     if (currentIndex != -1) {
@@ -279,6 +291,12 @@ class MeditationViewModel extends ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  bool _matchesMeditation(MeditationAudioModel a, MeditationAudioModel b) {
+    if (a.title != b.title) return false;
+    if (a.isLocalAsset && b.isLocalAsset) return a.assetPath == b.assetPath;
+    return a.url == b.url;
   }
 
   Future<void> regenerateAll() async {
@@ -345,6 +363,7 @@ class MeditationViewModel extends ChangeNotifier {
 
   void _prefetchMeditationCaches() async {
     for (final m in _meditations) {
+      if (m.url.isEmpty) continue;
       try {
         final f = await _getCachedFileForUrl(m.url);
         if (!await f.exists()) {

@@ -38,6 +38,13 @@ class RelaxingMusicViewModel extends ChangeNotifier {
   // Track disposal state
   bool _isDisposed = false;
 
+  // Cache limits
+  static const int _maxCacheSizeBytes = 100 * 1024 * 1024; // 100 MB
+  static const int _maxCacheFiles = 50;
+
+  bool get isCurrentSongCached =>
+      _selectedSong?.localPath != null && File(_selectedSong!.localPath!).existsSync();
+
   RelaxingMusicViewModel(this._relaxingMusicService, this._moodViewModel) {
     _player = AudioPlayer();
     _initializeAudioListeners();
@@ -320,6 +327,7 @@ class RelaxingMusicViewModel extends ChangeNotifier {
     final resp = await http.get(Uri.parse(url));
     if (resp.statusCode == 200) {
       await file.writeAsBytes(resp.bodyBytes, flush: true);
+      _enforceCacheLimits();
     } else {
       throw Exception('Download failed: ${resp.statusCode}');
     }
@@ -337,7 +345,6 @@ class RelaxingMusicViewModel extends ChangeNotifier {
   }
 
   void _prefetchMissingCaches() async {
-    // Fire-and-forget; download sequentially to avoid spikes
     for (final song in _musicList) {
       if (_isDisposed) return;
       try {
@@ -349,6 +356,42 @@ class RelaxingMusicViewModel extends ChangeNotifier {
       } catch (_) {
         // Ignore prefetch errors
       }
+    }
+    _enforceCacheLimits();
+  }
+
+  Future<void> _enforceCacheLimits() async {
+    try {
+      final dir = await _getCacheDir();
+      final files = await dir.list().toList();
+      
+      final fileInfos = <MapEntry<FileStat, File>>[];
+      int totalSize = 0;
+      for (final entity in files) {
+        if (entity is File) {
+          final stat = await entity.stat();
+          fileInfos.add(MapEntry(stat, entity));
+          totalSize += stat.size;
+        }
+      }
+
+      // Sort by modified time (oldest first)
+      fileInfos.sort((a, b) => a.key.modified.compareTo(b.key.modified));
+
+      // Remove files if we exceed limits
+      while (fileInfos.isNotEmpty && 
+             (totalSize > _maxCacheSizeBytes || fileInfos.length > _maxCacheFiles)) {
+        final entry = fileInfos.removeAt(0);
+        totalSize -= entry.key.size;
+        try {
+          await entry.value.delete();
+        } catch (_) {}
+      }
+
+      // Update localPath references for deleted files
+      await _markCachedSongs();
+    } catch (_) {
+      // Best-effort cleanup
     }
   }
 

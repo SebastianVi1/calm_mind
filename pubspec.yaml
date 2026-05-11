@@ -51,4 +51,5 @@ flutter:
     - assets/animations/
     - assets/animations/talk.json
     - assets/images/achievements/
+    - assets/meditation_audios/
     - assets/video/
