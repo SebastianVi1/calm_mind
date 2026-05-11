@@ -1,16 +1,19 @@
 flutter_native_splash:
   android: true
   ios: true
-  
-  color: "#48b1d1"
-  image: "assets/images/splash_bg.png"
 
-  color_dark: "#063970"
-  image_dark: "assets/images/splash_bg.png"
+  color: "#FDFBF7"
+  image: "assets/images/calm_mind_no_bg_dk.png"
+
+  color_dark: "#1A1C1E"
+  image_dark: "assets/images/calm_mind_no_bg.png"
 
   android_12:
-    color: "#48b1d1"
-    image: "assets/images/splash_bg.png"
+    color: "#FDFBF7"
+    image: "assets/images/calm_mind_no_bg_dk.png"
+    color_dark: "#1A1C1E"
+    image_dark: "assets/images/calm_mind_no_bg.png"
 
-
-  
+  android_gravity: center
+  ios_content_mode: scaleAspectFit
+  fullscreen: true

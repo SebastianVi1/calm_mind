@@ -13,6 +13,9 @@ class AppointmentViewModel extends ChangeNotifier {
   // Error message if any operation fails
   String? _error;
 
+  // Callback triggered whenever the appointments list changes
+  VoidCallback? onAppointmentsChanged;
+
   // Getters for public access
   List<Appointment> get appointments => _appointments;
   bool get isLoading => _isLoading;
@@ -45,6 +48,7 @@ class AppointmentViewModel extends ChangeNotifier {
       // Keep appointments sorted by date
       _appointments.sort((a, b) => a.dateTime.compareTo(b.dateTime));
       await _saveAppointments();
+      onAppointmentsChanged?.call();
       notifyListeners();
     } catch (e) {
       _error = 'Error saving appointment: $e';
@@ -57,6 +61,7 @@ class AppointmentViewModel extends ChangeNotifier {
     try {
       _appointments.removeWhere((appointment) => appointment.id == id);
       await _saveAppointments();
+      onAppointmentsChanged?.call();
       notifyListeners();
     } catch (e) {
       _error = 'Error deleting appointment: $e';

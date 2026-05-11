@@ -78,27 +78,39 @@ class _HomePageMainState extends State<_HomePageMain> {
       builder: (context, viewModel, child) {
         return Scaffold(
           appBar: AppBar(
+            flexibleSpace: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Theme.of(context).primaryColor,
+                    Color.lerp(Theme.of(context).primaryColor, Theme.of(context).colorScheme.secondary, 0.5)!,
+                  ],
+                ),
+              ),
+            ),
+            elevation: 1,
+            shadowColor: Theme.of(context).primaryColor.withValues(alpha: 0.3),
             title: Row(
               children: [
-                Icon(
-                  Icons.home,
-                  size: 22,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+                const Icon(Icons.home, size: 22, color: Colors.white),
                 const SizedBox(width: 8),
                 Text(
                   'Inicio',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                 ),
               ],
             ),
-            toolbarHeight: 48,
+            toolbarHeight: 56,
             centerTitle: false,
+            iconTheme: const IconThemeData(color: Colors.white),
             actions: [
               IconButton(
-                icon: const Icon(Icons.menu),
+                icon: const Icon(Icons.menu, color: Colors.white),
                 onPressed: () => openGlobalEndDrawer(context),
               ),
             ],

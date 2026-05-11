@@ -13,6 +13,7 @@ import 'package:calm_mind/viewmodels/chat_view_model.dart';
 import 'package:calm_mind/viewmodels/navigation_view_model.dart';
 import 'package:calm_mind/viewmodels/user_view_model.dart';
 import 'package:calm_mind/viewmodels/mood_view_model.dart';
+import 'package:calm_mind/ui/view/notification_settings_screen.dart';
 import 'package:calm_mind/ui/view/on_boarding_screen.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -718,6 +719,19 @@ class _ProfilePageState extends State<ProfilePage> {
             ],
           ),
           const SizedBox(height: 16),
+          _QuickActionTile(
+            icon: Icons.notifications_outlined,
+            label: 'Notificaciones',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NotificationSettingsScreen(),
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 8),
           _QuickActionTile(
             icon: Icons.assignment_outlined,
             label: 'Volver a hacer el cuestionario',

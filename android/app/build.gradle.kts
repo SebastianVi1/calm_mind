@@ -8,6 +8,9 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 dependencies {
+  // Core library desugaring required by flutter_local_notifications
+  coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+
   // Import the Firebase BoM
   implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
 
@@ -26,6 +29,7 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "28.0.13004108"
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }

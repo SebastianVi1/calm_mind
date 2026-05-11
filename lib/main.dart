@@ -35,6 +35,8 @@ import 'package:calm_mind/viewmodels/professional_patient_view_model.dart';
 import 'package:calm_mind/viewmodels/coping_strategies_viewmodel.dart';
 import 'package:calm_mind/viewmodels/forum_view_model.dart';
 import 'package:calm_mind/viewmodels/sleep_view_model.dart';
+import 'package:calm_mind/viewmodels/notification_view_model.dart';
+import 'package:calm_mind/services/notification_service.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 Future<void> main() async {
@@ -140,6 +142,13 @@ class _MainAppState extends State<MainApp> {
         ChangeNotifierProvider(
           create: (context) => SleepViewModel(
             context.read<SleepContentGenerator>(),
+          ),
+        ),
+        Provider<NotificationService>(create: (_) => NotificationService()),
+        ChangeNotifierProvider(
+          create: (context) => NotificationViewModel(
+            context.read<NotificationService>(),
+            context.read<UserService>(),
           ),
         ),
       ],

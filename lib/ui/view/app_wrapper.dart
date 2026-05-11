@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:calm_mind/models/auth/auth_state.dart';
+import 'package:calm_mind/services/notification_service.dart';
 import 'package:calm_mind/services/user_service.dart';
 import 'package:calm_mind/ui/view/main_screen.dart';
 import 'package:calm_mind/ui/view/on_boarding_screen.dart';
 import 'package:calm_mind/ui/view/welcome_screen.dart';
+import 'package:calm_mind/viewmodels/appointment_view_model.dart';
 import 'package:calm_mind/viewmodels/auth_view_model.dart';
+import 'package:calm_mind/viewmodels/notification_view_model.dart';
 
 
 /// Main navigation wrapper for the application
@@ -28,10 +31,23 @@ class _AppWrapperState extends State<AppWrapper> {
   /// Error message if there's an issue checking the status
   String? _error;
 
+  /// Guard to avoid re-wiring notification callbacks
+  bool _notificationsWired = false;
+
   @override
   void initState() {
     super.initState();
     _checkQuestionStatus();
+    _initNotifications();
+  }
+
+  void _initNotifications() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        await Future.delayed(const Duration(milliseconds: 500));
+        await NotificationService().initialize();
+      } catch (_) {}
+    });
   }
 
   /// Checks if the current user has completed the onboarding questions
@@ -121,6 +137,14 @@ class _AppWrapperState extends State<AppWrapper> {
       );
     }
 
+    // Wire notification ↔ appointment integration (deferred to avoid build-phase setState)
+    if (!_notificationsWired) {
+      _notificationsWired = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _wireNotificationCallbacks();
+      });
+    }
+
     // User is authenticated and has completed questions, show home screen
     return PopScope(
       canPop: false,
@@ -154,5 +178,30 @@ class _AppWrapperState extends State<AppWrapper> {
         body: const MainScreen(),
       ),
     );
+  }
+
+  void _wireNotificationCallbacks() {
+    final notifVM = context.read<NotificationViewModel>();
+    final appointmentVM = context.read<AppointmentViewModel>();
+    final authVM = context.read<AuthViewModel>();
+    final uid = authVM.state.user?.uid;
+
+    // Load notification preferences from Firestore
+    if (uid != null) {
+      notifVM.loadPreferences(uid);
+    }
+
+    // Reschedule appointment reminders whenever appointments change
+    appointmentVM.onAppointmentsChanged = () {
+      for (final appointment in appointmentVM.appointments) {
+        if (appointment.dateTime.isAfter(DateTime.now())) {
+          notifVM.scheduleAppointmentReminder(
+            appointment.id.hashCode,
+            appointment.dateTime,
+            appointment.patientName,
+          );
+        }
+      }
+    };
   }
 } 
