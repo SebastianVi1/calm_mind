@@ -3,12 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:calm_mind/models/meditation_audio_model.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:calm_mind/viewmodels/user_view_model.dart';
+import 'package:calm_mind/repositories/meditation_repository.dart';
+import 'package:calm_mind/services/sleep_content_generator.dart';
 import 'package:http/http.dart' as http;
 
-/// ViewModel for the meditation screen that handles the audio and video resources.
-/// Manages the playback state, loading, and error handling for meditation sessions.
 class MeditationViewModel extends ChangeNotifier {
-  // Audio player properties and state
+  final MeditationRepository _repository = MeditationRepository();
+  final UserViewModel _userViewModel;
+  final SleepContentGenerator _generator;
+
   late AudioPlayer _audioPlayer;
   bool _loadingAudio = true;
   bool get loadingAudio => _loadingAudio;
@@ -20,14 +24,17 @@ class MeditationViewModel extends ChangeNotifier {
   Duration get duration => _duration;
   bool get isPlaying => _audioPlayer.playing;
 
-  // Track initialization state
   bool _isInitialized = false;
+  bool _isGenerating = false;
+  bool get isGenerating => _isGenerating;
 
-  // Constructor initializes the audio player and sets up listeners
-  MeditationViewModel() {
+  MeditationViewModel(this._userViewModel, this._generator) {
     _audioPlayer = AudioPlayer();
     _initializeAudioListeners();
   }
+
+  List<MeditationAudioModel> _meditations = [];
+  List<MeditationAudioModel> get meditations => _meditations;
 
   MeditationAudioModel? _selectedMeditation;
   MeditationAudioModel? get selectedMeditation => _selectedMeditation;
@@ -36,52 +43,37 @@ class MeditationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<MeditationAudioModel> urls = [
-    MeditationAudioModel(
-      url:
-          'https://cultivarlamente.com/wp-content/uploads/2020/06/gonzalo-brito-pausa-consciente-de-5-minutos.mp3',
-      duration: '5-MIN',
-      title: 'Pausa consciente de 5 minutos',
-    ),
-    MeditationAudioModel(
-      url:
-          'https://cultivarlamente.com/wp-content/uploads/2016/06/Atenci%C3%B3n-plena-a-la-respiraci%C3%B3n-de-10-minutos.mp3',
-      title: 'Atencion plena a la respiracion',
-      duration: '10-MIN',
-    ),
-    MeditationAudioModel(
-      url:
-          'https://cultivarlamente.com/wp-content/uploads/2017/12/Yo-Compasivo-Corta-12-Minutos.mp3',
-      duration: '12_MIN',
-      title: 'Practica del yo compasivo',
-    ),
-    MeditationAudioModel(
-      url:
-          'https://cultivarlamente.com/wp-content/uploads/2020/12/Espalda-fuerte-Corazon-Suave.mp3',
-      title: 'Espalda fuerte corazon suave',
-      duration: '18_MIN',
-    ),
-  ];
-
-  /// Initializes both audio and video resources
-  /// Prevents multiple initializations by checking state
   Future<void> initializeResources() async {
-    // Avoid multiple initializations
     if (_isInitialized) {
       _resetState();
     }
 
-    try {
-      _loadingAudio = true;
-      _errorMessage = null;
-      notifyListeners();
+    _loadingAudio = true;
+    _errorMessage = null;
+    notifyListeners();
 
-      // Initialize: set up first audio source and prefetch all tracks for offline
+    try {
+      // Local meditations always load (hardcoded, no network needed)
+      _meditations = MeditationAudioModel.localMeditations();
+
+      // Firestore is optional – failure should not block local meditations
+      try {
+        final remote = await _repository.getMeditations();
+        _meditations = [..._meditations, ...remote];
+      } catch (_) {
+        // Firestore unavailable – that's ok, proceed with locals
+      }
+
+      if (_meditations.isEmpty) {
+        _errorMessage = "No meditation tracks available";
+        _loadingAudio = false;
+        notifyListeners();
+        return;
+      }
+
       await loadAudio();
-      // Start background prefetch for the whole list so they are ready offline
       _prefetchMeditationCaches();
 
-      // All resources loaded successfully
       _loadingAudio = false;
       _isInitialized = true;
       notifyListeners();
@@ -92,13 +84,10 @@ class MeditationViewModel extends ChangeNotifier {
     }
   }
 
-  // Reset state when re-initializing
   void _resetState() {
-    // Stop active playback
     if (_audioPlayer.playing) {
       _audioPlayer.stop();
     }
-
     _position = Duration.zero;
     _duration = Duration.zero;
     notifyListeners();
@@ -122,9 +111,15 @@ class MeditationViewModel extends ChangeNotifier {
         _audioPlayer.pause();
         _audioPlayer.seek(_position);
 
+        if (_selectedMeditation != null) {
+          final durationMinutes = _duration.inMinutes;
+          _userViewModel.addMeditationSession(durationMinutes);
+        }
+
         notifyListeners();
       }
-    }); // Listen for errors
+    });
+
     _audioPlayer.playbackEventStream.listen(
       (event) {},
       onError: (Object e, StackTrace stackTrace) {
@@ -141,39 +136,41 @@ class MeditationViewModel extends ChangeNotifier {
       _errorMessage = null;
       notifyListeners();
 
-      // Check if a meditation is selected, use default if not
       if (_selectedMeditation == null) {
-        // Use the first meditation as a fallback
-        _selectedMeditation = urls.isNotEmpty ? urls[0] : null;
+        _selectedMeditation = _meditations.isNotEmpty ? _meditations[0] : null;
 
         if (_selectedMeditation == null) {
           throw Exception("No meditation tracks available");
         }
       }
 
-      // Stop current playback before switching
       if (_audioPlayer.playing) {
         await _audioPlayer.stop();
       }
 
-      final url = _selectedMeditation!.url;
-      final file = await _getCachedFileForUrl(url);
-
-      if (await file.exists()) {
-        // Play from cache
-        await _audioPlayer.setFilePath(file.path);
+      if (_selectedMeditation!.isLocalAsset) {
+        await _audioPlayer.setAsset(_selectedMeditation!.assetPath);
       } else {
-        // Try to download and cache, then play
-        try {
-          await _downloadToFile(url, file);
-          if (await file.exists()) {
-            await _audioPlayer.setFilePath(file.path);
-          } else {
+        final url = _selectedMeditation!.url;
+        if (url.isEmpty) {
+          throw Exception("No audio URL available");
+        }
+
+        final file = await _getCachedFileForUrl(url);
+
+        if (await file.exists()) {
+          await _audioPlayer.setFilePath(file.path);
+        } else {
+          try {
+            await _downloadToFile(url, file);
+            if (await file.exists()) {
+              await _audioPlayer.setFilePath(file.path);
+            } else {
+              await _audioPlayer.setUrl(url);
+            }
+          } catch (_) {
             await _audioPlayer.setUrl(url);
           }
-        } catch (_) {
-          // Fallback to streaming if download fails
-          await _audioPlayer.setUrl(url);
         }
       }
 
@@ -185,6 +182,64 @@ class MeditationViewModel extends ChangeNotifier {
       _errorMessage = "Error loading audio: $e";
       _loadingAudio = false;
       notifyListeners();
+    }
+  }
+
+  Future<void> generateAndPlay(MeditationAudioModel meditation) async {
+    _selectedMeditation = meditation;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final cacheId = 'med_${meditation.title}';
+      final cached = await _generator.isCached(cacheId);
+
+      File audioFile;
+      if (cached) {
+        audioFile = await _generator.getCachedFile(cacheId);
+      } else {
+        _isGenerating = true;
+        notifyListeners();
+
+        audioFile = await _generator.generateMeditationAudio(
+          cacheId: cacheId,
+          storyTopic: meditation.storyTopic,
+          durationMinutes: _parseDurationMinutes(meditation.duration),
+        );
+
+        _isGenerating = false;
+        _loadingAudio = true;
+        notifyListeners();
+      }
+
+      if (_audioPlayer.playing) {
+        await _audioPlayer.stop();
+      }
+
+      await _audioPlayer.setFilePath(audioFile.path);
+      await _audioPlayer.setVolume(1.0);
+      await _audioPlayer.setLoopMode(LoopMode.off);
+
+      await _audioPlayer.play();
+      _loadingAudio = false;
+      notifyListeners();
+    } catch (e) {
+      _isGenerating = false;
+      _loadingAudio = false;
+      _errorMessage = 'Error: $e';
+      notifyListeners();
+    }
+  }
+
+  int _parseDurationMinutes(String duration) {
+    try {
+      final parts = duration.split(':');
+      if (parts.length == 2) {
+        return int.parse(parts[0]);
+      }
+      return 10;
+    } catch (_) {
+      return 10;
     }
   }
 
@@ -202,50 +257,64 @@ class MeditationViewModel extends ChangeNotifier {
   }
 
   void nextMeditation() {
-    if (_selectedMeditation == null || urls.isEmpty) return;
+    if (_selectedMeditation == null || _meditations.isEmpty) return;
 
-    // Find the index of the current meditation
-    final currentIndex = urls.indexWhere(
-      (meditation) =>
-          meditation.title == _selectedMeditation!.title &&
-          meditation.url == _selectedMeditation!.url,
+    final currentIndex = _meditations.indexWhere(
+      (m) => _matchesMeditation(m, _selectedMeditation!),
     );
 
-    // If found, select the next meditation or loop back to the first one
     if (currentIndex != -1) {
-      final nextIndex = (currentIndex + 1) % urls.length;
-      _selectedMeditation = urls[nextIndex];
-      loadAudio();
+      final nextIndex = (currentIndex + 1) % _meditations.length;
+      _selectedMeditation = _meditations[nextIndex];
+      _selectedMeditation!.isAiGenerated
+          ? generateAndPlay(_selectedMeditation!)
+          : loadAudio();
     }
 
     notifyListeners();
   }
 
   void previousMeditation() {
-    if (_selectedMeditation == null || urls.isEmpty) return;
+    if (_selectedMeditation == null || _meditations.isEmpty) return;
 
-    // Find the index of the current meditation
-    final currentIndex = urls.indexWhere(
-      (meditation) =>
-          meditation.title == _selectedMeditation!.title &&
-          meditation.url == _selectedMeditation!.url,
+    final currentIndex = _meditations.indexWhere(
+      (m) => _matchesMeditation(m, _selectedMeditation!),
     );
 
-    // If found, select the previous meditation or loop back to the last one
     if (currentIndex != -1) {
-      final previousIndex = (currentIndex - 1 + urls.length) % urls.length;
-      _selectedMeditation = urls[previousIndex];
-      loadAudio();
+      final previousIndex =
+          (currentIndex - 1 + _meditations.length) % _meditations.length;
+      _selectedMeditation = _meditations[previousIndex];
+      _selectedMeditation!.isAiGenerated
+          ? generateAndPlay(_selectedMeditation!)
+          : loadAudio();
     }
 
     notifyListeners();
+  }
+
+  bool _matchesMeditation(MeditationAudioModel a, MeditationAudioModel b) {
+    if (a.title != b.title) return false;
+    if (a.isLocalAsset && b.isLocalAsset) return a.assetPath == b.assetPath;
+    return a.url == b.url;
+  }
+
+  Future<void> regenerateAll() async {
+    await _generator.clearAllCache();
+    _errorMessage = null;
+    _isGenerating = false;
+    _loadingAudio = false;
+    notifyListeners();
+    if (_selectedMeditation != null && _selectedMeditation!.isAiGenerated) {
+      await generateAndPlay(_selectedMeditation!);
+    }
   }
 
   String formatDuration(Duration d) {
     final minutes = d.inMinutes.remainder(60);
     final seconds = d.inSeconds.remainder(60);
     return "${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}";
-  } // To clean up resources when temporarily navigating away from the screen
+  }
 
   void cleanup() {
     if (_audioPlayer.playing) {
@@ -260,7 +329,6 @@ class MeditationViewModel extends ChangeNotifier {
     super.dispose();
   }
 
-  // ---------- Simple file cache helpers ----------
   Future<Directory> _getCacheDir() async {
     final base = await getApplicationSupportDirectory();
     final dir = Directory(
@@ -273,8 +341,6 @@ class MeditationViewModel extends ChangeNotifier {
   }
 
   String _fileNameForUrl(String url) {
-    // Very simple stable filename based on URL hash
-    // Avoid special characters and keep a consistent extension
     final safe = url.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_');
     final truncated = safe.length > 80 ? safe.substring(0, 80) : safe;
     return 'med_$truncated.mp3';
@@ -295,18 +361,15 @@ class MeditationViewModel extends ChangeNotifier {
     }
   }
 
-  // Prefetch all meditation audios on entering the list/screen
   void _prefetchMeditationCaches() async {
-    // Download sequentially to avoid spikes; ignore errors
-    for (final m in urls) {
+    for (final m in _meditations) {
+      if (m.url.isEmpty) continue;
       try {
         final f = await _getCachedFileForUrl(m.url);
         if (!await f.exists()) {
           await _downloadToFile(m.url, f);
         }
-      } catch (_) {
-        // Ignore prefetch errors; playback will fallback to URL
-      }
+      } catch (_) {}
     }
   }
 }

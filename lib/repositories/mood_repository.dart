@@ -69,7 +69,7 @@ class MoodRepository {
         // Update the existing document
         final data = docSnapshot.data() as Map<String, dynamic>;
         final moods = List<Map<String, dynamic>>.from(data['moods'] ?? []);
-        moods.removeWhere((m) => m['timestamp'] == mood.timestamp.millisecondsSinceEpoch);
+        moods.removeWhere((m) => m['moodId'] == mood.moodId);
 
         await userMoodDoc.update({
           'moods': moods,
@@ -78,6 +78,30 @@ class MoodRepository {
       }
     } catch (error) {
       throw Exception("Error al eliminar el mood: $error");
+    }
+  }
+
+  Future<void> updateAiAnalysis(String userId, String moodId, AiAnalysis analysis) async {
+    try {
+      final userMoodDoc = _db.collection("mood_history").doc(userId);
+      final docSnapshot = await userMoodDoc.get();
+
+      if (!docSnapshot.exists) return;
+
+      final data = docSnapshot.data() as Map<String, dynamic>;
+      final moods = List<Map<String, dynamic>>.from(data['moods'] ?? []);
+
+      final index = moods.indexWhere((m) => m['moodId'] == moodId);
+      if (index == -1) return;
+
+      moods[index]['aiAnalysis'] = analysis.toJson();
+
+      await userMoodDoc.update({
+        'moods': moods,
+        'lastUpdated': FieldValue.serverTimestamp(),
+      });
+    } catch (error) {
+      throw Exception("Error al actualizar análisis de IA: $error");
     }
   }
 }

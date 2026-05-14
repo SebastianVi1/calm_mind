@@ -1,15 +1,12 @@
-// lib/ui/widgets/mood_lottie_button.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
 import 'package:calm_mind/models/mood_model.dart';
+import 'package:calm_mind/ui/constants/animation_constants.dart';
 
-// A widget that displays a mood animation using Lottie and handles selection state
 class WMoodLottieContainer extends StatefulWidget {
-  // The mood data to display
   final MoodModel mood;
-  // Whether this mood is currently selected
   final bool isSelected;
-  // Callback function when the mood is tapped
   final VoidCallback onTap;
 
   const WMoodLottieContainer({
@@ -23,36 +20,60 @@ class WMoodLottieContainer extends StatefulWidget {
   State<WMoodLottieContainer> createState() => _MoodLottieContainerState();
 }
 
-// State class for the mood lottie container
-class _MoodLottieContainerState extends State<WMoodLottieContainer> 
-    with SingleTickerProviderStateMixin {
-  // Controller for the Lottie animation
+class _MoodLottieContainerState extends State<WMoodLottieContainer>
+    with TickerProviderStateMixin {
   late AnimationController _controller;
+  late AnimationController _scaleController;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _borderAnimation;
 
   @override
   void initState() {
     super.initState();
-    // Initialize the animation controller with a duration of 1 second
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
+    );
+
+    _scaleController = AnimationController(
+      vsync: this,
+      duration: AppAnimations.short,
+    );
+
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.15).animate(
+      CurvedAnimation(parent: _scaleController, curve: AppAnimations.smooth),
+    );
+
+    _borderAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _scaleController, curve: AppAnimations.smooth),
     );
   }
 
   @override
   void dispose() {
-    // Clean up the animation controller when the widget is disposed
     _controller.dispose();
+    _scaleController.dispose();
     super.dispose();
   }
 
-  // Handle tap events on the mood container
+  @override
+  void didUpdateWidget(WMoodLottieContainer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isSelected && !oldWidget.isSelected) {
+      _controller.forward(from: 0);
+      _scaleController.forward();
+      HapticFeedback.mediumImpact();
+    } else if (!widget.isSelected && oldWidget.isSelected) {
+      _scaleController.reverse();
+    }
+  }
+
   void _handleTap() {
     if (!widget.isSelected) {
-      // Play the animation from the beginning when tapped
       _controller.forward(from: 0);
-      // Trigger the onTap callback
       widget.onTap();
+    } else {
+      HapticFeedback.lightImpact();
     }
   }
 
@@ -60,39 +81,61 @@ class _MoodLottieContainerState extends State<WMoodLottieContainer>
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: _handleTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Container for the Lottie animation
-          Container(
-            width: 70,  // Fixed width for the container
-            height: 80, // Fixed height for the container
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              // Add a colored border when selected
-              border: widget.isSelected 
-                ? Border.all(color: widget.mood.color, width: 3)
-                : null,
+      child: AnimatedBuilder(
+        animation: _scaleController,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _scaleAnimation.value,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AnimatedContainer(
+                  duration: AppAnimations.short,
+                  curve: AppAnimations.smooth,
+                  width: 70,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: widget.mood.color.withValues(
+                        alpha: 0.3 + (_borderAnimation.value * 0.7),
+                      ),
+                      width: 2 + (_borderAnimation.value * 2),
+                    ),
+                    boxShadow: widget.isSelected
+                        ? [
+                            BoxShadow(
+                              color: widget.mood.color.withValues(alpha: 0.3),
+                              blurRadius: 12 + (_borderAnimation.value * 8),
+                              spreadRadius: 2 + (_borderAnimation.value * 2),
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child: Lottie.asset(
+                    widget.mood.lottieAsset,
+                    controller: _controller,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                AnimatedDefaultTextStyle(
+                  duration: AppAnimations.short,
+                  curve: AppAnimations.smooth,
+                  style: TextStyle(
+                    color: widget.isSelected
+                        ? widget.mood.color
+                        : Colors.grey.withValues(alpha: 0.7),
+                    fontWeight:
+                        widget.isSelected ? FontWeight.bold : FontWeight.normal,
+                    fontSize: 13,
+                  ),
+                  child: Text(widget.mood.label),
+                ),
+              ],
             ),
-            child: Lottie.asset(
-              widget.mood.lottieAsset,
-              controller: _controller,
-              fit: BoxFit.contain,
-            ),
-          ),
-          const SizedBox(height: 8),
-          // Display the mood label below the animation
-          Text(
-            widget.mood.label,
-            style: TextStyle(
-              // Change text color and weight when selected
-              color: widget.isSelected ? widget.mood.color : Colors.grey,
-              fontWeight: widget.isSelected ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-        
-          
-        ],
+          );
+        },
       ),
     );
   }

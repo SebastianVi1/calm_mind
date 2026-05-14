@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
 /// Model class representing a user in the application
 /// Contains user information and methods to convert from Firebase User
@@ -26,13 +27,20 @@ class UserModel {
   /// Used to determine if we need to show the onboarding screen
   final bool hasCompletedQuestions;
 
+  /// Total minutes spent in meditation
+  final int totalMeditationMinutes;
+
+  /// Current consecutive day streak for meditation
+  final int currentStreak;
+
+  /// The date of the last completed meditation session
+  final DateTime? lastMeditationDate;
+
   static const int maxPhotoSize = 1000000; // 1MB
   static const int maxDisplayNameLength = 50;
   static const int maxQuestionAnswers = 10;
 
   /// Constructor for creating a new UserModel
-  /// [uid] is required, other fields are optional
-  /// [hasCompletedQuestions] defaults to false
   UserModel({
     required this.uid,
     this.email,
@@ -40,6 +48,9 @@ class UserModel {
     this.photoURL,
     this.questionAnswers,
     this.hasCompletedQuestions = false,
+    this.totalMeditationMinutes = 0,
+    this.currentStreak = 0,
+    this.lastMeditationDate,
   }) {
     _validate();
   }
@@ -72,7 +83,6 @@ class UserModel {
   }
 
   /// Factory constructor to create a UserModel from a Firebase User
-  /// Converts Firebase User data to our application's UserModel
   factory UserModel.fromFirebase(User user) {
     return UserModel(
       uid: user.uid,
@@ -84,8 +94,6 @@ class UserModel {
   }
 
   /// Creates a copy of this UserModel with updated values
-  /// Only updates the provided fields, keeps others unchanged
-  /// Returns a new instance of UserModel
   UserModel copyWith({
     String? uid,
     String? email,
@@ -93,6 +101,9 @@ class UserModel {
     String? photoURL,
     List<String>? questionAnswers,
     bool? hasCompletedQuestions,
+    int? totalMeditationMinutes,
+    int? currentStreak,
+    DateTime? lastMeditationDate,
   }) {
     return UserModel(
       uid: uid ?? this.uid,
@@ -101,11 +112,13 @@ class UserModel {
       photoURL: photoURL ?? this.photoURL,
       questionAnswers: questionAnswers ?? this.questionAnswers,
       hasCompletedQuestions: hasCompletedQuestions ?? this.hasCompletedQuestions,
+      totalMeditationMinutes: totalMeditationMinutes ?? this.totalMeditationMinutes,
+      currentStreak: currentStreak ?? this.currentStreak,
+      lastMeditationDate: lastMeditationDate ?? this.lastMeditationDate,
     );
   }
 
   /// Converts the UserModel to a Map for Firebase storage
-  /// Used when saving user data to Firestore
   Map<String, dynamic> toMap() {
     return {
       'uid': uid,
@@ -114,11 +127,13 @@ class UserModel {
       'photoURL': photoURL,
       'questionAnswers': questionAnswers,
       'hasCompletedQuestions': hasCompletedQuestions,
+      'totalMeditationMinutes': totalMeditationMinutes,
+      'currentStreak': currentStreak,
+      'lastMeditationDate': lastMeditationDate != null ? Timestamp.fromDate(lastMeditationDate!) : null,
     };
   }
 
   /// Creates a UserModel from a Map (e.g., from Firebase)
-  /// Used when retrieving user data from Firestore
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
       uid: map['uid'] ?? '',
@@ -129,6 +144,11 @@ class UserModel {
           ? List<String>.from(map['questionAnswers'])
           : null,
       hasCompletedQuestions: map['hasCompletedQuestions'] ?? false,
+      totalMeditationMinutes: map['totalMeditationMinutes'] ?? 0,
+      currentStreak: map['currentStreak'] ?? 0,
+      lastMeditationDate: map['lastMeditationDate'] != null 
+          ? (map['lastMeditationDate'] as Timestamp).toDate() 
+          : null,
     );
   }
 }

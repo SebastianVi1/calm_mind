@@ -154,6 +154,37 @@ class UserService {
     }
   }
 
+  /// Gets notification preferences for a user from Firestore
+  Future<Map<String, dynamic>> getNotificationPreferences(String uid) async {
+    try {
+      final doc = await _firestore.collection('users').doc(uid).get();
+      if (doc.exists && doc.data() != null) {
+        final data = doc.data()!;
+        if (data.containsKey('notificationPreferences')) {
+          return Map<String, dynamic>.from(data['notificationPreferences']);
+        }
+      }
+      return {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  /// Updates notification preferences for a user in Firestore
+  Future<void> updateNotificationPreferences(
+      Map<String, dynamic> prefs) async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+    try {
+      await _firestore.collection('users').doc(user.uid).update({
+        'notificationPreferences': prefs,
+      });
+    } catch (e) {
+      // Silently fail – notifications are non-critical
+    }
+  }
+
   /// Resets the question status and answers for the current user
   Future<void> resetQuestionnaire() async {
     try {

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../models/patient_report_model.dart';
 import '../models/user_model.dart';
@@ -87,9 +88,9 @@ class PatientReportViewModel extends ChangeNotifier {
       _setLoading(true);
       _clearError();
 
-      print('Loading user reports...');
+      if (kDebugMode) debugPrint('Loading user reports...');
       final userReports = await _reportRepository.getUserReports();
-      print('Found ${userReports.length} reports');
+      if (kDebugMode) debugPrint('Found \${userReports.length} reports');
 
       // Sort by creation date (most recent first)
       userReports.sort((a, b) => b.createdAt.compareTo(a.createdAt));
@@ -101,10 +102,10 @@ class PatientReportViewModel extends ChangeNotifier {
         _selectedReport = _reports.first;
       }
 
-      print('Reports loaded successfully: ${_reports.length}');
+      if (kDebugMode) debugPrint('Reports loaded successfully: \${_reports.length}');
       notifyListeners();
     } catch (e) {
-      print('Error loading reports: $e');
+      if (kDebugMode) debugPrint('Error loading reports: $e');
       _setError('Error al cargar los reportes: $e');
     } finally {
       _setLoading(false);

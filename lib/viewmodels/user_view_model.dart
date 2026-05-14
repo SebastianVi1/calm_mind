@@ -32,9 +32,9 @@ class UserViewModel extends ChangeNotifier {
 
   bool? isAnonymous;
 
-
   UserViewModel() : _userModel = UserModel(uid: FirebaseAuth.instance.currentUser?.uid ?? '') {
     isAnonymous = FirebaseAuth.instance.currentUser?.isAnonymous ?? false;
+    _initializeUser();
   }
 
   Future<void> _initializeUser() async {
@@ -59,20 +59,21 @@ class UserViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
   User get currentUser => FirebaseAuth.instance.currentUser!;
+  
+  // Stats getters
+  int get totalMeditationMinutes => _userModel.totalMeditationMinutes;
+  int get currentStreak => _userModel.currentStreak;
+  DateTime? get lastMeditationDate => _userModel.lastMeditationDate;
 
   /// Opens the device's image picker to select a profile picture
-  /// Converts the selected image to base64 and updates the user's profile
-  /// Handles errors during the selection process
   Future<File?> pickImageFromGallery() async {
     try {
       final returnedImage = await ImagePicker().pickImage(source: ImageSource.gallery);
       if (returnedImage != null) {
         _selectedImage = File(returnedImage.path);
-        
         notifyListeners();
         return _selectedImage;
       }
-      
     } catch (e) {
       _error = 'Error al seleccionar la imagen: $e';
       notifyListeners();
@@ -81,12 +82,7 @@ class UserViewModel extends ChangeNotifier {
   }
 
   /// Returns the appropriate ImageProvider based on the current state
-  /// Priority order:
-  /// 1. Currently selected image (if any)
-  /// 2. Base64 encoded image from Firestore (if any)
-  /// 3. Default blank profile picture
   ImageProvider getProfileImage() {
-    // Return cached image if available and no new image is selected
     if (_cachedImageProvider != null && _selectedImage == null) {
       return _cachedImageProvider!;
     }
@@ -111,8 +107,6 @@ class UserViewModel extends ChangeNotifier {
   }
 
   /// Updates the user's profile picture in Firestore
-  /// Converts the selected image to base64 format
-  /// Manages loading state and error handling
   Future<void> updateProfilePicture(File? file) async {
     if (file == null) return;
 
@@ -122,7 +116,6 @@ class UserViewModel extends ChangeNotifier {
       notifyListeners();
 
       Uint8List imageBytes = await file.readAsBytes();
-      
       img.Image? image = img.decodeImage(imageBytes);
       if (image == null) {
         throw Exception('Could not decode image');
@@ -138,19 +131,15 @@ class UserViewModel extends ChangeNotifier {
       }
 
       Uint8List compressedBytes = Uint8List.fromList(img.encodeJpg(image, quality: 85));
-      
       if (compressedBytes.length > 1000000) {
         throw Exception('Image is too large even after compression. Please try a smaller image.');
       }
 
       String base64Image = base64Encode(compressedBytes);
-      
       _userModel = _userModel.copyWith(photoURL: base64Image);
       await _userService.saveUserData(_userModel);
       
-      // Clear cached image when updating profile picture
       _cachedImageProvider = null;
-      
       _isLoading = false;
       notifyListeners();
     } catch (e) {
@@ -184,7 +173,6 @@ class UserViewModel extends ChangeNotifier {
       );
 
       await _userService.saveUserData(_userModel);
-      
       _isLoading = false;
       notifyListeners();
     } catch (e) {
@@ -193,5 +181,41 @@ class UserViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
-}
 
+  /// Updates meditation statistics in Firestore
+  Future<void> addMeditationSession(int minutes) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      final now = DateTime.now();
+      int newStreak = _userModel.currentStreak;
+      
+      if (_userModel.lastMeditationDate == null) {
+        newStreak = 1;
+      } else {
+        final diff = now.difference(_userModel.lastMeditationDate!).inDays;
+        if (diff == 1) {
+          newStreak++;
+        } else if (diff > 1) {
+          newStreak = 1;
+        }
+        // if diff == 0, streak stays same
+      }
+
+      _userModel = _userModel.copyWith(
+        totalMeditationMinutes: _userModel.totalMeditationMinutes + minutes,
+        currentStreak: newStreak,
+        lastMeditationDate: now,
+      );
+
+      await _userService.saveUserData(_userModel);
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _error = 'Error updating meditation stats: $e';
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+}

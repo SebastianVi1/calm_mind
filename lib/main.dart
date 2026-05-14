@@ -8,7 +8,10 @@ import 'package:calm_mind/services/auth/i_auth_service.dart';
 import 'package:calm_mind/services/auth/firebase_auth_service.dart';
 import 'package:calm_mind/services/relaxing_music_service.dart';
 import 'package:calm_mind/services/user_service.dart';
+import 'package:calm_mind/services/ai/i_ai_service.dart';
 import 'package:calm_mind/services/deepseek_service.dart';
+import 'package:calm_mind/services/elevenlabs_service.dart';
+import 'package:calm_mind/services/sleep_content_generator.dart';
 import 'package:calm_mind/ui/themes/theme_config.dart';
 import 'package:calm_mind/ui/view/app_wrapper.dart';
 import 'package:calm_mind/viewmodels/auth_view_model.dart';
@@ -29,6 +32,12 @@ import 'package:calm_mind/viewmodels/emergency_view_model.dart';
 import 'package:calm_mind/viewmodels/appointment_view_model.dart';
 import 'package:calm_mind/viewmodels/patient_report_view_model.dart';
 import 'package:calm_mind/viewmodels/professional_patient_view_model.dart';
+import 'package:calm_mind/viewmodels/coping_strategies_viewmodel.dart';
+import 'package:calm_mind/viewmodels/forum_view_model.dart';
+import 'package:calm_mind/viewmodels/sleep_view_model.dart';
+import 'package:calm_mind/viewmodels/notification_view_model.dart';
+import 'package:calm_mind/services/notification_service.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 Future<void> main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -41,6 +50,7 @@ Future<void> main() async {
   bool isDarkMode = prefs.getBool('isDarkMode') ?? false;
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await initializeDateFormatting('es', null);
 
   runApp(
     MainApp(
@@ -88,7 +98,14 @@ class _MainAppState extends State<MainApp> {
         ChangeNotifierProvider<DrawerProvider>(create: (_) => DrawerProvider()),
         Provider<IAuthService>(create: (_) => FirebaseAuthService()),
         Provider<UserService>(create: (_) => UserService()),
-        Provider<DeepSeekService>(create: (_) => DeepSeekService()),
+        Provider<IAIService>(create: (_) => DeepSeekService()),
+        Provider<ElevenLabsService>(create: (_) => ElevenLabsService()),
+        Provider<SleepContentGenerator>(
+          create: (context) => SleepContentGenerator(
+            context.read<IAIService>(),
+            context.read<ElevenLabsService>(),
+          ),
+        ),
         Provider(create: (_) => RelaxingMusicService()),
         ChangeNotifierProvider(create: (context) => OnBoardingViewmodel()),
         ChangeNotifierProvider(
@@ -99,15 +116,19 @@ class _MainAppState extends State<MainApp> {
         ),
         ChangeNotifierProvider(create: (context) => NavigationViewModel()),
         ChangeNotifierProvider(
-          create: (context) => ChatViewModel(context.read<DeepSeekService>()),
+          create: (context) => ChatViewModel(context.read<IAIService>()),
         ),
         ChangeNotifierProvider(create: (context) => TipsViewModel()),
         ChangeNotifierProvider(create: (context) => MoodViewModel()),
-        ChangeNotifierProvider(create: (context) => MeditationViewModel()),
         ChangeNotifierProvider(
-          create:
-              (context) =>
-                  RelaxingMusicViewModel(context.read<RelaxingMusicService>()),
+          create: (context) => MeditationViewModel(
+            context.read<UserViewModel>(),
+            context.read<SleepContentGenerator>(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) =>
+              RelaxingMusicViewModel(context.read<RelaxingMusicService>(), context.read<MoodViewModel>()),
         ),
         ChangeNotifierProvider(create: (context) => AchievementViewModel()),
         ChangeNotifierProvider(create: (context) => EmergencyViewModel()),
@@ -115,6 +136,20 @@ class _MainAppState extends State<MainApp> {
         ChangeNotifierProvider(create: (context) => PatientReportViewModel()),
         ChangeNotifierProvider(
           create: (context) => ProfessionalPatientViewModel(),
+        ),
+        ChangeNotifierProvider(create: (context) => CopingStrategiesViewModel()),
+        ChangeNotifierProvider(create: (context) => ForumViewModel()),
+        ChangeNotifierProvider(
+          create: (context) => SleepViewModel(
+            context.read<SleepContentGenerator>(),
+          ),
+        ),
+        Provider<NotificationService>(create: (_) => NotificationService()),
+        ChangeNotifierProvider(
+          create: (context) => NotificationViewModel(
+            context.read<NotificationService>(),
+            context.read<UserService>(),
+          ),
         ),
       ],
       child: Consumer<ThemeViewModel>(
