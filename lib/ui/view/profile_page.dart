@@ -87,6 +87,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     child: Text(
                       viewModel.error!,
                       style: const TextStyle(color: Colors.red),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
               ],
